@@ -1,0 +1,30 @@
+{% if isListType(type) -%}
+    std::list<{{ include("detail/Type.jinja2", type = type.valueType) }}>
+{%- elif isMapType(type) -%}
+    std::unordered_map<{{ include("detail/Type.jinja2", type = type.key) }}, {{ include("detail/Type.jinja2", type = type.valueType) }}>
+{%- elif isSetType(type) -%}
+    std::set<{{ include("detail/Type.jinja2", type = type.valueType) }}>
+{%- elif type.name == "i64" -%}
+    std::int64_t
+{%- elif type.name == "i32" -%}
+    std::int32_t
+{%- elif type.name == "i16" -%}
+    std::int16_t
+{%- elif type.name == "byte" -%}
+    char
+{%- elif type.name == "bool" -%}
+    bool
+{%- elif type.name == "float" -%}
+    float
+{%- elif type.name == "double" -%}
+    double
+{%- elif type.name == "binary" -%}
+    std::vector<char>
+{%- elif type.name == "string" -%}
+    std::string
+{%- else -%}
+    {%- if type.namespace != None -%}  
+        {{ type.namespace }}::
+    {%- endif -%}
+    {{ type.name }}
+{%- endif %}

@@ -1,0 +1,14 @@
+exception InvalidOperation
+{
+	1:string description;
+}
+
+exception InvalidArgument
+{
+	1:string description;
+}
+
+exception UnexpectedError
+{
+    1:string description;
+}

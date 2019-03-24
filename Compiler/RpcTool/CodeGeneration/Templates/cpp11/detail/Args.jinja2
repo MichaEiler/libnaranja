@@ -1,0 +1,4 @@
+{%- for arg in args -%}
+const {{ include("detail/Type.jinja2", type = arg.valueType) }}& {{ arg.name }}
+{%- if not loop.last -%}, {% endif -%}
+{%- endfor -%}

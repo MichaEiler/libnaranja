@@ -1,0 +1,56 @@
+#pragma once
+
+// This code is generated. It is not recommended to manually manipulate it!
+// Generator: {{ generatorName }}, {{ generatorVersion }}
+// {{ generationDate }}
+
+#include <cstdint>
+#include <functional>
+#include <set>
+#include <stdexcept>
+#include <string>
+#include <unordered_map>
+#include <vector>
+
+{% for include in document.includes -%}
+#include "{{ include.name }}Types.hpp"
+{% endfor %}
+
+#pragma pack(push, 1)
+namespace Rpc2
+{
+    namespace {{ projectName }}
+    {
+        namespace {{ document.name }}
+        {
+            {%- for exception in document.exceptions %}
+            class {{ exception.name }}Exception : public std::exception
+            {
+            public:
+                {%- for arg in exception.args %}
+                {{ include("detail/Type.jinja2", type = arg.valueType) }} {{ arg.name }};
+                {%- endfor %}
+            };
+            {% endfor %}
+
+            {%- for enumeration in document.enumerations %}
+            enum class {{ enumeration.name }} : std::int32_t
+            {
+                {%- for name, value in enumeration.values %}
+                {{ name }} = {{ value }},
+                {%- endfor %}
+            };
+            {% endfor %}
+            
+            {%- for structure in document.structures %}
+            struct {{ structure.name }}
+            {
+                {%- for arg in structure.args %}
+                {{ include("detail/Type.jinja2", type = arg.valueType) }} {{ arg.name }};
+                {%- endfor %}
+            };
+            {% endfor %}
+        }
+    }
+}
+#pragma pack(pop)

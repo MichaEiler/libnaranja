@@ -1,0 +1,6 @@
+.antlr/
+__pycache__/
+.pytest_cache/
+Library/cpp14/3rdParty/googletest
+build/
+.vscode/
