@@ -16,9 +16,7 @@ class BufferedOutputStreamTestFixture : public testing::Test
 
 TEST_F(BufferedOutputStreamTestFixture, Write_EmptyCacheAndRequestLargerThanCache_ImmediateWrite)
 {
-    auto memoryStream = std::make_shared<std::stringstream>();
     const std::size_t cacheSize = 5;
-
     auto outputStream = std::make_shared<OutputStreamMock>();
     auto bufferedOutputStream = Rpc2::Streams::BufferedOutputStream::Create(outputStream, cacheSize);
 
@@ -30,9 +28,7 @@ TEST_F(BufferedOutputStreamTestFixture, Write_EmptyCacheAndRequestLargerThanCach
 
 TEST_F(BufferedOutputStreamTestFixture, Write_NonEmptyCachePlusRequestLargerThanCache_FlushedAndWritten)
 {
-    auto memoryStream = std::make_shared<std::stringstream>();
     const std::size_t cacheSize = 5;
-
     auto outputStream = std::make_shared<OutputStreamMock>();
     auto bufferedOutputStream = Rpc2::Streams::BufferedOutputStream::Create(outputStream, cacheSize);
 
@@ -51,21 +47,36 @@ TEST_F(BufferedOutputStreamTestFixture, Write_RequestSmallerThanCacheSize_NoData
 {
     auto memoryStream = std::make_shared<std::stringstream>();
     const std::size_t cacheSize = 20;
-
-    auto outputStream = std::make_shared<OutputStreamMock>();
-    auto bufferedOutputStream = Rpc2::Streams::BufferedOutputStream::Create(outputStream, cacheSize);
+    auto bufferedOutputStream = Rpc2::Streams::BufferedOutputStream::Create(Rpc2::Streams::StdOutputStream::Create(memoryStream), cacheSize);
 
     std::string testValue = "HelloWorld";
-    EXPECT_CALL(*outputStream, Write(::testing::_, ::testing::_)).Times(0);
-
     bufferedOutputStream->Write(testValue.data(), testValue.size());
+
+    const std::string result = memoryStream->str();
+    const std::string expectedResult("");
+
+    ASSERT_STREQ(result.c_str(), expectedResult.c_str());
+}
+
+TEST_F(BufferedOutputStreamTestFixture, Write_RequestSmallerThanCacheSize_FlushedOnDestruction)
+{
+    auto memoryStream = std::make_shared<std::stringstream>();
+    std::string testValue = "HelloWorld";
+
+    {
+        const std::size_t cacheSize = 20;
+        auto bufferedOutputStream = Rpc2::Streams::BufferedOutputStream::Create(Rpc2::Streams::StdOutputStream::Create(memoryStream), cacheSize);    
+        bufferedOutputStream->Write(testValue.data(), testValue.size());
+    }
+
+    const std::string result = memoryStream->str();
+
+    ASSERT_STREQ(result.c_str(), testValue.c_str());
 }
 
 TEST_F(BufferedOutputStreamTestFixture, Flush_DataInCache_DataWritten)
 {
-    auto memoryStream = std::make_shared<std::stringstream>();
     const std::size_t cacheSize = 20;
-
     auto outputStream = std::make_shared<OutputStreamMock>();
     auto bufferedOutputStream = Rpc2::Streams::BufferedOutputStream::Create(outputStream, cacheSize);
 

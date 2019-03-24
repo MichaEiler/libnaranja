@@ -29,10 +29,18 @@ void Rpc2::Streams::BufferedOutputStream::Flush()
 
 void Rpc2::Streams::BufferedOutputStream::Write(const char *buffer, const std::size_t length)
 {
-    if (_cache.size() > length + _cachedData)
+    if (_cache.size() <= length + _cachedData)
     {
-        _outputStream->Write(&_cache[0], _cachedData);
-        _outputStream->Write(buffer, length);
+        if (_cachedData > 0)
+        {
+            _outputStream->Write(_cache.data(), _cachedData);
+        }
+
+        if (length > 0)
+        {
+            _outputStream->Write(buffer, length);
+        }
+
         _cachedData = 0;
     }
     else
