@@ -43,8 +43,8 @@ namespace Rpc2
             virtual void WriteValue(const std::string_view& identifier, const std::string& value) = 0;
             virtual void WriteValue(const std::string_view& identifier, const std::vector<char>& value) = 0;
 
-            virtual std::shared_ptr<IObjectWriter> WriteObject(const std::string_view& identifier);
-            virtual std::shared_ptr<IObjectWriter> WriteList(const std::string_view& identifier, const std::size_t length);
+            virtual std::shared_ptr<IObjectWriter> WriteObject(const std::string_view& identifier) = 0;
+            virtual std::shared_ptr<IObjectWriter> WriteList(const std::string_view& identifier, const std::size_t length) = 0;
 
             virtual void Commit() = 0;
         };
@@ -80,10 +80,11 @@ namespace Rpc2
             virtual ~IProtocol() = default;
 
             virtual ObjectToken CreateToken() = 0;
-            virtual ObjectType PeekNextObjectType(const std::shared_ptr<Streams::BufferedInputStream>& stream) = 0;
+            virtual ObjectType  PeekNextObjectType(const std::shared_ptr<Streams::BufferedInputStream>& stream) = 0;
+            virtual ObjectToken PeekNextToken(const std::shared_ptr<Streams::BufferedInputStream>& stream) = 0;
 
-            virtual std::shared_ptr<IObjectWriter> WriteObject(const std::shared_ptr<Streams::BufferedOutputStream>& stream, const ObjectType& type, const ObjectIdentifier& identifier, const ObjectToken& token = ObjectToken());
-            virtual std::shared_ptr<IObjectReader> ReadObject(const std::shared_ptr<Streams::BufferedInputStream>& stream);
+            virtual std::shared_ptr<IObjectWriter> WriteObject(const std::shared_ptr<Streams::BufferedOutputStream>& stream, const ObjectType& type, const ObjectIdentifier& identifier, const ObjectToken& token = ObjectToken()) = 0;
+            virtual std::shared_ptr<IObjectReader> ReadObject(const std::shared_ptr<Streams::BufferedInputStream>& stream) = 0;
         };
     }
 }

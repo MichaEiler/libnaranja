@@ -11,11 +11,6 @@ namespace Rpc2
         class StdOutputStream : public IOutputStream
         {
         public:
-            static std::shared_ptr<StdOutputStream> Create(const std::shared_ptr<std::ostream>& outputStream)
-            {
-                return std::shared_ptr<StdOutputStream>(new StdOutputStream(outputStream));
-            }
-
             explicit StdOutputStream(const std::shared_ptr<std::ostream>& outputStream)
                 : _outputStream(outputStream)
             {

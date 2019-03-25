@@ -14,7 +14,7 @@ TEST_F(BufferedInputStreamTestFixture, Peek_SingleCall_ReturnsData)
     auto memoryStream = std::make_shared<std::stringstream>();
     *memoryStream << "HelloWorld";
     
-    auto stream = Rpc2::Streams::BufferedInputStream::Create(Rpc2::Streams::StdInputStream::Create(memoryStream));
+    auto stream = std::make_shared<Rpc2::Streams::BufferedInputStream>(std::make_shared<Rpc2::Streams::StdInputStream>(memoryStream));
     std::string result;
     result.resize(5);
     stream->Peek(&result[0], result.size());
@@ -28,7 +28,7 @@ TEST_F(BufferedInputStreamTestFixture, Peek_MultipleCalls_AllReturnTheSameData)
     auto memoryStream = std::make_shared<std::stringstream>();
     *memoryStream << "HelloWorld";
     
-    auto stream = Rpc2::Streams::BufferedInputStream::Create(Rpc2::Streams::StdInputStream::Create(memoryStream));
+    auto stream = std::make_shared<Rpc2::Streams::BufferedInputStream>(std::make_shared<Rpc2::Streams::StdInputStream>(memoryStream));
     std::string result;
     result.resize(5);
     stream->Peek(&result[0], result.size());
@@ -45,7 +45,7 @@ TEST_F(BufferedInputStreamTestFixture, Peek_RequestLargerThanCacheSize_InvalidAr
     const std::size_t cacheSize = 10;
 
     auto memoryStream = std::make_shared<std::stringstream>();
-    auto stream = Rpc2::Streams::BufferedInputStream::Create(Rpc2::Streams::StdInputStream::Create(memoryStream), cacheSize);
+    auto stream = std::make_shared<Rpc2::Streams::BufferedInputStream>(std::make_shared<Rpc2::Streams::StdInputStream>(memoryStream), cacheSize);
 
     ASSERT_THROW(stream->Peek(nullptr, cacheSize + 1), std::invalid_argument);
 }
@@ -58,7 +58,7 @@ TEST_F(BufferedInputStreamTestFixture, Peek_WrapAroundInCache_RequestedDataRetur
     *memoryStream << testValue << testValue;
 
     const std::size_t cacheSize = 13;
-    auto stream = Rpc2::Streams::BufferedInputStream::Create(Rpc2::Streams::StdInputStream::Create(memoryStream), cacheSize);
+    auto stream = std::make_shared<Rpc2::Streams::BufferedInputStream>(std::make_shared<Rpc2::Streams::StdInputStream>(memoryStream), cacheSize);
 
     std::string tmp;
     tmp.resize(testValue.size());
@@ -77,7 +77,7 @@ TEST_F(BufferedInputStreamTestFixture, Read_NewStream_FollowedPeekWillReturnNext
     *memoryStream << "HelloWorld";
     std::string result;
     
-    auto stream = Rpc2::Streams::BufferedInputStream::Create(Rpc2::Streams::StdInputStream::Create(memoryStream));
+    auto stream = std::make_shared<Rpc2::Streams::BufferedInputStream>(std::make_shared<Rpc2::Streams::StdInputStream>(memoryStream));
     result.resize(5);
     stream->Read(&result[0], result.size());
 
@@ -99,7 +99,7 @@ TEST_F(BufferedInputStreamTestFixture, Read_ReqeustLargerThanCacheSize_AllDataRe
     *memoryStream << testValue;
     
     const std::size_t cacheSize = 7;
-    auto stream = Rpc2::Streams::BufferedInputStream::Create(Rpc2::Streams::StdInputStream::Create(memoryStream), cacheSize);
+    auto stream = std::make_shared<Rpc2::Streams::BufferedInputStream>(std::make_shared<Rpc2::Streams::StdInputStream>(memoryStream), cacheSize);
 
     std::string result;
     result.resize(testValue.size());
@@ -116,7 +116,7 @@ TEST_F(BufferedInputStreamTestFixture, Read_WrapAroundInCache_RequestedDataRetur
     *memoryStream << testValue << testValue;
 
     const std::size_t cacheSize = 13;
-    auto stream = Rpc2::Streams::BufferedInputStream::Create(Rpc2::Streams::StdInputStream::Create(memoryStream), cacheSize);
+    auto stream = std::make_shared<Rpc2::Streams::BufferedInputStream>(std::make_shared<Rpc2::Streams::StdInputStream>(memoryStream), cacheSize);
 
     std::string tmp;
     tmp.resize(testValue.size());

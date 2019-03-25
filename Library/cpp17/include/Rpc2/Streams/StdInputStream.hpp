@@ -11,11 +11,6 @@ namespace Rpc2
         class StdInputStream : public IInputStream
         {
         public:
-            static std::shared_ptr<StdInputStream> Create(const std::shared_ptr<std::istream>& inputStream)
-            {
-                return std::shared_ptr<StdInputStream>(new StdInputStream(inputStream));
-            }
-
             explicit StdInputStream(const std::shared_ptr<std::istream>& inputStream)
                 : _inputStream(inputStream)
             {

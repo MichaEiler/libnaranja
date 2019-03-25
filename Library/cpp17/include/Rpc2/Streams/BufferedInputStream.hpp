@@ -12,15 +12,15 @@ namespace Rpc2
         class BufferedInputStream : public IInputStream
         {
         public:
-            static std::shared_ptr<BufferedInputStream> Create(const std::shared_ptr<IInputStream>& inputStream, const std::size_t cacheSize = 512 * 1024)
-            {
-                return std::shared_ptr<BufferedInputStream>(new BufferedInputStream(inputStream, cacheSize));
-            }
-
             explicit BufferedInputStream(const std::shared_ptr<IInputStream>& inputStream, const std::size_t cacheSize = 512 * 1024);
             virtual ~BufferedInputStream() noexcept override = default;
 
             void Peek(char *buffer, const std::size_t length);
+
+            /*
+             * Read operation blocks until length bytes have been received.
+             * @returns: length
+             */
             std::size_t Read(char *buffer, const std::size_t length) override;
 
         private:

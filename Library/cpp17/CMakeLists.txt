@@ -5,6 +5,7 @@ set (CMAKE_CXX_STANDARD 17)
 set (THREADS_PREFER_PTHREAD_FLAG ON)
 
 file (GLOB SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/Streams/*.cpp"
+                   "${CMAKE_CURRENT_SOURCE_DIR}/src/Protocol/One/*.cpp"
                    "${CMAKE_SOURCE_DIR}/include/rpc2/Core/*.hpp"
                    "${CMAKE_SOURCE_DIR}/include/rpc2/Protocol/*.hpp"
                    "${CMAKE_SOURCE_DIR}/include/rpc2/Streams/*.hpp"

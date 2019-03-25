@@ -6,7 +6,7 @@ namespace Rpc2
 {
     namespace Exceptions
     {
-        class ConnectionLost : std::exception
+        class StreamClosed : std::exception
         {
         };
     }

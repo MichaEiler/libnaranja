@@ -12,11 +12,6 @@ namespace Rpc2
         class BufferedOutputStream : public IOutputStream
         {
         public:
-            static std::shared_ptr<BufferedOutputStream> Create(const std::shared_ptr<IOutputStream>& outputStream, const std::size_t cacheSize = 512 * 1024)
-            {
-                return std::shared_ptr<BufferedOutputStream>(new BufferedOutputStream(outputStream, cacheSize));
-            }
-
             explicit BufferedOutputStream(const std::shared_ptr<IOutputStream>& outputStream, const std::size_t cacheSize = 512 * 1024);
             virtual ~BufferedOutputStream() noexcept override;
             
