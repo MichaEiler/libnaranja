@@ -17,16 +17,8 @@ namespace Rpc2
             class ObjectWriter : public IObjectWriter, public std::enable_shared_from_this<ObjectWriter>
             {
             public:
-                explicit ObjectWriter(const std::shared_ptr<::Rpc2::Streams::BufferedOutputStream>& stream)
-                    : _stream(stream)
-                {
-
-                }
-
-                ~ObjectWriter()
-                {
-                    _stream->Flush();
-                }
+                explicit ObjectWriter(const std::shared_ptr<::Rpc2::Streams::BufferedOutputStream>& stream);
+                ~ObjectWriter();
 
                 void WriteValue(const std::string_view&, const std::uint64_t& value) override { Write(value); }
                 void WriteValue(const std::string_view&, const std::uint32_t& value) override { Write(value); }
@@ -37,28 +29,10 @@ namespace Rpc2
                 void WriteValue(const std::string_view&, const std::int16_t& value) override { Write(value); }
                 void WriteValue(const std::string_view&, const std::int8_t& value) override { Write(value); }
                 void WriteValue(const std::string_view&, const bool& value) override { Write(static_cast<std::uint8_t>(value)); }
-
-                void WriteValue(const std::string_view&, const std::string& value) override
-                {
-                    Write(static_cast<std::uint64_t>(value.size()));
-                    _stream->Write(value.data(), value.size());
-                }
-
-                void WriteValue(const std::string_view&, const std::vector<char>& value) override
-                {
-                    Write(static_cast<std::uint64_t>(value.size())); 
-                    _stream->Write(value.data(), value.size());
-                }
-
-                std::shared_ptr<IObjectWriter> WriteObject(const std::string_view& identifier) override
-                {
-                    return shared_from_this();
-                }
-                std::shared_ptr<IObjectWriter> WriteList(const std::string_view& identifier, const std::size_t length) override
-                {
-                    Write(static_cast<std::uint32_t>(length));
-                    return shared_from_this();
-                };
+                void WriteValue(const std::string_view&, const std::string& value) override;
+                void WriteValue(const std::string_view&, const std::vector<char>& value) override;
+                std::shared_ptr<IObjectWriter> WriteObject(const std::string_view& identifier) override;
+                std::shared_ptr<IObjectWriter> WriteList(const std::string_view& identifier, const std::size_t length) override;
 
                 void Commit() override { }
 

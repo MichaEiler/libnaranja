@@ -1,11 +1,11 @@
 #pragma once
 
 #include <chrono>
-#include <Core/Exceptions.hpp>
 #include <condition_variable>
 #include <cstdint>
 #include <cstring>
 #include <mutex>
+#include <Rpc2/Core/Exceptions.hpp>
 #include <Rpc2/Streams/IInputStream.hpp>
 #include <Rpc2/Streams/IOutputStream.hpp>
 #include <vector>
@@ -42,8 +42,10 @@ namespace Rpc2
                     throw Rpc2::Exceptions::StreamClosed();
                 }
 
+                const auto previousCachedBytes = _cachedBytes;
+
                 const auto bytesToCopy = std::min<std::size_t>(std::min<std::size_t>(length, (_cache.size() - _readPosition)), _cachedBytes);
-                std::memcpy(buffer, _cache.data(), bytesToCopy);
+                std::memcpy(buffer, &_cache[_readPosition], bytesToCopy);
                 _cachedBytes -= bytesToCopy;
                 _readPosition = (_readPosition + bytesToCopy) % _cache.size();
 
@@ -52,10 +54,12 @@ namespace Rpc2
                     const auto remainingBytesToCopy = std::min<std::size_t>(length - bytesToCopy, _cachedBytes);
                     std::memcpy(buffer + bytesToCopy, _cache.data(), remainingBytesToCopy);
                     _cachedBytes -= remainingBytesToCopy;
-                    _readPosition = (_readPosition + bytesToCopy) % _cache.size();
+                    _readPosition = (_readPosition + remainingBytesToCopy) % _cache.size();
                 }
 
                 _cacheCondition.notify_one();
+
+                return previousCachedBytes - _cachedBytes;
             }
 
             void Write(const char* buffer, const std::size_t length)
@@ -77,9 +81,10 @@ namespace Rpc2
                     
                     auto bytesToCopy = std::min<std::size_t>(bytesToWrite, std::min<std::size_t>(_cache.size() - _writePosition, _cache.size() - _cachedBytes));
                     std::memcpy(&_cache[_writePosition], buffer, bytesToCopy);
-                    _writePosition = (_writePosition + bytesToCopy) & _cache.size();
+                    _writePosition = (_writePosition + bytesToCopy) % _cache.size();
                     _cachedBytes += bytesToCopy;
                     bytesToWrite -= bytesToCopy;
+                    buffer += bytesToCopy;
 
                     _cacheCondition.notify_one();
                 } while (bytesToWrite > 0);

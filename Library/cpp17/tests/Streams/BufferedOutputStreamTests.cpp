@@ -1,7 +1,7 @@
 #include <gmock/gmock.h>
 #include <memory>
 #include <Rpc2/Streams/BufferedOutputStream.hpp>
-#include <Rpc2/Streams/StdOutputStream.hpp>
+#include <Rpc2/Streams/MemoryStream.hpp>
 #include <sstream>
 #include <string>
 
@@ -45,31 +45,32 @@ TEST_F(BufferedOutputStreamTestFixture, Write_NonEmptyCachePlusRequestLargerThan
 
 TEST_F(BufferedOutputStreamTestFixture, Write_RequestSmallerThanCacheSize_NoDataWritten)
 {
-    auto memoryStream = std::make_shared<std::stringstream>();
+    auto memoryStream = std::make_shared<Rpc2::Streams::MemoryStream>();
     const std::size_t cacheSize = 20;
-    auto bufferedOutputStream = std::make_shared<Rpc2::Streams::BufferedOutputStream>(std::make_shared<Rpc2::Streams::StdOutputStream>(memoryStream), cacheSize);
+    auto bufferedOutputStream = std::make_shared<Rpc2::Streams::BufferedOutputStream>(memoryStream, cacheSize);
 
+    
     std::string testValue = "HelloWorld";
     bufferedOutputStream->Write(testValue.data(), testValue.size());
+    memoryStream->Close();
 
-    const std::string result = memoryStream->str();
-    const std::string expectedResult("");
-
-    ASSERT_STREQ(result.c_str(), expectedResult.c_str());
+    ASSERT_THROW(memoryStream->Read(nullptr, 0), Rpc2::Exceptions::StreamClosed);
 }
 
 TEST_F(BufferedOutputStreamTestFixture, Write_RequestSmallerThanCacheSize_FlushedOnDestruction)
 {
-    auto memoryStream = std::make_shared<std::stringstream>();
+    auto memoryStream = std::make_shared<Rpc2::Streams::MemoryStream>();
     std::string testValue = "HelloWorld";
 
     {
         const std::size_t cacheSize = 20;
-        auto bufferedOutputStream = std::make_shared<Rpc2::Streams::BufferedOutputStream>(std::make_shared<Rpc2::Streams::StdOutputStream>(memoryStream), cacheSize);    
+        auto bufferedOutputStream = std::make_shared<Rpc2::Streams::BufferedOutputStream>(memoryStream, cacheSize);    
         bufferedOutputStream->Write(testValue.data(), testValue.size());
     }
 
-    const std::string result = memoryStream->str();
+    std::string result;
+    result.resize(testValue.size());
+    memoryStream->Read(&result[0], testValue.size());
 
     ASSERT_STREQ(result.c_str(), testValue.c_str());
 }

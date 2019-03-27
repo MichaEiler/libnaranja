@@ -24,16 +24,18 @@ Rpc2::Protocol::ObjectToken Rpc2::Protocol::One::Protocol::PeekNextToken(const s
         throw std::runtime_error("Invalid operation. Next object is an event.");
     }
 
-    struct {
-        std::uint32_t encodedType;
-        std::uint64_t tokenLength;
-    } header;
-    stream->Peek(reinterpret_cast<char*>(&header), sizeof(header));
+    constexpr std::size_t ObjectTypeSize = sizeof(std::uint32_t);
+    constexpr std::size_t TokenLengthOffset = ObjectTypeSize;
+    constexpr std::size_t TokenLengthTypeSize = sizeof(std::uint64_t);
 
-    std::vector<char> buffer(sizeof(header) + header.tokenLength);
+    std::vector<char> buffer(ObjectTypeSize + TokenLengthTypeSize);
+    stream->Peek(reinterpret_cast<char*>(&buffer[0]), buffer.size());
+
+    const std::uint64_t tokenLength = *reinterpret_cast<std::uint64_t*>(&buffer[TokenLengthOffset]);
+    buffer.resize(buffer.size() + tokenLength);
     stream->Peek(&buffer[0], buffer.size());
 
-    return Rpc2::Protocol::ObjectToken(buffer.data() + sizeof(header), static_cast<std::size_t>(header.tokenLength));
+    return Rpc2::Protocol::ObjectToken(buffer.data() + ObjectTypeSize + TokenLengthTypeSize, static_cast<std::size_t>(tokenLength));
 }
 
 Rpc2::Protocol::ObjectType Rpc2::Protocol::One::Protocol::PeekNextObjectType(const std::shared_ptr<Rpc2::Streams::BufferedInputStream>& stream)
