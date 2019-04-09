@@ -20,6 +20,6 @@ target_link_libraries (naranja Threads::Threads)
 if (MSVC)
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 endif()
-add_subdirectory(${CMAKE_SOURCE_DIR}/3rdParty/googletest)
+add_subdirectory(${CMAKE_SOURCE_DIR}/3rdparty/googletest)
 add_subdirectory(${CMAKE_SOURCE_DIR}/tests)
 
