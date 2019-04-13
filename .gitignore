@@ -1,6 +1,8 @@
 .antlr/
 __pycache__/
 .pytest_cache/
-Library/cpp14/3rdParty/googletest
+Library/cpp17/3rdparty/googletest
+Library/cpp17/3rdparty/android-ndk*
+Library/cpp17/3rdparty/boost_1*
 build/
 .vscode/

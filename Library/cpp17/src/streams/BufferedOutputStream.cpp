@@ -2,7 +2,7 @@
 
 #include <cstring>
 
-naranja::streams::BufferedOutputStream::BufferedOutputStream(const std::shared_ptr<IOutputStream>& outputStream, const std::size_t cacheSize)
+naranja::streams::BufferedOutputStream::BufferedOutputStream(IOutputStream& outputStream, const std::size_t cacheSize)
     : _outputStream(outputStream)
 {
     _cachedData = 0;
@@ -22,7 +22,7 @@ void naranja::streams::BufferedOutputStream::Flush()
 {
     if (_cachedData != 0)
     {
-        _outputStream->Write(&_cache[0], _cachedData);
+        _outputStream.Write(&_cache[0], _cachedData);
         _cachedData = 0;
     }
 }
@@ -33,12 +33,12 @@ void naranja::streams::BufferedOutputStream::Write(const char *buffer, const std
     {
         if (_cachedData > 0)
         {
-            _outputStream->Write(_cache.data(), _cachedData);
+            _outputStream.Write(_cache.data(), _cachedData);
         }
 
         if (length > 0)
         {
-            _outputStream->Write(buffer, length);
+            _outputStream.Write(buffer, length);
         }
 
         _cachedData = 0;

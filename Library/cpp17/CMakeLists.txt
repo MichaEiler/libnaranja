@@ -11,6 +11,8 @@ file (GLOB SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/streams/*.cpp"
                    "${CMAKE_SOURCE_DIR}/include/naranja/streams/*.hpp"
                    "${CMAKE_SOURCE_DIR}/include/naranja/utils/*.hpp")
 
+include("${CMAKE_SOURCE_DIR}/3rdparty/boost.cmake")
+
 add_library (naranja ${SOURCES})
 target_include_directories (naranja PUBLIC "${CMAKE_SOURCE_DIR}/include/")
 

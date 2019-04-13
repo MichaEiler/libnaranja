@@ -2,31 +2,32 @@
 
 #include <cstdint>
 #include <memory>
-#include <naranja/streams/IInputStream.hpp>
+#include <naranja/streams/IBufferedInputStream.hpp>
 #include <vector>
 
 namespace naranja
 {
     namespace streams
     {
-        class BufferedInputStream : public IInputStream
+        class BufferedInputStream : public IBufferedInputStream
         {
         public:
-            explicit BufferedInputStream(const std::shared_ptr<IInputStream>& inputStream, const std::size_t cacheSize = 512 * 1024);
+            static std::shared_ptr<BufferedInputStream> Create(const std::shared_ptr<IInputStream>& inputStream, const std::size_t cacheSize = 512 * 1024)
+            {
+                return std::shared_ptr<BufferedInputStream>(new BufferedInputStream(*inputStream, cacheSize), [inputStream](auto* ptr) { delete ptr; });
+            }
+
+            explicit BufferedInputStream(IInputStream& inputStream, const std::size_t cacheSize = 512 * 1024);
             virtual ~BufferedInputStream() noexcept override = default;
 
-            void Peek(char *buffer, const std::size_t length);
-
-            /*
-             * Read operation blocks until length bytes have been received.
-             * @returns: length
-             */
-            std::size_t Read(char *buffer, const std::size_t length) override;
+            std::size_t AvailableBytes() const { return _bytesCached; }
+            void Peek(char *buffer, const std::size_t length) override;
+            void Read(char *buffer, const std::size_t length) override;
 
         private:
             void ReadAndCache();
 
-            std::shared_ptr<IInputStream> _inputStream;
+            IInputStream& _inputStream;
             std::vector<char> _cache;
             std::size_t _bytesCached = 0;
             std::size_t _readPosition = 0;

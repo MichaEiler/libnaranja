@@ -44,12 +44,12 @@ class GitRepository:
             self.__clone()
             self.__checkout(self.__revision)
 
-class AndroidNdk:
-    def __init__(self, version):
-        self.__version = version
-        self.__archive_name = "android-ndk-{0}-{1}-x86_64.zip".format(self.__version, platform.system().lower())
-        self.__url = "https://dl.google.com/android/repository/{0}".format(self.__archive_name)
-    
+class ZipArchive:
+    def __init__(self, url, archive_name, directory_name):
+        self.__url = url
+        self.__archive_name = archive_name
+        self.__directory_name = directory_name
+
     def __download(self):
         if os.path.exists("./{0}".format(self.__archive_name)):
             return
@@ -58,7 +58,7 @@ class AndroidNdk:
         urllib.request.urlretrieve(self.__url, "./{0}".format(self.__archive_name))
 
     def __unpack(self):
-        if os.path.exists("./android-ndk-{0}".format(self.__version)):
+        if os.path.exists("./{0}".format(self.__directory_name)):
             return
 
         print("Unpacking {0}".format(self.__archive_name))
@@ -69,6 +69,14 @@ class AndroidNdk:
         self.__download()
         self.__unpack()
 
+
+class AndroidNdk(ZipArchive):
+    def __init__(self, version):
+        archive_name = "android-ndk-{0}-{1}-x86_64.zip".format(version, platform.system().lower())
+        url = "https://dl.google.com/android/repository/{0}".format(archive_name)
+        directory_name = "android-ndk-{0}".format(version)
+        ZipArchive.__init__(self, url, archive_name, directory_name)
+
 if __name__ == "__main__":
     move_to_script_directory()
 
@@ -77,7 +85,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
 
-    build_dependencies = [ GitRepository("https://github.com/google/googletest.git", "googletest", "master")]
+    build_dependencies = [ GitRepository("https://github.com/google/googletest.git", "googletest", "master"),
+                           ZipArchive("https://dl.bintray.com/boostorg/release/1.70.0/source/boost_1_70_0.zip", "boost_1_70_0.zip", "boost_1_70_0") ]
 
     if args.mobile == True:
         build_dependencies.append(AndroidNdk("r19c"))

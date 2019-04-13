@@ -4,7 +4,6 @@
 #include <memory>
 #include <mutex>
 #include <naranja/protocol/IProtocol.hpp>
-#include <naranja/streams/BufferedOutputStream.hpp>
 #include <string>
 
 namespace naranja
@@ -16,7 +15,7 @@ namespace naranja
             class ObjectReader : public IObjectReader, public std::enable_shared_from_this<ObjectReader>
             {
             public:
-                explicit ObjectReader(const std::shared_ptr<::naranja::streams::BufferedInputStream>& stream);
+                explicit ObjectReader(::naranja::streams::IBufferedInputStream& stream);
 
                 ObjectToken Token() const override { return _token; }
                 ObjectType Type() const override { return _type; }
@@ -45,14 +44,14 @@ namespace naranja
                 template <typename T>
                 void Read(T& value)
                 {
-                    _stream->Read(reinterpret_cast<char*>(&value), sizeof(T));
+                    _stream.Read(reinterpret_cast<char*>(&value), sizeof(T));
                 }
 
                 ObjectIdentifier _identifier;
                 ObjectToken _token;
                 ObjectType _type;
 
-                std::shared_ptr<naranja::streams::BufferedInputStream> _stream;
+                naranja::streams::IBufferedInputStream& _stream;
             };
         }
     }

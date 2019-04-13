@@ -10,6 +10,7 @@ namespace naranja
         {
         public:
             virtual ~IOutputStream() = default;
+
             virtual void Write(const char *buffer, const std::size_t length) = 0;
         };
     }

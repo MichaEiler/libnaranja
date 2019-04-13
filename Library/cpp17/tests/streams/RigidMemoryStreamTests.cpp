@@ -1,5 +1,5 @@
 #include <gmock/gmock.h>
-#include <naranja/streams/MemoryStream.hpp>
+#include <naranja/streams/RigidMemoryStream.hpp>
 #include <thread>
 
 #include <iostream>
@@ -12,21 +12,21 @@ TEST_F(MemoryStreamTestFixture, Write_FitsIntoCache_DataWritten)
 {
     const std::string testValue("HelloWorld");
 
-    auto memoryStream = std::make_shared<naranja::streams::MemoryStream>();
-    memoryStream->Write(testValue.c_str(), testValue.size());
+    naranja::streams::RigidMemoryStream memoryStream;
+    memoryStream.Write(testValue.c_str(), testValue.size());
 
     std::string result;
     result.resize(10);
 
-    ASSERT_EQ(memoryStream->Read(&result[0], result.size()), testValue.size());
+    ASSERT_EQ(memoryStream.TryRead(&result[0], result.size()), testValue.size());
     ASSERT_STREQ(result.c_str(), testValue.c_str());
 }
 
 TEST_F(MemoryStreamTestFixture, Write_StreamClosed_ThrowsException)
 {
-    auto memoryStream = std::make_shared<naranja::streams::MemoryStream>();
-    memoryStream->Close();
-    ASSERT_THROW(memoryStream->Write(nullptr, 0), naranja::exceptions::StreamClosed);
+    naranja::streams::RigidMemoryStream memoryStream;
+    memoryStream.Close();
+    ASSERT_THROW(memoryStream.Write(nullptr, 0), naranja::exceptions::StreamClosed);
 }
 
 TEST_F(MemoryStreamTestFixture, Write_LargerThanCache_DataProcessed)
@@ -34,7 +34,7 @@ TEST_F(MemoryStreamTestFixture, Write_LargerThanCache_DataProcessed)
     const std::size_t cacheSize = 33;
     const std::size_t dataToWrite = 400;
 
-    auto memoryStream = std::make_shared<naranja::streams::MemoryStream>(cacheSize);
+    naranja::streams::RigidMemoryStream memoryStream(cacheSize);
 
     std::size_t consumedBytes = 0;
     std::thread consumerThread([&](){
@@ -43,7 +43,7 @@ TEST_F(MemoryStreamTestFixture, Write_LargerThanCache_DataProcessed)
             std::vector<char> readBuffer(10, 0);
             for (;;)
             {
-                consumedBytes += memoryStream->Read(&readBuffer[0], readBuffer.size());
+                consumedBytes += memoryStream.TryRead(&readBuffer[0], readBuffer.size());
             }    
         }
         catch(const naranja::exceptions::StreamClosed&)
@@ -51,8 +51,8 @@ TEST_F(MemoryStreamTestFixture, Write_LargerThanCache_DataProcessed)
     });
 
     std::vector<char> inputBuffer(dataToWrite, 0);
-    memoryStream->Write(inputBuffer.data(), inputBuffer.size());
-    memoryStream->Close();
+    memoryStream.Write(inputBuffer.data(), inputBuffer.size());
+    memoryStream.Close();
 
     consumerThread.join();
 
@@ -69,7 +69,7 @@ TEST_F(MemoryStreamTestFixture, Write_LargerThanCache_DataValid)
         referenceData[i] = static_cast<char>(i);
     }
 
-    auto memoryStream = std::make_shared<naranja::streams::MemoryStream>(cacheSize);
+    naranja::streams::RigidMemoryStream memoryStream(cacheSize);
 
     std::vector<char> result(referenceData.size(), 0);
     std::size_t consumedBytes = 0;
@@ -79,15 +79,15 @@ TEST_F(MemoryStreamTestFixture, Write_LargerThanCache_DataValid)
             for (;;)
             {
                 result.resize(result.size() + 10);
-                consumedBytes += memoryStream->Read(&result[consumedBytes], result.size() - consumedBytes);
+                consumedBytes += memoryStream.TryRead(&result[consumedBytes], result.size() - consumedBytes);
             }    
         }
         catch(const naranja::exceptions::StreamClosed&)
         { } 
     });
 
-    memoryStream->Write(referenceData.data(), referenceData.size());
-    memoryStream->Close();
+    memoryStream.Write(referenceData.data(), referenceData.size());
+    memoryStream.Close();
 
     consumerThread.join();
 
@@ -100,12 +100,12 @@ TEST_F(MemoryStreamTestFixture, Write_LargerThanCache_DataValid)
 TEST_F(MemoryStreamTestFixture, Write_LargerThanCache_BlocksUntilWriteCompleted)
 {
     const std::size_t cacheSize = 80;
-    auto memoryStream = std::make_shared<naranja::streams::MemoryStream>(cacheSize);
+    naranja::streams::RigidMemoryStream memoryStream(cacheSize);
 
     bool dataWritten = false;
     std::thread producerThread([&](){
         std::vector<char> buffer(100, 0);
-        memoryStream->Write(buffer.data(), buffer.size());
+        memoryStream.Write(buffer.data(), buffer.size());
         dataWritten = true;
     });
 
@@ -113,7 +113,7 @@ TEST_F(MemoryStreamTestFixture, Write_LargerThanCache_BlocksUntilWriteCompleted)
     ASSERT_FALSE(dataWritten);
 
     std::vector<char> tmp(cacheSize, 0);
-    memoryStream->Read(&tmp[0], tmp.size());
+    memoryStream.TryRead(&tmp[0], tmp.size());
     producerThread.join();
 
     ASSERT_TRUE(dataWritten);
@@ -122,19 +122,19 @@ TEST_F(MemoryStreamTestFixture, Write_LargerThanCache_BlocksUntilWriteCompleted)
 TEST_F(MemoryStreamTestFixture, Read_WriteProvidesPartialData_ReadReturns)
 {
     const std::size_t cacheSize = 80;
-    auto memoryStream = std::make_shared<naranja::streams::MemoryStream>(cacheSize);
+    naranja::streams::RigidMemoryStream memoryStream(cacheSize);
 
     std::size_t bytesRead = 0;
     std::thread consumerThread([&](){
         std::vector<char> buffer(100, 0);
-        bytesRead = memoryStream->Read(&buffer[0], buffer.size());
+        bytesRead = memoryStream.TryRead(&buffer[0], buffer.size());
     });
 
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
     ASSERT_EQ(bytesRead, 0);
 
     std::vector<char> inputData(10, 0);
-    memoryStream->Write(inputData.data(), inputData.size());
+    memoryStream.Write(inputData.data(), inputData.size());
     consumerThread.join();
 
     ASSERT_EQ(bytesRead, inputData.size());

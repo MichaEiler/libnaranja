@@ -1,6 +1,6 @@
 #include "naranja/protocol/one/ObjectReader.hpp"
 
-naranja::protocol::one::ObjectReader::ObjectReader(const std::shared_ptr<::naranja::streams::BufferedInputStream>& stream)
+naranja::protocol::one::ObjectReader::ObjectReader(::naranja::streams::IBufferedInputStream& stream)
     : _stream(stream)
 {
 }
@@ -17,7 +17,7 @@ void naranja::protocol::one::ObjectReader::ReadValue(const std::string_view&, st
     std::uint64_t length = 0;
     Read(length);
     value.resize(length);
-    _stream->Read(&value[0], value.size());
+    _stream.Read(&value[0], value.size());
 }
 
 void naranja::protocol::one::ObjectReader::ReadValue(const std::string_view&, std::vector<char>& value)
@@ -25,7 +25,7 @@ void naranja::protocol::one::ObjectReader::ReadValue(const std::string_view&, st
     std::uint64_t length = 0;
     Read(length);
     value.resize(length);
-    _stream->Read(&value[0], value.size());
+    _stream.Read(&value[0], value.size());
 }
 
 std::shared_ptr<naranja::protocol::IObjectReader> naranja::protocol::one::ObjectReader::ReadList(const std::string_view&, std::size_t& itemCount)

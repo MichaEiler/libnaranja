@@ -17,7 +17,7 @@ naranja::protocol::ObjectToken naranja::protocol::one::Protocol::CreateToken()
     return ObjectToken(memoryStream.str());
 }
 
-naranja::protocol::ObjectToken naranja::protocol::one::Protocol::PeekNextToken(const std::shared_ptr<naranja::streams::BufferedInputStream>& stream)
+naranja::protocol::ObjectToken naranja::protocol::one::Protocol::PeekNextToken(naranja::streams::IBufferedInputStream& stream)
 {
     if (PeekNextObjectType(stream) == naranja::protocol::ObjectType::Event)
     {
@@ -29,23 +29,23 @@ naranja::protocol::ObjectToken naranja::protocol::one::Protocol::PeekNextToken(c
     constexpr std::size_t TokenLengthTypeSize = sizeof(std::uint64_t);
 
     std::vector<char> buffer(ObjectTypeSize + TokenLengthTypeSize);
-    stream->Peek(reinterpret_cast<char*>(&buffer[0]), buffer.size());
+    stream.Peek(reinterpret_cast<char*>(&buffer[0]), buffer.size());
 
     const std::uint64_t tokenLength = *reinterpret_cast<std::uint64_t*>(&buffer[TokenLengthOffset]);
     buffer.resize(buffer.size() + tokenLength);
-    stream->Peek(&buffer[0], buffer.size());
+    stream.Peek(&buffer[0], buffer.size());
 
     return naranja::protocol::ObjectToken(buffer.data() + ObjectTypeSize + TokenLengthTypeSize, static_cast<std::size_t>(tokenLength));
 }
 
-naranja::protocol::ObjectType naranja::protocol::one::Protocol::PeekNextObjectType(const std::shared_ptr<naranja::streams::BufferedInputStream>& stream)
+naranja::protocol::ObjectType naranja::protocol::one::Protocol::PeekNextObjectType(naranja::streams::IBufferedInputStream& stream)
 {
     std::uint32_t encodedType = 0;
-    stream->Peek(reinterpret_cast<char*>(&encodedType), sizeof(std::uint32_t));
+    stream.Peek(reinterpret_cast<char*>(&encodedType), sizeof(std::uint32_t));
     return static_cast<naranja::protocol::ObjectType>(encodedType);
 }
 
-std::shared_ptr<naranja::protocol::IObjectWriter> naranja::protocol::one::Protocol::WriteObject(const std::shared_ptr<naranja::streams::BufferedOutputStream>& stream, const naranja::protocol::ObjectType& type, const naranja::protocol::ObjectIdentifier& identifier, const naranja::protocol::ObjectToken& token)
+std::shared_ptr<naranja::protocol::IObjectWriter> naranja::protocol::one::Protocol::WriteObject(naranja::streams::IBufferedOutputStream& stream, const naranja::protocol::ObjectType& type, const naranja::protocol::ObjectIdentifier& identifier, const naranja::protocol::ObjectToken& token) const
 {
     auto objectWriter = std::make_shared<naranja::protocol::one::ObjectWriter>(stream);
 
@@ -60,7 +60,7 @@ std::shared_ptr<naranja::protocol::IObjectWriter> naranja::protocol::one::Protoc
     return objectWriter;
 }
 
-std::shared_ptr<naranja::protocol::IObjectReader> naranja::protocol::one::Protocol::ReadObject(const std::shared_ptr<naranja::streams::BufferedInputStream>& stream)
+std::shared_ptr<naranja::protocol::IObjectReader> naranja::protocol::one::Protocol::ReadObject(naranja::streams::IBufferedInputStream& stream) const
 {
     auto object = std::make_shared<naranja::protocol::one::ObjectReader>(stream);
 

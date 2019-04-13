@@ -1,6 +1,6 @@
 #include "naranja/protocol/one/ObjectWriter.hpp"
 
-naranja::protocol::one::ObjectWriter::ObjectWriter(const std::shared_ptr<::naranja::streams::BufferedOutputStream>& stream)
+naranja::protocol::one::ObjectWriter::ObjectWriter(::naranja::streams::IBufferedOutputStream& stream)
     : _stream(stream)
 {
 
@@ -8,19 +8,19 @@ naranja::protocol::one::ObjectWriter::ObjectWriter(const std::shared_ptr<::naran
 
 naranja::protocol::one::ObjectWriter::~ObjectWriter()
 {
-    _stream->Flush();
+    _stream.Flush();
 }
 
 void naranja::protocol::one::ObjectWriter::WriteValue(const std::string_view&, const std::string& value)
 {
     Write(static_cast<std::uint64_t>(value.size()));
-    _stream->Write(value.data(), value.size());
+    _stream.Write(value.data(), value.size());
 }
 
 void naranja::protocol::one::ObjectWriter::WriteValue(const std::string_view&, const std::vector<char>& value)
 {
     Write(static_cast<std::uint64_t>(value.size())); 
-    _stream->Write(value.data(), value.size());
+    _stream.Write(value.data(), value.size());
 }
 
 std::shared_ptr<naranja::protocol::IObjectWriter> naranja::protocol::one::ObjectWriter::WriteObject(const std::string_view& identifier)

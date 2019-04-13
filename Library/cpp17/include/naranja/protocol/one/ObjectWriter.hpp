@@ -4,7 +4,6 @@
 #include <memory>
 #include <mutex>
 #include <naranja/protocol/IProtocol.hpp>
-#include <naranja/streams/BufferedOutputStream.hpp>
 #include <string>
 
 namespace naranja
@@ -17,7 +16,7 @@ namespace naranja
             class ObjectWriter : public IObjectWriter, public std::enable_shared_from_this<ObjectWriter>
             {
             public:
-                explicit ObjectWriter(const std::shared_ptr<::naranja::streams::BufferedOutputStream>& stream);
+                explicit ObjectWriter(::naranja::streams::IBufferedOutputStream& stream);
                 ~ObjectWriter();
 
                 void WriteValue(const std::string_view&, const std::uint64_t& value) override { Write(value); }
@@ -40,10 +39,10 @@ namespace naranja
                 template <typename T>
                 void Write(const T& value)
                 {
-                    _stream->Write(reinterpret_cast<const char*>(&value), sizeof(value));
+                    _stream.Write(reinterpret_cast<const char*>(&value), sizeof(value));
                 }
 
-                std::shared_ptr<::naranja::streams::BufferedOutputStream> _stream;
+                ::naranja::streams::IBufferedOutputStream& _stream;
             };
         }
     }

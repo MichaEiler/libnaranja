@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <cstring>
 
-naranja::streams::BufferedInputStream::BufferedInputStream(const std::shared_ptr<IInputStream>& inputStream, const std::size_t cacheSize)
+naranja::streams::BufferedInputStream::BufferedInputStream(IInputStream& inputStream, const std::size_t cacheSize)
     : _inputStream(inputStream)
     , _cache(cacheSize) {
 
@@ -18,7 +18,7 @@ void naranja::streams::BufferedInputStream::ReadAndCache()
     std::size_t bytesRead = 0;
     while (bytesRead == 0)
     {
-        bytesRead = _inputStream->Read(&_cache[_writePosition], length);
+        bytesRead = _inputStream.TryRead(&_cache[_writePosition], length);
     }
 
     _writePosition = (_writePosition + bytesRead) % _cache.size();
@@ -47,7 +47,7 @@ void naranja::streams::BufferedInputStream::Peek(char *buffer, const std::size_t
     }
 }
 
-std::size_t naranja::streams::BufferedInputStream::Read(char *buffer, const std::size_t length)
+void naranja::streams::BufferedInputStream::Read(char *buffer, const std::size_t length)
 {
     std::size_t bytesToRead = length;
 
@@ -64,6 +64,4 @@ std::size_t naranja::streams::BufferedInputStream::Read(char *buffer, const std:
         bytesToRead -= bytesToCopy;
         _bytesCached -= bytesToCopy;
     }
-
-    return length;
 }

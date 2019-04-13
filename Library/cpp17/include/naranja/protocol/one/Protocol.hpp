@@ -4,7 +4,6 @@
 #include <memory>
 #include <mutex>
 #include <naranja/protocol/IProtocol.hpp>
-#include <naranja/streams/BufferedOutputStream.hpp>
 #include <string>
 
 namespace naranja
@@ -20,11 +19,11 @@ namespace naranja
                 virtual ~Protocol() override = default;
 
                 ObjectToken CreateToken() override;
-                ObjectToken PeekNextToken(const std::shared_ptr<streams::BufferedInputStream>& stream) override;
-                ObjectType  PeekNextObjectType(const std::shared_ptr<streams::BufferedInputStream>& stream) override;
+                ObjectToken PeekNextToken(streams::IBufferedInputStream& stream) override;
+                ObjectType  PeekNextObjectType(streams::IBufferedInputStream& stream) override;
 
-                std::shared_ptr<IObjectWriter> WriteObject(const std::shared_ptr<streams::BufferedOutputStream>& stream, const ObjectType& type, const ObjectIdentifier& identifier, const ObjectToken& token) override;
-                std::shared_ptr<IObjectReader> ReadObject(const std::shared_ptr<streams::BufferedInputStream>& stream) override;
+                std::shared_ptr<IObjectWriter> WriteObject(streams::IBufferedOutputStream& stream, const ObjectType& type, const ObjectIdentifier& identifier, const ObjectToken& token) const override;
+                std::shared_ptr<IObjectReader> ReadObject(streams::IBufferedInputStream& stream) const override;
 
             private:
                 std::mutex _tokenMutex;
