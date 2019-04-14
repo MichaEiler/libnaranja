@@ -20,7 +20,7 @@ namespace naranja
         class Server final : public std::enable_shared_from_this<Server>
         {
         public:
-            explicit Server(std::shared_ptr<protocol::IProtocol> const& protocol, std::uint16_t const port);
+            explicit Server(const std::shared_ptr<protocol::IProtocol>& protocol, const std::uint16_t port);
             ~Server();
 
             void Start();
