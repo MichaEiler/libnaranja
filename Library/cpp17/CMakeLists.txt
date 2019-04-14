@@ -14,6 +14,8 @@ file (GLOB SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/streams/*.cpp"
 
 include("${CMAKE_SOURCE_DIR}/3rdparty/boost.cmake")
 
+add_definitions("-DBOOST_ASIO_SEPARATE_COMPILATION=1")
+
 add_library (naranja ${SOURCES})
 target_include_directories (naranja PUBLIC "${CMAKE_SOURCE_DIR}/include/")
 

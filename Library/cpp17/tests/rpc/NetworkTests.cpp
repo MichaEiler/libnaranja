@@ -5,14 +5,16 @@
 #include <gmock/gmock.h>
 #include <iostream>
 
+#include "EchoService.hpp"
+
 class NetworkTestFixture : public testing::Test
 {
 };
 
 TEST_F(NetworkTestFixture,ServerClientTest1)
 {
-    auto protocol = std::make_shared<naranja::protocol::one::Protocol>();
-    auto server = std::make_shared<naranja::rpc::Server>(protocol, 50123);
+    auto service = std::make_shared<EchoService>();
+    auto server = std::make_shared<naranja::rpc::Server>(service, 50123);
     server->Start();
 
     auto client = std::make_shared<naranja::rpc::ClientSideConnection>();
