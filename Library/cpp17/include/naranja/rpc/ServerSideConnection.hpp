@@ -6,7 +6,7 @@
 #include <functional>
 #include <memory>
 #include <mutex>
-#include <naranja/streams/AdaptiveMemoryStream.hpp>
+#include <naranja/streams/MemoryStream.hpp>
 #include <naranja/streams/IBufferedOutputStream.hpp>
 #include <optional>
 #include <vector>
@@ -43,7 +43,7 @@ namespace naranja
 
             boost::asio::io_service& _ioService;
             boost::asio::ip::tcp::socket _socket;
-            streams::AdaptiveMemoryStream _inputStream;
+            streams::MemoryStream _inputStream;
             std::vector<char> _buffer;
             std::shared_ptr<IService> _service;
             std::function<void()> _disconnectionHandler;

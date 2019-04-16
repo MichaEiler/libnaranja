@@ -11,10 +11,10 @@ namespace naranja
 {
     namespace streams
     {
-        class AdaptiveMemoryStream final : public IOutputStream, public IInputStream
+        class MemoryStream final : public IOutputStream, public IInputStream
         {
         public:
-            explicit AdaptiveMemoryStream(const std::size_t cacheSize = 64 * 1024);
+            explicit MemoryStream(const std::size_t cacheSize = 64 * 1024);
 
             std::size_t AvailableBytes() const override;
             std::size_t TryPeek(char* buffer, const std::size_t length) override;

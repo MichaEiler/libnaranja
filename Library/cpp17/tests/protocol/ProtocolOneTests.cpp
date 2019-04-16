@@ -5,7 +5,7 @@
 #include <naranja/protocol/one/ObjectReader.hpp>
 #include <naranja/protocol/one/ObjectWriter.hpp>
 #include <naranja/protocol/one/Protocol.hpp>
-#include <naranja/streams/AdaptiveMemoryStream.hpp>
+#include <naranja/streams/MemoryStream.hpp>
 #include <naranja/streams/BufferedInputStream.hpp>
 #include <naranja/streams/BufferedOutputStream.hpp>
 #include <sstream>
@@ -19,7 +19,7 @@ public:
     template <typename TValue>
     void TestPrimitiveSerialization(const TValue& value, const std::string& encodedValue) const
     {
-        naranja::streams::AdaptiveMemoryStream memoryStream(SmallCacheSize);
+        naranja::streams::MemoryStream memoryStream(SmallCacheSize);
         {
             naranja::streams::BufferedOutputStream bufferedOutputStream(memoryStream, SmallCacheSize);
             bufferedOutputStream.Write(reinterpret_cast<const char*>(&value), sizeof(value));
@@ -35,7 +35,7 @@ public:
     template <typename TValue>
     void TestPrimitiveParsing(const std::string& encodedValue, const TValue& expectedValue) const
     {
-        naranja::streams::AdaptiveMemoryStream memoryStream(SmallCacheSize);
+        naranja::streams::MemoryStream memoryStream(SmallCacheSize);
         memoryStream.Write(encodedValue.data(), encodedValue.size());
 
         naranja::streams::BufferedInputStream bufferedInputStream(memoryStream, SmallCacheSize);
@@ -59,7 +59,7 @@ TEST_F(ProtocolOneTestFixture, GenerateToken_SizeOfTokenValid)
 
 TEST_F(ProtocolOneTestFixture, PeekNextObjectType_FunctionCallInStream_CorrectTypeReturned)
 {
-    naranja::streams::AdaptiveMemoryStream memoryStream;
+    naranja::streams::MemoryStream memoryStream;
     naranja::streams::BufferedInputStream bufferedInputStream(memoryStream);
 
     const std::string encodedData("\x01\x00\x00\x00", 4);
@@ -74,7 +74,7 @@ TEST_F(ProtocolOneTestFixture, PeekNextObjectType_FunctionCallInStream_CorrectTy
 
 TEST_F(ProtocolOneTestFixture, PeekNextToken_EventInStream_ThrowsRuntimeError)
 {
-    naranja::streams::AdaptiveMemoryStream memoryStream;
+    naranja::streams::MemoryStream memoryStream;
     naranja::streams::BufferedInputStream bufferedInputStream(memoryStream);
 
     std::string encodedData("\x04\x00\x00\x00", 4);
@@ -86,7 +86,7 @@ TEST_F(ProtocolOneTestFixture, PeekNextToken_EventInStream_ThrowsRuntimeError)
 
 TEST_F(ProtocolOneTestFixture, PeekNextToken_ObjectInStream_ReturnsToken)
 {
-    naranja::streams::AdaptiveMemoryStream memoryStream;
+    naranja::streams::MemoryStream memoryStream;
     naranja::streams::BufferedInputStream bufferedInputStream(memoryStream);
 
     const std::string encodedData("\x01\x00\x00\x00\x0a\x00\x00\x00\x00\x00\x00\x00HelloToken", 22);
@@ -135,7 +135,7 @@ TEST_F(ProtocolOneTestFixture, ReadObject_FunctionCall_CorrectlyParsed)
         return stream.str();
     };
 
-    naranja::streams::AdaptiveMemoryStream memoryStream;
+    naranja::streams::MemoryStream memoryStream;
     naranja::streams::BufferedInputStream bufferedInputStream(memoryStream);
     
     const auto encodedObject = createEncodedFunctionCall();
@@ -190,7 +190,7 @@ TEST_F(ProtocolOneTestFixture, ReadObject_Event_CorrectlyParsed)
         return stream.str();
     };
     
-    naranja::streams::AdaptiveMemoryStream memoryStream;
+    naranja::streams::MemoryStream memoryStream;
     naranja::streams::BufferedInputStream bufferedInputStream(memoryStream);
     
     const auto encodedObject = createEncodedFunctionCall();
@@ -225,7 +225,7 @@ TEST_F(ProtocolOneTestFixture, WriteObject_FunctionCall_CorrectlySerialized)
         sizeof(std::uint32_t) + sizeof(std::uint64_t) + sizeof(std::uint64_t)
         + token.size() + identifier.size());
 
-    naranja::streams::AdaptiveMemoryStream memoryStream(SmallCacheSize);
+    naranja::streams::MemoryStream memoryStream(SmallCacheSize);
     {
         naranja::streams::BufferedOutputStream bufferedOutputStream(memoryStream, SmallCacheSize);
         auto protocol = std::make_shared<naranja::protocol::one::Protocol>();
@@ -253,7 +253,7 @@ TEST_F(ProtocolOneTestFixture, WriteObject_Event_CorrectlySerialized)
         sizeof(std::uint32_t) + sizeof(std::uint64_t)
         + identifier.size());
 
-    naranja::streams::AdaptiveMemoryStream memoryStream(SmallCacheSize);
+    naranja::streams::MemoryStream memoryStream(SmallCacheSize);
     {
         naranja::streams::BufferedOutputStream bufferedOutputStream(memoryStream, SmallCacheSize);
         auto protocol = std::make_shared<naranja::protocol::one::Protocol>();
@@ -294,7 +294,7 @@ TEST_F(ProtocolOneTestFixture, ReadValue_String_CorrectlyParsed)
     std::string result;
 
     {
-        naranja::streams::AdaptiveMemoryStream memoryStream(SmallCacheSize);
+        naranja::streams::MemoryStream memoryStream(SmallCacheSize);
         naranja::streams::BufferedInputStream bufferedInputStream(memoryStream, SmallCacheSize);
         memoryStream.Write(input.data(), input.size());
 
@@ -315,7 +315,7 @@ TEST_F(ProtocolOneTestFixture, ReadValue_Binary_CorrectlyParsed)
     std::vector<char> result;
 
     {
-        naranja::streams::AdaptiveMemoryStream memoryStream(SmallCacheSize);
+        naranja::streams::MemoryStream memoryStream(SmallCacheSize);
         naranja::streams::BufferedInputStream bufferedInputStream(memoryStream, SmallCacheSize);
         memoryStream.Write(input.data(), input.size());
 
@@ -350,7 +350,7 @@ TEST_F(ProtocolOneTestFixture, WriteValue_String_CorrectlySerialized)
         sizeof(std::uint64_t) + std::strlen("Hello"));
     const std::string input("Hello");
 
-    naranja::streams::AdaptiveMemoryStream memoryStream(SmallCacheSize);
+    naranja::streams::MemoryStream memoryStream(SmallCacheSize);
     {
         naranja::streams::BufferedOutputStream bufferedOutputStream(memoryStream, SmallCacheSize);
         auto objectWriter = std::make_shared<naranja::protocol::one::ObjectWriter>(bufferedOutputStream);
@@ -370,7 +370,7 @@ TEST_F(ProtocolOneTestFixture, WriteValue_Binary_CorrectlySerialized)
         sizeof(std::uint64_t) + std::strlen("Hello"));
     const std::vector<char> input{'H', 'e', 'l', 'l', 'o'};
 
-    naranja::streams::AdaptiveMemoryStream memoryStream(SmallCacheSize);
+    naranja::streams::MemoryStream memoryStream(SmallCacheSize);
     {
         naranja::streams::BufferedOutputStream bufferedOutputStream(memoryStream, SmallCacheSize);
         auto objectWriter = std::make_shared<naranja::protocol::one::ObjectWriter>(bufferedOutputStream);
@@ -390,7 +390,7 @@ TEST_F(ProtocolOneTestFixture, ReadList_IntList_AllValuesProvided)
     const std::size_t expectedListSize = 2;
     const std::int32_t expectedListValue = -1;
 
-    naranja::streams::AdaptiveMemoryStream memoryStream(SmallCacheSize);
+    naranja::streams::MemoryStream memoryStream(SmallCacheSize);
     memoryStream.Write(encodedList.data(), encodedList.size());
     naranja::streams::BufferedInputStream bufferedInputStream(memoryStream, SmallCacheSize);
     auto protocol = std::make_shared<naranja::protocol::one::ObjectReader>(bufferedInputStream);
@@ -416,7 +416,7 @@ TEST_F(ProtocolOneTestFixture, WriteList_IntList_AllValuesWritten)
     const std::string expectedResult("\x02\x00\x00\x00" "\xff\xff\xff\xff" "\xff\xff\xff\xff", sizeof(std::int32_t) * 3);
     
     std::string result;
-    naranja::streams::AdaptiveMemoryStream memoryStream(SmallCacheSize);
+    naranja::streams::MemoryStream memoryStream(SmallCacheSize);
     {
         naranja::streams::BufferedOutputStream bufferedOutputStream(memoryStream, SmallCacheSize);
         auto protocol = std::make_shared<naranja::protocol::one::ObjectWriter>(bufferedOutputStream);
@@ -437,7 +437,7 @@ TEST_F(ProtocolOneTestFixture, WriteObject_NestedObjects_ObjectsSerialized)
     const std::string expectedResult("\xff\xff\xff\xff" "\xff\xff\xff\xff", sizeof(std::int32_t) * 2);
     
     std::string result;
-    naranja::streams::AdaptiveMemoryStream memoryStream(SmallCacheSize);
+    naranja::streams::MemoryStream memoryStream(SmallCacheSize);
     {
         naranja::streams::BufferedOutputStream bufferedOutputStream(memoryStream, SmallCacheSize);
         auto protocol = std::make_shared<naranja::protocol::one::ObjectWriter>(bufferedOutputStream);
@@ -459,7 +459,7 @@ TEST_F(ProtocolOneTestFixture, ReadObject_NestedObjects_ObjectsParsed)
     const std::string input("\xff\xff\xff\xff" "\xff\xff\xff\xff", sizeof(std::int32_t) * 2);
     const std::int32_t expectedValue = -1;
 
-    naranja::streams::AdaptiveMemoryStream memoryStream(SmallCacheSize);
+    naranja::streams::MemoryStream memoryStream(SmallCacheSize);
     memoryStream.Write(input.data(), input.size());
     naranja::streams::BufferedInputStream bufferedInputStream(memoryStream, SmallCacheSize);
     auto objectReader = std::make_shared<naranja::protocol::one::ObjectReader>(bufferedInputStream);

@@ -1,4 +1,4 @@
-#include <naranja/rpc/ClientSideConnection.hpp>
+/*#include <naranja/rpc/ClientSideConnection.hpp>
 #include <naranja/rpc/ServerSideConnection.hpp>
 #include <naranja/rpc/Server.hpp>
 #include <naranja/protocol/one/Protocol.hpp>
@@ -32,4 +32,4 @@ TEST_F(NetworkTestFixture,ServerClientTest1)
     }
 
     client->Close();
-}
+}*/

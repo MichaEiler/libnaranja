@@ -1,7 +1,7 @@
 #include <gmock/gmock.h>
 #include <memory>
 #include <naranja/streams/BufferedOutputStream.hpp>
-#include <naranja/streams/AdaptiveMemoryStream.hpp>
+#include <naranja/streams/MemoryStream.hpp>
 #include <sstream>
 #include <string>
 
@@ -46,7 +46,7 @@ TEST_F(BufferedOutputStreamTestFixture, Write_NonEmptyCachePlusRequestLargerThan
 
 TEST_F(BufferedOutputStreamTestFixture, Write_RequestSmallerThanCacheSize_NoDataWritten)
 {
-    naranja::streams::AdaptiveMemoryStream memoryStream;
+    naranja::streams::MemoryStream memoryStream;
     const std::size_t cacheSize = 20;
     naranja::streams::BufferedOutputStream bufferedOutputStream(memoryStream, cacheSize);
 
@@ -61,7 +61,7 @@ TEST_F(BufferedOutputStreamTestFixture, Write_RequestSmallerThanCacheSize_NoData
 
 TEST_F(BufferedOutputStreamTestFixture, Write_RequestSmallerThanCacheSize_FlushedOnDestruction)
 {
-    naranja::streams::AdaptiveMemoryStream memoryStream;
+    naranja::streams::MemoryStream memoryStream;
     std::string testValue = "HelloWorld";
 
     {

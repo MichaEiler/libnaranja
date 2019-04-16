@@ -1,17 +1,17 @@
-#include "naranja/streams/AdaptiveMemoryStream.hpp"
+#include "naranja/streams/MemoryStream.hpp"
 
-naranja::streams::AdaptiveMemoryStream::AdaptiveMemoryStream(const std::size_t cacheSize)
+naranja::streams::MemoryStream::MemoryStream(const std::size_t cacheSize)
     : _cache(cacheSize, 0)
 {
 
 }
 
-std::size_t naranja::streams::AdaptiveMemoryStream::AvailableBytes() const
+std::size_t naranja::streams::MemoryStream::AvailableBytes() const
 {
     return _cachedBytes;
 }
 
-std::size_t naranja::streams::AdaptiveMemoryStream::TryPeek(char* buffer, const std::size_t length)
+std::size_t naranja::streams::MemoryStream::TryPeek(char* buffer, const std::size_t length)
 {
     if (_cachedBytes == 0)
     {
@@ -31,7 +31,7 @@ std::size_t naranja::streams::AdaptiveMemoryStream::TryPeek(char* buffer, const 
     return bytesToCopy;
 }
 
-std::size_t naranja::streams::AdaptiveMemoryStream::TryRead(char* buffer, const std::size_t length)
+std::size_t naranja::streams::MemoryStream::TryRead(char* buffer, const std::size_t length)
 {
     if (_cachedBytes == 0)
     {
@@ -56,7 +56,7 @@ std::size_t naranja::streams::AdaptiveMemoryStream::TryRead(char* buffer, const 
     return bytesToCopy + bytesToCopyAtStart;
 }
 
-void naranja::streams::AdaptiveMemoryStream::Write(const char* buffer, const std::size_t length)
+void naranja::streams::MemoryStream::Write(const char* buffer, const std::size_t length)
 {
     if (_cache.size() < _cachedBytes + length)
     {
@@ -76,7 +76,7 @@ void naranja::streams::AdaptiveMemoryStream::Write(const char* buffer, const std
     _cachedBytes += bytesToCopy + bytesToCopyToStart;
 }
 
-std::size_t naranja::streams::AdaptiveMemoryStream::Capacity() const
+std::size_t naranja::streams::MemoryStream::Capacity() const
 {
     return _cache.size();
 }

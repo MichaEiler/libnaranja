@@ -1,36 +1,36 @@
 #include <gmock/gmock.h>
-#include <naranja/streams/AdaptiveMemoryStream.hpp>
+#include <naranja/streams/MemoryStream.hpp>
 #include <thread>
 
 #include <iostream>
 
-class AdaptiveMemoryStreamTestFixture : public testing::Test
+class MemoryStreamTestFixture : public testing::Test
 {
 };
 
-TEST_F(AdaptiveMemoryStreamTestFixture, Write_LargerThanCacheSize_CapacityIncreased)
+TEST_F(MemoryStreamTestFixture, Write_LargerThanCacheSize_CapacityIncreased)
 {
     const std::string data("HelloWorld");
-    naranja::streams::AdaptiveMemoryStream stream(data.size() >> 1);
+    naranja::streams::MemoryStream stream(data.size() >> 1);
     
     ASSERT_TRUE(stream.Capacity() < data.size());
     stream.Write(data.data(), data.size());
     ASSERT_TRUE(stream.Capacity() >= data.size());
 }
 
-TEST_F(AdaptiveMemoryStreamTestFixture, Write_LargerThanCacheSize_WrittenDataComplete)
+TEST_F(MemoryStreamTestFixture, Write_LargerThanCacheSize_WrittenDataComplete)
 {
     const std::string data("HelloWorld");
-    naranja::streams::AdaptiveMemoryStream stream(data.size() >> 1);
+    naranja::streams::MemoryStream stream(data.size() >> 1);
 
     stream.Write(data.data(), data.size());
     ASSERT_TRUE(stream.AvailableBytes() == data.size());
 }
 
-TEST_F(AdaptiveMemoryStreamTestFixture, Write_LargerThanCacheSize_WrittenDataValid)
+TEST_F(MemoryStreamTestFixture, Write_LargerThanCacheSize_WrittenDataValid)
 {
     const std::string data("HelloWorld");
-    naranja::streams::AdaptiveMemoryStream stream(data.size() >> 1);
+    naranja::streams::MemoryStream stream(data.size() >> 1);
 
     stream.Write(data.data(), data.size());
     
@@ -43,10 +43,10 @@ TEST_F(AdaptiveMemoryStreamTestFixture, Write_LargerThanCacheSize_WrittenDataVal
     ASSERT_TRUE(result == data);
 }
 
-TEST_F(AdaptiveMemoryStreamTestFixture, Write_NotAtStartAndLargerThanTillEnd_DataCorrectlyWrappedAround)
+TEST_F(MemoryStreamTestFixture, Write_NotAtStartAndLargerThanTillEnd_DataCorrectlyWrappedAround)
 {
     const std::string data("HelloWorld");
-    naranja::streams::AdaptiveMemoryStream stream(14);
+    naranja::streams::MemoryStream stream(14);
     stream.Write(data.data(), data.size());
     
     std::string result;
@@ -59,10 +59,10 @@ TEST_F(AdaptiveMemoryStreamTestFixture, Write_NotAtStartAndLargerThanTillEnd_Dat
     ASSERT_TRUE(result == data);
 }
 
-TEST_F(AdaptiveMemoryStreamTestFixture, Read_NotEnoughDataAvailable_ReturnsAvailableData)
+TEST_F(MemoryStreamTestFixture, Read_NotEnoughDataAvailable_ReturnsAvailableData)
 {
     const std::string data("HelloWorld");
-    naranja::streams::AdaptiveMemoryStream stream(20);
+    naranja::streams::MemoryStream stream(20);
     stream.Write(data.data(), data.size());
 
     std::string result;
@@ -74,10 +74,10 @@ TEST_F(AdaptiveMemoryStreamTestFixture, Read_NotEnoughDataAvailable_ReturnsAvail
     ASSERT_TRUE(result == data);
 }
 
-TEST_F(AdaptiveMemoryStreamTestFixture, Read_MoreThanRequestedAvailable_ReturnsRequestedData)
+TEST_F(MemoryStreamTestFixture, Read_MoreThanRequestedAvailable_ReturnsRequestedData)
 {
     const std::string data("HelloWorld");
-    naranja::streams::AdaptiveMemoryStream stream(20);
+    naranja::streams::MemoryStream stream(20);
     stream.Write(data.data(), data.size());
 
     std::string result;
@@ -89,21 +89,21 @@ TEST_F(AdaptiveMemoryStreamTestFixture, Read_MoreThanRequestedAvailable_ReturnsR
     ASSERT_TRUE(result == "Hello");
 }
 
-TEST_F(AdaptiveMemoryStreamTestFixture, Read_NoDataAvailable_ReturnsZero)
+TEST_F(MemoryStreamTestFixture, Read_NoDataAvailable_ReturnsZero)
 {
     const std::string data("HelloWorld");
-    naranja::streams::AdaptiveMemoryStream stream(20);
+    naranja::streams::MemoryStream stream(20);
 
     auto bytesConsumed = stream.TryRead(nullptr, 5);
 
     ASSERT_EQ(0, bytesConsumed);
 }
 
-TEST_F(AdaptiveMemoryStreamTestFixture, Read_DataWrappedAround_ResultingDataValid)
+TEST_F(MemoryStreamTestFixture, Read_DataWrappedAround_ResultingDataValid)
 {
     const std::string data("HelloWorld");
     const std::string data2("CountryRoads");
-    naranja::streams::AdaptiveMemoryStream stream(15);
+    naranja::streams::MemoryStream stream(15);
 
     std::string result;
     result.resize(stream.Capacity(), '\0');

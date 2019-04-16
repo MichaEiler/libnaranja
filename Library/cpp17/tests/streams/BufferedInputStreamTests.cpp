@@ -1,7 +1,7 @@
 #include <gmock/gmock.h>
 #include <memory>
 #include <naranja/streams/BufferedInputStream.hpp>
-#include <naranja/streams/AdaptiveMemoryStream.hpp>
+#include <naranja/streams/MemoryStream.hpp>
 #include <string>
 
 class BufferedInputStreamTestFixture : public testing::Test
@@ -10,7 +10,7 @@ class BufferedInputStreamTestFixture : public testing::Test
 
 TEST_F(BufferedInputStreamTestFixture, Peek_SingleCall_ReturnsData)
 {
-    naranja::streams::AdaptiveMemoryStream memoryStream;
+    naranja::streams::MemoryStream memoryStream;
     memoryStream.Write("HelloWorld", 10);
 
     naranja::streams::BufferedInputStream stream(memoryStream);
@@ -24,7 +24,7 @@ TEST_F(BufferedInputStreamTestFixture, Peek_SingleCall_ReturnsData)
 
 TEST_F(BufferedInputStreamTestFixture, Peek_MultipleCalls_AllReturnTheSameData)
 {
-    naranja::streams::AdaptiveMemoryStream memoryStream;
+    naranja::streams::MemoryStream memoryStream;
     memoryStream.Write("HelloWorld", 10);
     
     naranja::streams::BufferedInputStream stream(memoryStream);
@@ -43,7 +43,7 @@ TEST_F(BufferedInputStreamTestFixture, Peek_RequestLargerThanCacheSize_InvalidAr
 {
     const std::size_t cacheSize = 10;
 
-    naranja::streams::AdaptiveMemoryStream memoryStream;
+    naranja::streams::MemoryStream memoryStream;
     naranja::streams::BufferedInputStream stream(memoryStream, cacheSize);
 
     ASSERT_THROW(stream.Peek(nullptr, cacheSize + 1), std::invalid_argument);
@@ -53,7 +53,7 @@ TEST_F(BufferedInputStreamTestFixture, Peek_WrapAroundInCache_RequestedDataRetur
 {
     const std::string testValue("HelloWorld");
 
-    naranja::streams::AdaptiveMemoryStream memoryStream;
+    naranja::streams::MemoryStream memoryStream;
     memoryStream.Write(testValue.data(), testValue.size());
     memoryStream.Write(testValue.data(), testValue.size());
 
@@ -73,7 +73,7 @@ TEST_F(BufferedInputStreamTestFixture, Peek_WrapAroundInCache_RequestedDataRetur
 
 TEST_F(BufferedInputStreamTestFixture, Read_NewStream_FollowedPeekWillReturnNextData)
 {
-    naranja::streams::AdaptiveMemoryStream memoryStream;
+    naranja::streams::MemoryStream memoryStream;
     memoryStream.Write("HelloWorld", 10);
 
     std::string result;
@@ -96,7 +96,7 @@ TEST_F(BufferedInputStreamTestFixture, Read_ReqeustLargerThanCacheSize_AllDataRe
 {
     const std::string testValue("HelloWorld");
 
-    naranja::streams::AdaptiveMemoryStream memoryStream;
+    naranja::streams::MemoryStream memoryStream;
     memoryStream.Write(testValue.data(), testValue.size());
     
     const std::size_t cacheSize = 7;
@@ -112,7 +112,7 @@ TEST_F(BufferedInputStreamTestFixture, Read_ReqeustLargerThanCacheSize_AllDataRe
 TEST_F(BufferedInputStreamTestFixture, Read_WrapAroundInCache_RequestedDataReturned)
 {
     const std::string testValue("HelloWorld");
-    naranja::streams::AdaptiveMemoryStream memoryStream;
+    naranja::streams::MemoryStream memoryStream;
     memoryStream.Write(testValue.data(), testValue.size());
     memoryStream.Write(testValue.data(), testValue.size());
 
