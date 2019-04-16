@@ -3,6 +3,8 @@
 #include <naranja/core/Exceptions.hpp>
 #include <iostream>
 
+#include "SetSocketOptions.hpp"
+
 naranja::rpc::ClientSideConnection::ClientSideConnection()
     : _buffer(512 * 1024, 0)
     , _service()
@@ -21,6 +23,8 @@ void naranja::rpc::ClientSideConnection::Connect(const std::string& serverAddres
     boost::system::error_code error;
     boost::asio::connect(_socket, endpoints, error);
 
+    SetKeepAlive(_socket);
+    
     if (error)
     {
         throw naranja::exceptions::ConnectionClosed();
@@ -35,8 +39,10 @@ void naranja::rpc::ClientSideConnection::Connect(const std::string& serverAddres
 
 void naranja::rpc::ClientSideConnection::Close()
 {
+    std::lock_guard<std::mutex> lock(_mutex);
     if (!_service.stopped())
     {
+        _socket.close();
         _service.stop();
     }
     if (_serviceThread.joinable())
@@ -47,9 +53,15 @@ void naranja::rpc::ClientSideConnection::Close()
 
 void naranja::rpc::ClientSideConnection::Write(const char* buffer, const std::size_t length)
 {
+    std::lock_guard<std::mutex> lock(_mutex);
+
+    if (!_socket.is_open())
+    {
+        throw naranja::exceptions::ConnectionClosed();
+    }
+
     boost::system::error_code error;
     boost::asio::write(_socket, boost::asio::buffer(buffer, length), error);
-
     if (error)
     {
         throw naranja::exceptions::ConnectionClosed();
@@ -60,14 +72,18 @@ void naranja::rpc::ClientSideConnection::HandleRead()
 {
     auto readAction = [weakConnection = std::weak_ptr<ClientSideConnection>(shared_from_this())](const boost::system::error_code& error, const std::size_t receivedBytes){
         auto connection = weakConnection.lock();
-        if (!connection || error)
+        if (!connection)
             return;
-        
-        // test start
-        std::cout.write(connection->_buffer.data(), receivedBytes);
-        std::cout << std::endl;
-        // test end
 
+        if (error)
+        {
+            if (connection->_connectionLost)
+            {
+                connection->_connectionLost();
+            }
+            return;
+        }
+        
         connection->HandleRead();
     };
 

@@ -5,6 +5,8 @@
 #include <naranja/streams/YieldingInputStream.hpp>
 #include <iostream>
 
+#include "SetSocketOptions.hpp"
+
 naranja::rpc::ServerSideConnection::ServerSideConnection(boost::asio::io_service& ioService, const std::shared_ptr<IService>& service)
     : _ioService(ioService)
     , _socket(ioService)
@@ -14,25 +16,42 @@ naranja::rpc::ServerSideConnection::ServerSideConnection(boost::asio::io_service
     
 }
 
+naranja::rpc::ServerSideConnection::~ServerSideConnection()
+{
+    Stop();
+}
+
 void naranja::rpc::ServerSideConnection::Start()
 {
+    SetKeepAlive(_socket);
     HandleRead();
 }
 
 void naranja::rpc::ServerSideConnection::Stop()
 {
-    boost::system::error_code error;
-    _socket.close(error);
+    std::lock_guard<std::mutex> lock(_mutex);
+
+    if (_socket.is_open())
+    {
+        boost::system::error_code error;
+        _socket.close(error);
+    }
 }
 
 void naranja::rpc::ServerSideConnection::Write(const char* buffer, const std::size_t length)
 {
+    std::lock_guard<std::mutex> lock(_mutex);
+
+    if (!_socket.is_open())
+    {
+        throw naranja::exceptions::ConnectionClosed();
+    }
+
     boost::system::error_code error;
     boost::asio::write(_socket, boost::asio::buffer(buffer, length), error);
 
     if (error)
     {
-        // TODO: is this check correct this way?
         throw naranja::exceptions::ConnectionClosed();
     }
 }
@@ -57,8 +76,11 @@ void naranja::rpc::ServerSideConnection::HandleRead()
                 return;
             }
 
-            connection->_inputStream.Write(connection->_buffer.data(), receivedBytes);
-            connection->ProcessData();
+            if (receivedBytes > 0)
+            {
+                connection->_inputStream.Write(connection->_buffer.data(), receivedBytes);
+                connection->ProcessData();
+            }
             connection->HandleRead();
         });
 }

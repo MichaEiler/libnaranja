@@ -3,6 +3,7 @@
 #include <boost/asio.hpp>
 #include <cstdint>
 #include <memory>
+#include <mutex>
 #include <string>
 #include <thread>
 #include <vector>
@@ -16,10 +17,10 @@ namespace naranja
         public:
             explicit ClientSideConnection();
 
+            void OnConnectionLost(const std::function<void()>& connectionLost) { _connectionLost = connectionLost; }
             void Connect(const std::string& serverAddress, const std::uint16_t serverPort);
-            void Close();
-
             void Write(const char* buffer, const std::size_t length);
+            void Close();
 
         private:
             boost::asio::io_service _service;
@@ -27,6 +28,9 @@ namespace naranja
 
             std::vector<char> _buffer;
             std::thread _serviceThread;
+            std::function<void()> _connectionLost;
+
+            std::mutex _mutex;
 
             void HandleRead();
         };

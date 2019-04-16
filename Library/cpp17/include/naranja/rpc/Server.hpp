@@ -26,7 +26,9 @@ namespace naranja
 
             void Start();
             void Stop();
-            
+
+            std::size_t NumberOfConnections();
+
         private:
             boost::asio::io_service _ioService;
             boost::asio::ip::tcp::acceptor _acceptor;

@@ -1,5 +1,6 @@
 #include "naranja/rpc/Server.hpp"
 
+#include <future>
 #include <naranja/rpc/ServerSideConnection.hpp>
 
 naranja::rpc::Server::Server(const std::shared_ptr<IService> service, const std::uint16_t port)
@@ -33,6 +34,8 @@ void naranja::rpc::Server::Stop()
     {
         _ioServiceThread.join();
     }
+    _acceptor.close();
+    _connections.clear();
 }
 
 void naranja::rpc::Server::HandleAccept()
@@ -60,4 +63,16 @@ void naranja::rpc::Server::HandleAccept()
     };
     
     _acceptor.async_accept(connection->Socket(), acceptionHandler);
+}
+
+std::size_t naranja::rpc::Server::NumberOfConnections()
+{
+    auto numberOfConnections = std::make_shared<std::promise<std::size_t>>();
+    auto future = numberOfConnections->get_future();
+
+    _ioService.post([promise = std::move(numberOfConnections), &connections=_connections]() mutable {
+        promise->set_value(connections.size());
+    });
+
+    return future.get();
 }

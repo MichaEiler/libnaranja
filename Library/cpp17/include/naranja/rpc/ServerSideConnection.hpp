@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <functional>
 #include <memory>
+#include <mutex>
 #include <naranja/streams/AdaptiveMemoryStream.hpp>
 #include <naranja/streams/IBufferedOutputStream.hpp>
 #include <optional>
@@ -23,6 +24,8 @@ namespace naranja
             {
                 return std::shared_ptr<ServerSideConnection>(new ServerSideConnection(ioService, service));
             }
+
+            ~ServerSideConnection();
 
             void Start();
             void Stop();
@@ -44,6 +47,7 @@ namespace naranja
             std::vector<char> _buffer;
             std::shared_ptr<IService> _service;
             std::function<void()> _disconnectionHandler;
+            std::mutex _mutex;
             
             std::optional<boost::coroutines2::coroutine<void>::push_type> _processCoroutine;
 

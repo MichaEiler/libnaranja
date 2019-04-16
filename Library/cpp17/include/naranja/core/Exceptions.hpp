@@ -10,6 +10,10 @@ namespace naranja
         {
         };
 
+        class TimeoutException : std::exception
+        {
+        };
+
         class StreamClosed : std::exception
         {
         };
