@@ -27,6 +27,8 @@ namespace naranja
                 void WriteValue(const std::string_view&, const std::int32_t& value) override { Write(value); }
                 void WriteValue(const std::string_view&, const std::int16_t& value) override { Write(value); }
                 void WriteValue(const std::string_view&, const std::int8_t& value) override { Write(value); }
+                void WriteValue(const std::string_view&, const double& value) override { Write(value); }
+                void WriteValue(const std::string_view&, const float& value) override { Write(value); }
                 void WriteValue(const std::string_view&, const bool& value) override { Write(static_cast<std::uint8_t>(value)); }
                 void WriteValue(const std::string_view&, const std::string& value) override;
                 void WriteValue(const std::string_view&, const std::vector<char>& value) override;

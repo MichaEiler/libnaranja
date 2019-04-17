@@ -39,6 +39,8 @@ namespace naranja
             virtual void WriteValue(const std::string_view& identifier, const std::int32_t& value) = 0;
             virtual void WriteValue(const std::string_view& identifier, const std::int16_t& value) = 0;
             virtual void WriteValue(const std::string_view& identifier, const std::int8_t& value) = 0;
+            virtual void WriteValue(const std::string_view& identifier, const float& value) = 0;
+            virtual void WriteValue(const std::string_view& identifier, const double& value) = 0;
             virtual void WriteValue(const std::string_view& identifier, const bool& value) = 0;
             virtual void WriteValue(const std::string_view& identifier, const std::string& value) = 0;
             virtual void WriteValue(const std::string_view& identifier, const std::vector<char>& value) = 0;
@@ -66,6 +68,8 @@ namespace naranja
             virtual void ReadValue(const std::string_view& identifier, std::int32_t& value) = 0;
             virtual void ReadValue(const std::string_view& identifier, std::int16_t& value) = 0;
             virtual void ReadValue(const std::string_view& identifier, std::int8_t& value) = 0;
+            virtual void ReadValue(const std::string_view& identifier, float& value) = 0;
+            virtual void ReadValue(const std::string_view& identifier, double& value) = 0;
             virtual void ReadValue(const std::string_view& identifier, bool& value) = 0;
             virtual void ReadValue(const std::string_view& identifier, std::string& value) = 0;
             virtual void ReadValue(const std::string_view& identifier, std::vector<char>& value) = 0;

@@ -6,7 +6,7 @@
 #include <gmock/gmock.h>
 #include <thread>
 
-#include "EchoService.hpp"
+#include "common/EchoService.hpp"
 
 constexpr std::uint16_t NetworkPortForTests = 50674u;
 
@@ -58,7 +58,7 @@ protected:
 
 TEST_F(ConnectionTestFixture, CloseClient_AfterClientConnectionUp_ServerRemovesConnection)
 {
-    auto service = std::make_shared<EchoService>();
+    auto service = std::make_shared<naranja::tests::EchoService>();
     auto server = std::make_shared<naranja::rpc::Server>(service, NetworkPortForTests);
     auto client = std::make_shared<naranja::rpc::ClientSideConnection>();
 

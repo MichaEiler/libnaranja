@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <memory>
 #include <mutex>
+#include <naranja/streams/IBufferedOutputStream.hpp>
 #include <string>
 #include <thread>
 #include <vector>
@@ -12,15 +13,17 @@ namespace naranja
 {
     namespace rpc
     {
-        class ClientSideConnection : public std::enable_shared_from_this<ClientSideConnection>
+        class ClientSideConnection : public std::enable_shared_from_this<ClientSideConnection>, public streams::IBufferedOutputStream
         {
         public:
             explicit ClientSideConnection();
 
             void OnConnectionLost(const std::function<void()>& connectionLost) { _connectionLost = connectionLost; }
             void Connect(const std::string& serverAddress, const std::uint16_t serverPort);
-            void Write(const char* buffer, const std::size_t length);
             void Close();
+
+            void Write(const char* buffer, const std::size_t length) override;
+            void Flush() override {}
 
         private:
             boost::asio::io_service _service;

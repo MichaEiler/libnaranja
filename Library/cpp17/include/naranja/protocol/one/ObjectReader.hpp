@@ -33,6 +33,8 @@ namespace naranja
                 void ReadValue(const std::string_view&, std::int32_t& value) override { Read(value); }
                 void ReadValue(const std::string_view&, std::int16_t& value) override { Read(value); }
                 void ReadValue(const std::string_view&, std::int8_t& value) override { Read(value); }
+                void ReadValue(const std::string_view&, double& value) override { Read(value); }
+                void ReadValue(const std::string_view&, float& value) override { Read(value); }
                 void ReadValue(const std::string_view&, bool& value) override;
                 void ReadValue(const std::string_view&, std::string& value) override;
                 void ReadValue(const std::string_view&, std::vector<char>& value) override;
