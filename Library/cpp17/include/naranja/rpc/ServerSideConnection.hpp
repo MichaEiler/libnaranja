@@ -16,11 +16,14 @@ namespace naranja
     namespace rpc
     {
         class IService;
+    }
 
+    namespace rpc
+    {
         class ServerSideConnection : public std::enable_shared_from_this<ServerSideConnection>, public streams::IBufferedOutputStream
         {
         public:
-            static std::shared_ptr<ServerSideConnection> Create(boost::asio::io_service& ioService, const std::shared_ptr<IService>& service)
+            static std::shared_ptr<ServerSideConnection> Create(boost::asio::io_service& ioService, const std::shared_ptr<rpc::IService>& service)
             {
                 return std::shared_ptr<ServerSideConnection>(new ServerSideConnection(ioService, service));
             }
@@ -38,14 +41,13 @@ namespace naranja
             boost::asio::ip::tcp::socket& Socket() { return _socket; }
 
         private:
-            explicit ServerSideConnection(boost::asio::io_service& ioService, const std::shared_ptr<IService>& service);
-
+            explicit ServerSideConnection(boost::asio::io_service& ioService, const std::shared_ptr<rpc::IService>& service);
 
             boost::asio::io_service& _ioService;
             boost::asio::ip::tcp::socket _socket;
             streams::MemoryStream _inputStream;
             std::vector<char> _buffer;
-            std::shared_ptr<IService> _service;
+            std::shared_ptr<rpc::IService> _service;
             std::function<void()> _disconnectionHandler;
             std::mutex _mutex;
             

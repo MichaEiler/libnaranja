@@ -27,7 +27,7 @@ void naranja::rpc::ClientSideConnection::Connect(const std::string& serverAddres
     
     if (error)
     {
-        throw naranja::exceptions::ConnectionClosed();
+        throw naranja::core::StreamClosedException();
     }
 
     HandleRead();
@@ -57,14 +57,14 @@ void naranja::rpc::ClientSideConnection::Write(const char* buffer, const std::si
 
     if (!_socket.is_open())
     {
-        throw naranja::exceptions::ConnectionClosed();
+        throw naranja::core::StreamClosedException();
     }
 
     boost::system::error_code error;
     boost::asio::write(_socket, boost::asio::buffer(buffer, length), error);
     if (error)
     {
-        throw naranja::exceptions::ConnectionClosed();
+        throw naranja::core::StreamClosedException();
     }
 }
 

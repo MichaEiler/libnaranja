@@ -1,4 +1,4 @@
-#include "naranja/rpc/ServerSideConnection.hpp"
+#include "naranja/network/ServerSideConnection.hpp"
 
 #include <naranja/core/Exceptions.hpp>
 #include <naranja/rpc/IService.hpp>
@@ -7,7 +7,7 @@
 
 #include "SetSocketOptions.hpp"
 
-naranja::rpc::ServerSideConnection::ServerSideConnection(boost::asio::io_service& ioService, const std::shared_ptr<IService>& service)
+naranja::rpc::ServerSideConnection::ServerSideConnection(boost::asio::io_service& ioService, const std::shared_ptr<rpc::IService>& service)
     : _ioService(ioService)
     , _socket(ioService)
     , _buffer(512 * 1024)
@@ -44,7 +44,7 @@ void naranja::rpc::ServerSideConnection::Write(const char* buffer, const std::si
 
     if (!_socket.is_open())
     {
-        throw naranja::exceptions::ConnectionClosed();
+        throw naranja::core::StreamClosedException();
     }
 
     boost::system::error_code error;
@@ -52,7 +52,7 @@ void naranja::rpc::ServerSideConnection::Write(const char* buffer, const std::si
 
     if (error)
     {
-        throw naranja::exceptions::ConnectionClosed();
+        throw naranja::core::StreamClosedException();
     }
 }
 
