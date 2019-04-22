@@ -84,8 +84,6 @@ namespace naranja
             virtual ~IProtocol() = default;
 
             virtual ObjectToken CreateToken() = 0;
-            virtual ObjectType  PeekNextObjectType(streams::IBufferedInputStream& stream) = 0;
-            virtual ObjectToken PeekNextToken(streams::IBufferedInputStream& stream) = 0;
 
             virtual std::shared_ptr<IObjectWriter> WriteObject(streams::IBufferedOutputStream& stream, const ObjectType& type, const ObjectIdentifier& identifier, const ObjectToken& token = ObjectToken()) const = 0;
             virtual std::shared_ptr<IObjectReader> ReadObject(streams::IBufferedInputStream& stream) const = 0;

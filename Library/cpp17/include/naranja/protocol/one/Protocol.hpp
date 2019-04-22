@@ -19,9 +19,7 @@ namespace naranja
                 virtual ~Protocol() override = default;
 
                 ObjectToken CreateToken() override;
-                ObjectToken PeekNextToken(streams::IBufferedInputStream& stream) override;
-                ObjectType  PeekNextObjectType(streams::IBufferedInputStream& stream) override;
-
+                
                 std::shared_ptr<IObjectWriter> WriteObject(streams::IBufferedOutputStream& stream, const ObjectType& type, const ObjectIdentifier& identifier, const ObjectToken& token) const override;
                 std::shared_ptr<IObjectReader> ReadObject(streams::IBufferedInputStream& stream) const override;
 

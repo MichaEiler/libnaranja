@@ -12,10 +12,7 @@ namespace naranja
         public:
             virtual ~IBufferedInputStream() = default;
 
-            virtual void Peek(char *buffer, const std::size_t length) = 0;
             virtual void Read(char *buffer, const std::size_t length) = 0;
-
-            virtual std::size_t TryPeek(char *buffer, const std::size_t length) override { Peek(buffer, length); return length; }
             virtual std::size_t TryRead(char *buffer, const std::size_t length) override { Read(buffer, length); return length; }
         };
     }

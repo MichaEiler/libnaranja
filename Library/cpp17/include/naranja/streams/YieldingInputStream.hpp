@@ -25,8 +25,6 @@ namespace naranja
             explicit YieldingInputStream(const std::function<void()>& yield, IInputStream& inputStream);
 
             std::size_t AvailableBytes() const override;
-            void Peek(char* buffer, const std::size_t length) override;
-            std::size_t TryPeek(char *buffer, const std::size_t length) override;
             void Read(char *buffer, const std::size_t length) override;
             std::size_t TryRead(char *buffer, const std::size_t length) override;
 

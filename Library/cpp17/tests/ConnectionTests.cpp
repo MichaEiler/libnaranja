@@ -6,7 +6,7 @@
 #include <gmock/gmock.h>
 #include <thread>
 
-#include "common/EchoService.hpp"
+#include "common/EchoBroker.hpp"
 
 constexpr std::uint16_t NetworkPortForTests = 50674u;
 

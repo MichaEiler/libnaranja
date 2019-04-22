@@ -11,26 +11,6 @@ std::size_t naranja::streams::MemoryStream::AvailableBytes() const
     return _cachedBytes;
 }
 
-std::size_t naranja::streams::MemoryStream::TryPeek(char* buffer, const std::size_t length)
-{
-    if (_cachedBytes == 0)
-    {
-        return 0;
-    }
-    
-    auto bytesToCopy = std::min(length, std::min(_cachedBytes, _cache.size() - _readPosition));
-    std::memcpy(buffer, &_cache[_readPosition], bytesToCopy);
-
-    if (bytesToCopy < length && _cachedBytes > bytesToCopy)
-    {
-        auto bytesToCopyAtStart = std::min(_cachedBytes - bytesToCopy, length - bytesToCopy);
-        std::memcpy(&buffer[bytesToCopy], _cache.data(), bytesToCopyAtStart);
-        return bytesToCopy + bytesToCopyAtStart;
-    }
-
-    return bytesToCopy;
-}
-
 std::size_t naranja::streams::MemoryStream::TryRead(char* buffer, const std::size_t length)
 {
     if (_cachedBytes == 0)

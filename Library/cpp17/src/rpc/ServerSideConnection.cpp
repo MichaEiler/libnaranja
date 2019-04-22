@@ -1,17 +1,17 @@
-#include "naranja/network/ServerSideConnection.hpp"
+#include "naranja/rpc/ServerSideConnection.hpp"
 
 #include <naranja/core/Exceptions.hpp>
-#include <naranja/rpc/IService.hpp>
+#include <naranja/rpc/IBroker.hpp>
 #include <naranja/streams/YieldingInputStream.hpp>
 #include <iostream>
 
 #include "SetSocketOptions.hpp"
 
-naranja::rpc::ServerSideConnection::ServerSideConnection(boost::asio::io_service& ioService, const std::shared_ptr<rpc::IService>& service)
+naranja::rpc::ServerSideConnection::ServerSideConnection(boost::asio::io_service& ioService, const std::shared_ptr<rpc::IBroker>& broker)
     : _ioService(ioService)
     , _socket(ioService)
     , _buffer(512 * 1024)
-    , _service(service)
+    , _broker(broker)
 {
     
 }
@@ -92,9 +92,11 @@ void naranja::rpc::ServerSideConnection::ProcessData()
         _processCoroutine = std::move(boost::coroutines2::coroutine<void>::push_type([this](boost::coroutines2::coroutine<void>::pull_type& yield)
         {
             streams::YieldingInputStream yieldingInputStream([&yield](){ yield(); }, _inputStream);
+            utils::LockableResource<streams::IBufferedOutputStream> lockableOutputStream{ std::weak_ptr<streams::IBufferedOutputStream>(shared_from_this()) };
+
             for (;;)
             {
-                _service->Process(yieldingInputStream, std::dynamic_pointer_cast<streams::IBufferedOutputStream>(shared_from_this()));
+                _broker->Process(yieldingInputStream, lockableOutputStream);
             }
         }));
     }

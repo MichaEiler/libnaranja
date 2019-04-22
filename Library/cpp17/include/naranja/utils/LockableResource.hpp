@@ -12,7 +12,7 @@ namespace naranja
         class LockableResource
         {
         public:
-            explicit LockableResource(class std::weak_ptr<TClass>& resource)
+            explicit LockableResource(const std::weak_ptr<TClass>& resource)
                 : _resource(resource)
             {
 
@@ -20,7 +20,7 @@ namespace naranja
 
             decltype(auto) Lock() const
             {
-                std::lock_guard<std::mutex> lock(*_mutex);
+                std::unique_lock<std::mutex> lock(*_mutex);
 
                 auto resource = _resource.lock();
                 if (!resource)

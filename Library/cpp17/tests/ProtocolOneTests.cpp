@@ -64,48 +64,6 @@ TEST_F(ProtocolOneTestFixture, GenerateToken_SizeOfTokenValid)
     ASSERT_EQ(token.size(), expectedTokenSize);
 }
 
-TEST_F(ProtocolOneTestFixture, PeekNextObjectType_FunctionCallInStream_CorrectTypeReturned)
-{
-    naranja::streams::MemoryStream memoryStream;
-    naranja::tests::BufferedInputStream bufferedInputStream(memoryStream);
-
-    const std::string encodedData("\x01\x00\x00\x00", 4);
-    memoryStream.Write(encodedData.data(), encodedData.size());
-
-    const auto protocol = std::make_shared<naranja::protocol::one::Protocol>();
-    const auto actualProtocol = protocol->PeekNextObjectType(bufferedInputStream);
-    const auto expectedProtocol = naranja::protocol::ObjectType::FunctionCall;
-    
-    ASSERT_EQ(actualProtocol, expectedProtocol);
-}
-
-TEST_F(ProtocolOneTestFixture, PeekNextToken_EventInStream_ThrowsRuntimeError)
-{
-    naranja::streams::MemoryStream memoryStream;
-    naranja::tests::BufferedInputStream bufferedInputStream(memoryStream);
-
-    std::string encodedData("\x04\x00\x00\x00", 4);
-    memoryStream.Write(encodedData.data(), encodedData.size());
-
-    auto protocol = std::make_shared<naranja::protocol::one::Protocol>();
-    ASSERT_THROW(protocol->PeekNextToken(bufferedInputStream), std::runtime_error);
-}
-
-TEST_F(ProtocolOneTestFixture, PeekNextToken_ObjectInStream_ReturnsToken)
-{
-    naranja::streams::MemoryStream memoryStream;
-    naranja::tests::BufferedInputStream bufferedInputStream(memoryStream);
-
-    const std::string encodedData("\x01\x00\x00\x00\x0a\x00\x00\x00\x00\x00\x00\x00HelloToken", 22);
-    memoryStream.Write(encodedData.data(), encodedData.size());
-
-    auto protocol = std::make_shared<naranja::protocol::one::Protocol>();
-    auto token = protocol->PeekNextToken(bufferedInputStream);
-
-    const std::string expectedToken("HelloToken");
-    ASSERT_STREQ(token.c_str(), expectedToken.c_str());
-}
-
 TEST_F(ProtocolOneTestFixture, ReadObject_FunctionCall_CorrectlyParsed)
 {
     const auto expectedObjectType = naranja::protocol::ObjectType::FunctionCall;

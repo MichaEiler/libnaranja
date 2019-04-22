@@ -12,30 +12,6 @@ std::size_t naranja::streams::YieldingInputStream::AvailableBytes() const
     return _inputStream.AvailableBytes();
 }
 
-void naranja::streams::YieldingInputStream::Peek(char* buffer, const std::size_t length)
-{
-    while (length < _inputStream.AvailableBytes())
-    {
-        _yield();
-    }
-
-    const auto bytesReceived = _inputStream.TryPeek(buffer, length);
-
-    if (bytesReceived != length)
-    {
-        throw std::logic_error("YieldingInputStream: underlying input stream with invalid TryPeek behaviour.");
-    }
-}
-
-std::size_t naranja::streams::YieldingInputStream::TryPeek(char *buffer, const std::size_t length)
-{
-    while(AvailableBytes() == 0)
-    {
-        _yield();
-    }
-    return _inputStream.TryPeek(buffer, length);
-}
-
 void naranja::streams::YieldingInputStream::Read(char *buffer, const std::size_t length)
 {
     auto bytesToReceive = length;

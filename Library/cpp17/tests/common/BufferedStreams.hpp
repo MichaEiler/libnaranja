@@ -40,16 +40,7 @@ namespace naranja
                 const auto receivedBytes = _stream.TryRead(buffer, length);
                 if (receivedBytes != length)
                 {
-                    throw naranja::exceptions::StreamClosed();
-                }
-            }
-
-            void Peek(char* buffer, const std::size_t length) override
-            {
-                const auto receivedBytes = _stream.TryPeek(buffer, length);
-                if (receivedBytes != length)
-                {
-                    throw naranja::exceptions::StreamClosed();
+                    throw naranja::core::StreamClosedException();
                 }
             }
 

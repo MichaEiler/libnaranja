@@ -15,17 +15,14 @@ namespace naranja
 {
     namespace rpc
     {
-        class IService;
-    }
+        class IBroker;
 
-    namespace rpc
-    {
         class ServerSideConnection : public std::enable_shared_from_this<ServerSideConnection>, public streams::IBufferedOutputStream
         {
         public:
-            static std::shared_ptr<ServerSideConnection> Create(boost::asio::io_service& ioService, const std::shared_ptr<rpc::IService>& service)
+            static std::shared_ptr<ServerSideConnection> Create(boost::asio::io_service& ioService, const std::shared_ptr<rpc::IBroker>& broker)
             {
-                return std::shared_ptr<ServerSideConnection>(new ServerSideConnection(ioService, service));
+                return std::shared_ptr<ServerSideConnection>(new ServerSideConnection(ioService, broker));
             }
 
             ~ServerSideConnection();
@@ -34,20 +31,20 @@ namespace naranja
             void Stop();
 
             void Write(const char* buffer, const std::size_t length) override;
-            void Flush() { }
+            void Flush() override { }
 
             void OnDisconnect(const std::function<void()>& disconnectionHandler) { _disconnectionHandler = disconnectionHandler; };
 
             boost::asio::ip::tcp::socket& Socket() { return _socket; }
 
         private:
-            explicit ServerSideConnection(boost::asio::io_service& ioService, const std::shared_ptr<rpc::IService>& service);
+            explicit ServerSideConnection(boost::asio::io_service& ioService, const std::shared_ptr<rpc::IBroker>& broker);
 
             boost::asio::io_service& _ioService;
             boost::asio::ip::tcp::socket _socket;
             streams::MemoryStream _inputStream;
             std::vector<char> _buffer;
-            std::shared_ptr<rpc::IService> _service;
+            std::shared_ptr<rpc::IBroker> _broker;
             std::function<void()> _disconnectionHandler;
             std::mutex _mutex;
             

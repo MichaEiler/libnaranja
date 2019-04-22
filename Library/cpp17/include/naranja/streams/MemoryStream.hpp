@@ -17,7 +17,6 @@ namespace naranja
             explicit MemoryStream(const std::size_t cacheSize = 64 * 1024);
 
             std::size_t AvailableBytes() const override;
-            std::size_t TryPeek(char* buffer, const std::size_t length) override;
             std::size_t TryRead(char* buffer, const std::size_t length) override;
             void Write(const char* buffer, const std::size_t length) override;
             std::size_t Capacity() const;
