@@ -2,11 +2,12 @@
 
 #include <future>
 #include <naranja/rpc/ServerSideConnection.hpp>
+#include <naranja/rpc/IBrokerFactory.hpp>
 
-naranja::rpc::Server::Server(const std::shared_ptr<IBroker> broker, const std::uint16_t port)
+naranja::rpc::Server::Server(const std::shared_ptr<IBrokerFactory> brokerFactory, const std::uint16_t port)
     : _ioService()
     , _acceptor(_ioService, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port))
-    , _broker(broker)
+    , _brokerFactory(brokerFactory)
 {
 
 }
@@ -40,7 +41,7 @@ void naranja::rpc::Server::Stop()
 
 void naranja::rpc::Server::HandleAccept()
 {
-    auto connection = ServerSideConnection::Create(_ioService, _broker);
+    auto connection = ServerSideConnection::Create(_ioService, _brokerFactory->Create());
     connection->OnDisconnect([weakServer = std::weak_ptr<Server>(shared_from_this()), connection](){
         auto server = weakServer.lock();
         if (!server)

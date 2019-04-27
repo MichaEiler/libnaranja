@@ -17,7 +17,7 @@ void naranja::protocol::ObjectBroker::Process(streams::IBufferedInputStream& inp
             HandleFunctionResponse(nextObject);
             return;
         case ObjectType::Event:
-            // TODO: handle event
+            HandleEvent(nextObject);
             break;
         default:
             throw core::ParseFailureException("Unknown object type.");
@@ -51,6 +51,7 @@ void naranja::protocol::ObjectBroker::HandleFunctionResponse(const std::shared_p
             throw core::ParseFailureException("No handler registered for received token.");
         }
         handler = it->second;
+        _functionResponses.erase(it);
     }
     handler(objectReader);
 }

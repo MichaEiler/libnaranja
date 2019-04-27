@@ -83,6 +83,8 @@ void naranja::rpc::ClientSideConnection::HandleRead()
             }
             return;
         }
+
+        // TODO: handle read
         
         connection->HandleRead();
     };
