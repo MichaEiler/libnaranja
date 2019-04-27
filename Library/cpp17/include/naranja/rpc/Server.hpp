@@ -15,13 +15,13 @@ namespace naranja
 
     namespace rpc
     {
-        class IBroker;
+        class IBrokerFactory;
         class ServerSideConnection;
 
         class Server final : public std::enable_shared_from_this<Server>
         {
         public:
-            explicit Server(const std::shared_ptr<IBroker> broker, const std::uint16_t port);
+            explicit Server(const std::shared_ptr<IBrokerFactory> brokerFactory, const std::uint16_t port);
             ~Server();
 
             void Start();
@@ -35,7 +35,7 @@ namespace naranja
             std::thread _ioServiceThread;
 
             std::set<std::shared_ptr<ServerSideConnection>> _connections;
-            std::shared_ptr<IBroker> _broker;
+            std::shared_ptr<IBrokerFactory> _brokerFactory;
 
             void HandleAccept();
         };

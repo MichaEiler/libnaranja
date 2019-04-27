@@ -58,8 +58,8 @@ protected:
 
 TEST_F(ConnectionTestFixture, CloseClient_AfterClientConnectionUp_ServerRemovesConnection)
 {
-    auto service = std::make_shared<naranja::tests::EchoService>();
-    auto server = std::make_shared<naranja::rpc::Server>(service, NetworkPortForTests);
+    auto brokerFactory = std::make_shared<naranja::tests::EchoBrokerFactory>();
+    auto server = std::make_shared<naranja::rpc::Server>(brokerFactory, NetworkPortForTests);
     auto client = std::make_shared<naranja::rpc::ClientSideConnection>();
 
     server->Start();

@@ -1,13 +1,14 @@
 #pragma once
 
 #include <naranja/rpc/IBroker.hpp>
+#include <naranja/rpc/IBrokerFactory.hpp>
 #include <vector>
 
 namespace naranja
 {
     namespace tests
     {
-        class EchoService : public naranja::rpc::IBroker
+        class EchoBroker : public naranja::rpc::IBroker
         {
         public:
             void Process(naranja::streams::IBufferedInputStream& inputStream, const utils::LockableResource<streams::IBufferedOutputStream>& outputStream) override
@@ -27,11 +28,21 @@ namespace naranja
                         
                         strongOutputStream->Write(buffer.data(), availableBytes);
                         strongOutputStream->Flush();
-                    } catch(...)
+                    }
+                    catch(...)
                     {
                         return;
                     }
                 }
+            }
+        };
+
+        class EchoBrokerFactory : public naranja::rpc::IBrokerFactory
+        {
+        public:
+            std::shared_ptr<naranja::rpc::IBroker> Create() override
+            {
+                return std::make_shared<EchoBroker>();
             }
         };
     }

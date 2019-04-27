@@ -85,7 +85,8 @@ namespace naranja
 
             virtual ObjectToken CreateToken() = 0;
 
-            virtual std::shared_ptr<IObjectWriter> WriteObject(streams::IBufferedOutputStream& stream, const ObjectType& type, const ObjectIdentifier& identifier, const ObjectToken& token = ObjectToken()) const = 0;
+            virtual std::shared_ptr<IObjectWriter> WriteObject(streams::IBufferedOutputStream& stream, const ObjectType& type,
+                const ObjectIdentifier& identifier, const ObjectToken& token = ObjectToken()) const = 0;
             virtual std::shared_ptr<IObjectReader> ReadObject(streams::IBufferedInputStream& stream) const = 0;
         };
     }
