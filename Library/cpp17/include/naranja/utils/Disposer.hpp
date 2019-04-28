@@ -46,6 +46,11 @@ namespace naranja
                 _action = std::move(action);
             }
 
+            void Reset()
+            {
+                _action = std::function<void()>();
+            }
+
             ~Disposer()
             {
                 if (_action)

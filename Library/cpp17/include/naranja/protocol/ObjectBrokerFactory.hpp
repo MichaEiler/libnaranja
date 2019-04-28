@@ -10,10 +10,18 @@ namespace naranja
         class ObjectBrokerFactory : public rpc::IBrokerFactory
         {
         public:
+            explicit ObjectBrokerFactory(const std::shared_ptr<IProtocol>& protocol)
+                : _protocol(protocol)
+            {
+            }
+
             std::shared_ptr<rpc::IBroker> Create() override
             {
-                return std::make_shared<ObjectBroker>();
+                return ObjectBroker::Create(_protocol);
             }
+        
+        private:
+            std::shared_ptr<IProtocol> _protocol;
         };
     }
 }

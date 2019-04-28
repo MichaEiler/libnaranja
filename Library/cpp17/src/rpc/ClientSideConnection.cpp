@@ -1,14 +1,18 @@
 #include "naranja/rpc/ClientSideConnection.hpp"
 
 #include <naranja/core/Exceptions.hpp>
+#include <naranja/rpc/IBroker.hpp>
+#include <naranja/streams/YieldingInputStream.hpp>
+#include <naranja/utils/LockableResource.hpp>
 #include <iostream>
 
 #include "SetSocketOptions.hpp"
 
-naranja::rpc::ClientSideConnection::ClientSideConnection()
+naranja::rpc::ClientSideConnection::ClientSideConnection(const std::shared_ptr<IBroker>& broker)
     : _buffer(512 * 1024, 0)
     , _service()
     , _socket(_service)
+    , _broker(broker)
 {
 
 }
@@ -84,11 +88,29 @@ void naranja::rpc::ClientSideConnection::HandleRead()
             return;
         }
 
-        // TODO: handle read
-        
+        connection->ProcessData();
         connection->HandleRead();
     };
 
     _socket.async_receive(boost::asio::buffer(_buffer.data(), _buffer.size()), readAction);
+}
+
+void naranja::rpc::ClientSideConnection::ProcessData()
+{
+    if (!_processCoroutine)
+    {
+        _processCoroutine = std::move(boost::coroutines2::coroutine<void>::push_type([this](boost::coroutines2::coroutine<void>::pull_type& yield)
+        {
+            streams::YieldingInputStream yieldingInputStream([&yield](){ yield(); }, _inputStream);
+            utils::LockableResource<streams::IBufferedOutputStream> lockableOutputStream{ std::weak_ptr<streams::IBufferedOutputStream>(shared_from_this()) };
+
+            for (;;)
+            {
+                _broker->Process(yieldingInputStream, lockableOutputStream);
+            }
+        }));
+    }
+
+    (*_processCoroutine)();
 }
 

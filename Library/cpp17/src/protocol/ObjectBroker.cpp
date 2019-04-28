@@ -58,6 +58,6 @@ void naranja::protocol::ObjectBroker::HandleFunctionResponse(const std::shared_p
 
 void naranja::protocol::ObjectBroker::HandleEvent(const std::shared_ptr<naranja::protocol::IObjectReader>& objectReader)
 {
-
+    HandleFunctionCall(objectReader);
 }
 
