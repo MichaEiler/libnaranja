@@ -50,6 +50,16 @@ void naranja::generated::SampleServiceProtocol::Read_FunctionReturningData_Respo
     objectReader.ReadValue("arg1.Member2", result.Member2);
 }
 
+void naranja::generated::SampleServiceProtocol::Write_SampleEvent(protocol::IObjectWriter& objectWriter, const std::string& value)
+{
+    objectWriter.WriteValue("value", value);
+}
+
+void naranja::generated::SampleServiceProtocol::Read_SampleEvent(protocol::IObjectReader& objectReader, std::string& value)
+{
+    objectReader.ReadValue("value", value);
+}
+
 void naranja::generated::SampleServiceProtocol::Write_SampleException(protocol::IObjectWriter& objectWriter, const SampleException& ex)
 {
     objectWriter.WriteValue("Description", ex.Description);
@@ -68,7 +78,16 @@ naranja::generated::ClientSideSampleService::ClientSideSampleService(const std::
     , _connection(connection)
     , _protocol(protocol)
 {
-    // TODO: register event callbacks on object broker
+    _sampleEventRegistrationDisposer = _broker->RegisterEventHandler("Sample.SampleEvent", [this](const std::shared_ptr<protocol::IObjectReader>& objectReader) {
+        std::string value;
+        generated::SampleServiceProtocol::Read_SampleEvent(*objectReader, value);
+
+        std::lock_guard<std::mutex> lock(_eventMutex);
+        for (auto& listeners : _sampleEventListeners)
+        {
+            listeners.second(value);
+        }
+    });
 }
 
 void naranja::generated::ClientSideSampleService::FunctionThrowingSampleException()
@@ -127,6 +146,29 @@ void naranja::generated::ClientSideSampleService::FunctionReturningData(naranja:
     future.get();
 }
 
+naranja::utils::Disposer naranja::generated::ClientSideSampleService::OnSampleEvent(const std::function<void(const std::string&)>& eventHandler)
+{
+    std::lock_guard<std::mutex> lock(_eventMutex);
+
+    const auto token = _protocol->CreateToken();
+    _sampleEventListeners[token] = eventHandler;
+
+    return naranja::utils::Disposer([weakClient = std::weak_ptr<ClientSideSampleService>(shared_from_this()), token](){
+        auto client = weakClient.lock();
+        if (!client)
+        {
+            return;
+        }
+
+        std::lock_guard<std::mutex> lock(client->_eventMutex);
+
+        auto it = client->_sampleEventListeners.find(token);
+        if (it != client->_sampleEventListeners.end())
+        {
+            client->_sampleEventListeners.erase(it);
+        }
+    });
+}
 
 // -------------------------------------------------------------------------------------- Server Side Code
 

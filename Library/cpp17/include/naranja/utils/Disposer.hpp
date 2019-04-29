@@ -46,9 +46,14 @@ namespace naranja
                 _action = std::move(action);
             }
 
-            void Reset()
+            void Clear()
             {
                 _action = std::function<void()>();
+            }
+
+            operator bool()
+            {
+                return static_cast<bool>(_action);
             }
 
             ~Disposer()
