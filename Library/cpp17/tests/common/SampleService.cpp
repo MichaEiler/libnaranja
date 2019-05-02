@@ -172,5 +172,42 @@ naranja::utils::Disposer naranja::generated::ClientSideSampleService::OnSampleEv
 
 // -------------------------------------------------------------------------------------- Server Side Code
 
+naranja::generated::ServerSideSampleService::ServerSideSampleService(const std::shared_ptr<ISampleService>& service, const std::shared_ptr<protocol::IProtocol>& protocol)
+    : _protocol(protocol)
+    , _service(service)
+{
 
+}
 
+void naranja::generated::ServerSideSampleService::FunctionThrowingSampleException(protocol::IObjectReader& object, const utils::LockableResource<streams::IBufferedOutputStream>& outputStream)
+{
+    // TODO: use threadpool
+    naranja::generated::SampleServiceProtocol::Read_FunctionThrowingSampleException_Request(object);
+    try
+    {
+        _service->FunctionThrowingSampleException();
+        auto reservedOutputStream = outputStream.Lock();
+        auto responseObject = _protocol->WriteObject(*reservedOutputStream, naranja::protocol::ObjectType::FunctionResponse, "Sample.FunctionThrowingSampleException", object.Token());
+        ::naranja::generated::SampleServiceProtocol::Write_FunctionThrowingSampleException_Response(*responseObject);
+    }
+    catch(const naranja::generated::SampleException& ex)
+    {
+        auto reservedOutputStream = outputStream.Lock();
+        auto responseObject = _protocol->WriteObject(*reservedOutputStream, naranja::protocol::ObjectType::Exception, "Sample.SampleException", object.Token());
+        naranja::generated::SampleServiceProtocol::Write_SampleException(*responseObject, ex);
+    }
+}
+
+void naranja::generated::ServerSideSampleService::FunctionReturningData(protocol::IObjectReader& object, const utils::LockableResource<streams::IBufferedOutputStream>& outputStream)
+{
+    // TODO: use threadpool
+    naranja::generated::SampleEnum arg1;
+    naranja::generated::SampleStruct result;
+
+    naranja::generated::SampleServiceProtocol::Read_FunctionReturningData_Request(object, arg1);
+    _service->FunctionReturningData(result, arg1);
+
+    auto reservedOutputStream = outputStream.Lock();
+    auto responseObject = _protocol->WriteObject(*reservedOutputStream, naranja::protocol::ObjectType::FunctionResponse, "Sample.FunctionReturningData", object.Token());
+    naranja::generated::SampleServiceProtocol::Write_FunctionReturningData_Response(*responseObject, result);
+}

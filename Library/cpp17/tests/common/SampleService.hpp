@@ -5,6 +5,7 @@
 #include <naranja/core/Exceptions.hpp>
 #include <naranja/protocol/ObjectBroker.hpp>
 #include <naranja/protocol/IProtocol.hpp>
+#include <naranja/protocol/IServerSideService.hpp>
 #include <naranja/rpc/ClientSideConnection.hpp>
 #include <naranja/utils/Disposer.hpp>
 #include <string>
@@ -70,23 +71,35 @@ namespace naranja
         };
 
 
-        class ServerSideSampleService : public std::enable_shared_from_this<ServerSideSampleService>
+        class ServerSideSampleService : public naranja::protocol::IServerSideService, public std::enable_shared_from_this<ServerSideSampleService>
         {
         public:
-            static std::shared_ptr<ServerSideSampleService> Create(const std::shared_ptr<ISampleService>& service)
+            static std::shared_ptr<ServerSideSampleService> Create(const std::shared_ptr<ISampleService>& service, const std::shared_ptr<protocol::IProtocol>& protocol)
             {
-                return std::shared_ptr<ServerSideSampleService>(new ServerSideSampleService(service));
+                return std::shared_ptr<ServerSideSampleService>(new ServerSideSampleService(service, protocol));
             }
 
-            void AddNewConnection(const std::shared_ptr<protocol::ObjectBroker>& broker)
+            void AddNewConnection(const std::shared_ptr<protocol::ObjectBroker>& broker) override
             {
+                broker->RegisterFunctionCallHandler("Sample.FunctionThrowingSampleException", 
+                    [weakService = std::weak_ptr<ServerSideSampleService>(shared_from_this())](auto& object){
+                        auto strongService = weakService.lock();
+                        if (!strongService)
+                        {
+                            return;
+                        }
 
+                        strongService->FunctionThrowingSampleException(*object, outputStream);
+                    }).Clear();
             }
             
         private:
-            explicit ServerSideSampleService(const std::shared_ptr<ISampleService>& service);
+            explicit ServerSideSampleService(const std::shared_ptr<ISampleService>& service, const std::shared_ptr<protocol::IProtocol>& protocol);
 
+            void FunctionThrowingSampleException(protocol::IObjectReader& object, const utils::LockableResource<streams::IBufferedOutputStream>& outputStream);
+            void FunctionReturningData(protocol::IObjectReader& object, const utils::LockableResource<streams::IBufferedOutputStream>& outputStream);
 
+            std::shared_ptr<protocol::IProtocol> _protocol;
             std::shared_ptr<ISampleService> _service;
         };
 
