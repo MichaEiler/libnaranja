@@ -20,7 +20,7 @@ void naranja::streams::YieldingInputStream::Read(char *buffer, const std::size_t
         auto bytesReceived = _inputStream.TryRead(&buffer[length - bytesToReceive], bytesToReceive);
         if (bytesReceived > 0)
         {
-            bytesToReceive - bytesReceived;
+            bytesToReceive -= bytesReceived;
         }
         else
         {

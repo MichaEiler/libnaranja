@@ -60,7 +60,7 @@ TEST_F(ConnectionTestFixture, CloseClient_AfterClientConnectionUp_ServerRemovesC
 {
     auto brokerFactory = std::make_shared<naranja::tests::EchoBrokerFactory>();
     auto server = std::make_shared<naranja::rpc::Server>(brokerFactory, NetworkPortForTests);
-    auto client = std::make_shared<naranja::rpc::ClientSideConnection>();
+    auto client = std::make_shared<naranja::rpc::ClientSideConnection>(brokerFactory->Create());
 
     server->Start();
     ASSERT_EQ(0, server->NumberOfConnections());

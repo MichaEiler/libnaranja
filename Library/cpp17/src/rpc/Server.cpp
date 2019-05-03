@@ -1,6 +1,8 @@
 #include "naranja/rpc/Server.hpp"
 
 #include <future>
+#include <iostream>
+#include <naranja/rpc/IServerSideService.hpp>
 #include <naranja/rpc/ServerSideConnection.hpp>
 #include <naranja/rpc/IBrokerFactory.hpp>
 
@@ -14,7 +16,10 @@ naranja::rpc::Server::Server(const std::shared_ptr<IBrokerFactory> brokerFactory
 
 naranja::rpc::Server::~Server()
 {
-    Stop();
+    if (!_ioService.stopped())
+    {
+        Stop();
+    }
 }
 
 void naranja::rpc::Server::Start()
@@ -41,22 +46,32 @@ void naranja::rpc::Server::Stop()
 
 void naranja::rpc::Server::HandleAccept()
 {
-    auto connection = ServerSideConnection::Create(_ioService, _brokerFactory->Create());
-    connection->OnDisconnect([weakServer = std::weak_ptr<Server>(shared_from_this()), connection](){
+    const auto newObjectBroker = _brokerFactory->Create();
+    auto connection = ServerSideConnection::Create(_ioService, newObjectBroker);
+
+    connection->OnDisconnect([weakServer = std::weak_ptr<Server>(shared_from_this()), connection, newObjectBroker](){
         auto server = weakServer.lock();
         if (!server)
         {
             return;
         }
 
-        server->_ioService.post([connection, server](){
-            server->_connections.erase(connection);
-        });
+        if (!server->_ioService.stopped())
+        {
+            server->_ioService.post([connection, server](){
+                server->_connections.erase(connection);
+            });
+        }
     });
 
-    auto acceptionHandler = [connection, this](const boost::system::error_code& error){
+    auto acceptionHandler = [connection, newObjectBroker, this](const boost::system::error_code& error){
         if (!error)
         {
+            for (auto& service : _services)
+            {
+                service->AddNewConnection(newObjectBroker);
+            }
+
             connection->Start();
             _connections.insert(connection);
         }

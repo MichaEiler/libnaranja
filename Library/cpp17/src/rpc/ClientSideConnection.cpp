@@ -88,7 +88,11 @@ void naranja::rpc::ClientSideConnection::HandleRead()
             return;
         }
 
-        connection->ProcessData();
+        if (receivedBytes > 0)
+        {
+            connection->_inputStream.Write(connection->_buffer.data(), receivedBytes);
+            connection->ProcessData();
+        }
         connection->HandleRead();
     };
 

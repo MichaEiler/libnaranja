@@ -91,12 +91,19 @@ void naranja::rpc::ServerSideConnection::ProcessData()
     {
         _processCoroutine = std::move(boost::coroutines2::coroutine<void>::push_type([this](boost::coroutines2::coroutine<void>::pull_type& yield)
         {
-            streams::YieldingInputStream yieldingInputStream([&yield](){ yield(); }, _inputStream);
-            utils::LockableResource<streams::IBufferedOutputStream> lockableOutputStream{ std::weak_ptr<streams::IBufferedOutputStream>(shared_from_this()) };
-
-            for (;;)
+            try
             {
-                _broker->Process(yieldingInputStream, lockableOutputStream);
+                streams::YieldingInputStream yieldingInputStream([&yield](){ yield(); }, _inputStream);
+                utils::LockableResource<streams::IBufferedOutputStream> lockableOutputStream{ std::weak_ptr<streams::IBufferedOutputStream>(shared_from_this()) };
+
+                for (;;)
+                {
+                    _broker->Process(yieldingInputStream, lockableOutputStream);
+                }
+            }
+            catch(const std::exception& e)
+            {
+                std::cerr << e.what() << '\n';
             }
         }));
     }

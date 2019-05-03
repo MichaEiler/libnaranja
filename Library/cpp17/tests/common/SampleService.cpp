@@ -2,6 +2,7 @@
 
 #include <future>
 #include <naranja/protocol/IProtocol.hpp>
+#include <naranja/protocol/ObjectBroker.hpp>
 #include <naranja/utils/Disposer.hpp>
 
 // -------------------------------------------------------------------------------------- DeSerialization Routines

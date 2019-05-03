@@ -1,5 +1,6 @@
 file (GLOB SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp"
-                   "${CMAKE_CURRENT_SOURCE_DIR}/common/*.hpp")
+                   "${CMAKE_CURRENT_SOURCE_DIR}/common/*.hpp"
+                   "${CMAKE_CURRENT_SOURCE_DIR}/common/*.cpp")
 
 add_executable (naranja_tests ${SOURCES})
 target_link_libraries (naranja_tests naranja gtest gmock_main)

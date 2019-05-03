@@ -4,16 +4,16 @@
 
 namespace naranja
 {
-    namespace protocol
+    namespace rpc
     {
-        class ObjectBroker;
+        class IBroker;
 
         class IServerSideService
         {
         public:
             virtual ~IServerSideService() = default;
 
-            virtual void AddNewConnection(const std::shared_ptr<protocol::ObjectBroker>& broker) = 0;
+            virtual void AddNewConnection(const std::shared_ptr<rpc::IBroker>& broker) = 0;
         };
     }
 }

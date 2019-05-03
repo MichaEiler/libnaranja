@@ -6,6 +6,7 @@ set (THREADS_PREFER_PTHREAD_FLAG ON)
 
 file (GLOB SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/streams/*.cpp"
                    "${CMAKE_CURRENT_SOURCE_DIR}/src/protocol/one/*.cpp"
+                   "${CMAKE_CURRENT_SOURCE_DIR}/src/protocol/*.cpp"
                    "${CMAKE_SOURCE_DIR}/src/rpc/*.cpp"
                    "${CMAKE_SOURCE_DIR}/include/naranja/core/*.hpp"
                    "${CMAKE_SOURCE_DIR}/include/naranja/protocol/*.hpp"

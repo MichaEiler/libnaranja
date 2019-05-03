@@ -34,6 +34,7 @@ namespace naranja
             {
                 _action = std::move(other._action);
                 other._action = std::function<void()>();
+                return *this;
             }
 
             void Set(const std::function<void()>& action)

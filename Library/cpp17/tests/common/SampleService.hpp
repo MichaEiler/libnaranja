@@ -5,7 +5,7 @@
 #include <naranja/core/Exceptions.hpp>
 #include <naranja/protocol/ObjectBroker.hpp>
 #include <naranja/protocol/IProtocol.hpp>
-#include <naranja/protocol/IServerSideService.hpp>
+#include <naranja/rpc/IServerSideService.hpp>
 #include <naranja/rpc/ClientSideConnection.hpp>
 #include <naranja/utils/Disposer.hpp>
 #include <string>
@@ -71,7 +71,7 @@ namespace naranja
         };
 
 
-        class ServerSideSampleService : public naranja::protocol::IServerSideService, public std::enable_shared_from_this<ServerSideSampleService>
+        class ServerSideSampleService : public naranja::rpc::IServerSideService, public std::enable_shared_from_this<ServerSideSampleService>
         {
         public:
             static std::shared_ptr<ServerSideSampleService> Create(const std::shared_ptr<ISampleService>& service, const std::shared_ptr<protocol::IProtocol>& protocol)
@@ -79,22 +79,28 @@ namespace naranja
                 return std::shared_ptr<ServerSideSampleService>(new ServerSideSampleService(service, protocol));
             }
 
-            void AddNewConnection(const std::shared_ptr<protocol::ObjectBroker>& broker) override
+            void AddNewConnection(const std::shared_ptr<rpc::IBroker>& broker) override
             {
-                broker->RegisterFunctionCallHandler("Sample.FunctionThrowingSampleException", 
-                    [weakService = std::weak_ptr<ServerSideSampleService>(shared_from_this())](auto& object){
-                        auto strongService = weakService.lock();
-                        if (!strongService)
-                        {
-                            return;
-                        }
-
-                        strongService->FunctionThrowingSampleException(*object, outputStream);
-                    }).Clear();
+                auto objectBroker = std::dynamic_pointer_cast<protocol::ObjectBroker>(broker);
+                ConnectHandler(objectBroker, "Sample.FunctionThrowingSampleException", &ServerSideSampleService::FunctionThrowingSampleException);
+                ConnectHandler(objectBroker, "Sample.FunctionReturningData", &ServerSideSampleService::FunctionReturningData);
             }
             
         private:
             explicit ServerSideSampleService(const std::shared_ptr<ISampleService>& service, const std::shared_ptr<protocol::IProtocol>& protocol);
+
+            void ConnectHandler(const std::shared_ptr<protocol::ObjectBroker>& broker, const std::string& identifier,
+                void (ServerSideSampleService::*const func)(protocol::IObjectReader&, const naranja::utils::LockableResource<naranja::streams::IBufferedOutputStream>&))
+            {
+                broker->RegisterFunctionCallHandler(identifier, [weakService = std::weak_ptr<ServerSideSampleService>(shared_from_this()), func](auto& object, const naranja::utils::LockableResource<naranja::streams::IBufferedOutputStream>& outputStream){
+                        auto strongService = weakService.lock();
+                        if (strongService)
+                        {
+                            auto& objectRef = *object;
+                            (*strongService.*func)(objectRef, outputStream);
+                        }
+                    }).Clear();
+            }
 
             void FunctionThrowingSampleException(protocol::IObjectReader& object, const utils::LockableResource<streams::IBufferedOutputStream>& outputStream);
             void FunctionReturningData(protocol::IObjectReader& object, const utils::LockableResource<streams::IBufferedOutputStream>& outputStream);

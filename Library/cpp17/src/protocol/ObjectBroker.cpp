@@ -9,7 +9,7 @@ void naranja::protocol::ObjectBroker::Process(streams::IBufferedInputStream& inp
         switch(nextObject->Type())
         {
         case ObjectType::FunctionCall:
-            HandleFunctionCall(nextObject);
+            HandleFunctionCall(nextObject, outputStream);
             break;
         case ObjectType::FunctionResponse:
             [[fallthrough]];
@@ -25,7 +25,7 @@ void naranja::protocol::ObjectBroker::Process(streams::IBufferedInputStream& inp
     }
 }
 
-void naranja::protocol::ObjectBroker::HandleFunctionCall(const std::shared_ptr<naranja::protocol::IObjectReader>& objectReader)
+void naranja::protocol::ObjectBroker::HandleFunctionCall(const std::shared_ptr<naranja::protocol::IObjectReader>& objectReader, const utils::LockableResource<streams::IBufferedOutputStream>& outputStream)
 {
     decltype(_functionCalls)::mapped_type handler;
     {
@@ -37,7 +37,7 @@ void naranja::protocol::ObjectBroker::HandleFunctionCall(const std::shared_ptr<n
         }
         handler = it->second;
     }
-    handler(objectReader);
+    handler(objectReader, outputStream);
 }
 
 void naranja::protocol::ObjectBroker::HandleFunctionResponse(const std::shared_ptr<naranja::protocol::IObjectReader>& objectReader)
@@ -58,6 +58,16 @@ void naranja::protocol::ObjectBroker::HandleFunctionResponse(const std::shared_p
 
 void naranja::protocol::ObjectBroker::HandleEvent(const std::shared_ptr<naranja::protocol::IObjectReader>& objectReader)
 {
-    HandleFunctionCall(objectReader);
+    decltype(_events)::mapped_type handler;
+    {
+        std::lock_guard<std::mutex> lock(_mutex);
+        auto it = _events.find(objectReader->Identifier());
+        if (it == _events.end())
+        {
+            throw core::ParseFailureException("Unknown identifier.");
+        }
+        handler = it->second;
+    }
+    handler(objectReader);
 }
 

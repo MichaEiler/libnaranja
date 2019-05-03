@@ -14,6 +14,7 @@ namespace naranja
         public:
             explicit LockableResource(const std::weak_ptr<TClass>& resource)
                 : _resource(resource)
+                , _mutex(std::make_shared<std::mutex>())
             {
 
             }
