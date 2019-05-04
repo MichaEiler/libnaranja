@@ -1,23 +1,31 @@
 #include "naranja/rpc/ClientSideConnection.hpp"
 
 #include <naranja/core/Exceptions.hpp>
-#include <naranja/rpc/IBroker.hpp>
+#include <naranja/rpc/ObjectBroker.hpp>
 #include <naranja/streams/YieldingInputStream.hpp>
 #include <naranja/utils/LockableResource.hpp>
 #include <iostream>
 
 #include "SetSocketOptions.hpp"
 
-naranja::rpc::ClientSideConnection::ClientSideConnection(const std::shared_ptr<IBroker>& broker)
+naranja::rpc::ClientSideConnection::ClientSideConnection(const std::shared_ptr<protocol::IProtocol>& protocol)
     : _buffer(512 * 1024, 0)
     , _service()
     , _socket(_service)
-    , _broker(broker)
+    , _broker(ObjectBroker::Create(protocol))
 {
 
 }
 
-void naranja::rpc::ClientSideConnection::Connect(const std::string& serverAddress, const std::uint16_t serverPort)
+naranja::rpc::ClientSideConnection::~ClientSideConnection()
+{
+    if (!_service.stopped())
+    {
+        Close();
+    }
+}
+
+void naranja::rpc::ClientSideConnection::Start(const std::string& serverAddress, const std::uint16_t serverPort)
 {
     using tcp = boost::asio::ip::tcp;
     tcp::resolver resolver(_service);

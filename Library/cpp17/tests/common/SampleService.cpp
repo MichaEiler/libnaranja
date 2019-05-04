@@ -2,7 +2,7 @@
 
 #include <future>
 #include <naranja/protocol/IProtocol.hpp>
-#include <naranja/protocol/ObjectBroker.hpp>
+#include <naranja/rpc/ObjectBroker.hpp>
 #include <naranja/utils/Disposer.hpp>
 
 // -------------------------------------------------------------------------------------- DeSerialization Routines
@@ -73,9 +73,8 @@ void naranja::generated::SampleServiceProtocol::Read_SampleException(protocol::I
 
 // -------------------------------------------------------------------------------------- Client Side Code
 
-naranja::generated::ClientSideSampleService::ClientSideSampleService(const std::shared_ptr<naranja::protocol::ObjectBroker>& broker,
-    const std::shared_ptr<naranja::rpc::ClientSideConnection>& connection, const std::shared_ptr<naranja::protocol::IProtocol>& protocol)
-    : _broker(broker)
+naranja::generated::ClientSideSampleService::ClientSideSampleService(const std::shared_ptr<naranja::rpc::ClientSideConnection>& connection, const std::shared_ptr<naranja::protocol::IProtocol>& protocol)
+    : _broker(connection->Broker())
     , _connection(connection)
     , _protocol(protocol)
 {

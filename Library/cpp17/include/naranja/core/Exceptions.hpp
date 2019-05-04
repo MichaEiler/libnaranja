@@ -43,7 +43,7 @@ namespace naranja
             }
         };
 
-        class ObjectDestroyedException : std::runtime_error
+        class ObjectDestroyedException : public std::runtime_error
         {
         public:
             explicit ObjectDestroyedException()
@@ -52,7 +52,7 @@ namespace naranja
             }
         };
 
-        class CustomRpcException : std::runtime_error
+        class CustomRpcException : public std::runtime_error
         {
         public:
             explicit CustomRpcException()

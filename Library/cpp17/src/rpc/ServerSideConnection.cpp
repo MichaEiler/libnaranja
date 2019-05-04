@@ -1,19 +1,24 @@
 #include "naranja/rpc/ServerSideConnection.hpp"
 
 #include <naranja/core/Exceptions.hpp>
-#include <naranja/rpc/IBroker.hpp>
+#include <naranja/rpc/IServerSideService.hpp>
+#include <naranja/rpc/ObjectBroker.hpp>
 #include <naranja/streams/YieldingInputStream.hpp>
 #include <iostream>
 
 #include "SetSocketOptions.hpp"
 
-naranja::rpc::ServerSideConnection::ServerSideConnection(boost::asio::io_service& ioService, const std::shared_ptr<rpc::IBroker>& broker)
+naranja::rpc::ServerSideConnection::ServerSideConnection(boost::asio::io_service& ioService,
+    const std::vector<std::shared_ptr<IServerSideService>>& services, const std::shared_ptr<protocol::IProtocol>& protocol)
     : _ioService(ioService)
     , _socket(ioService)
     , _buffer(512 * 1024)
-    , _broker(broker)
+    , _broker(rpc::ObjectBroker::Create(protocol))
 {
-    
+    for (auto& service : services)
+    {
+        service->RegisterFunctionHandlers(_broker);
+    }
 }
 
 naranja::rpc::ServerSideConnection::~ServerSideConnection()
@@ -91,23 +96,15 @@ void naranja::rpc::ServerSideConnection::ProcessData()
     {
         _processCoroutine = std::move(boost::coroutines2::coroutine<void>::push_type([this](boost::coroutines2::coroutine<void>::pull_type& yield)
         {
-            try
-            {
-                streams::YieldingInputStream yieldingInputStream([&yield](){ yield(); }, _inputStream);
-                utils::LockableResource<streams::IBufferedOutputStream> lockableOutputStream{ std::weak_ptr<streams::IBufferedOutputStream>(shared_from_this()) };
+            streams::YieldingInputStream yieldingInputStream([&yield](){ yield(); }, _inputStream);
+            utils::LockableResource<streams::IBufferedOutputStream> lockableOutputStream{ std::weak_ptr<streams::IBufferedOutputStream>(shared_from_this()) };
 
-                for (;;)
-                {
-                    _broker->Process(yieldingInputStream, lockableOutputStream);
-                }
-            }
-            catch(const std::exception& e)
+            for (;;)
             {
-                std::cerr << e.what() << '\n';
+                _broker->Process(yieldingInputStream, lockableOutputStream);
             }
         }));
     }
 
     (*_processCoroutine)();
 }
-

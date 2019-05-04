@@ -1,6 +1,6 @@
-#include "naranja/protocol/ObjectBroker.hpp"
+#include "naranja/rpc/ObjectBroker.hpp"
 
-void naranja::protocol::ObjectBroker::Process(streams::IBufferedInputStream& inputStream, const utils::LockableResource<streams::IBufferedOutputStream>& outputStream)
+void naranja::rpc::ObjectBroker::Process(streams::IBufferedInputStream& inputStream, const utils::LockableResource<streams::IBufferedOutputStream>& outputStream)
 {
     for (;;)
     {
@@ -8,15 +8,15 @@ void naranja::protocol::ObjectBroker::Process(streams::IBufferedInputStream& inp
         
         switch(nextObject->Type())
         {
-        case ObjectType::FunctionCall:
+        case naranja::protocol::ObjectType::FunctionCall:
             HandleFunctionCall(nextObject, outputStream);
             break;
-        case ObjectType::FunctionResponse:
+        case naranja::protocol::ObjectType::FunctionResponse:
             [[fallthrough]];
-        case ObjectType::Exception:
+        case naranja::protocol::ObjectType::Exception:
             HandleFunctionResponse(nextObject);
             return;
-        case ObjectType::Event:
+        case naranja::protocol::ObjectType::Event:
             HandleEvent(nextObject);
             break;
         default:
@@ -25,7 +25,7 @@ void naranja::protocol::ObjectBroker::Process(streams::IBufferedInputStream& inp
     }
 }
 
-void naranja::protocol::ObjectBroker::HandleFunctionCall(const std::shared_ptr<naranja::protocol::IObjectReader>& objectReader, const utils::LockableResource<streams::IBufferedOutputStream>& outputStream)
+void naranja::rpc::ObjectBroker::HandleFunctionCall(const std::shared_ptr<naranja::protocol::IObjectReader>& objectReader, const utils::LockableResource<streams::IBufferedOutputStream>& outputStream)
 {
     decltype(_functionCalls)::mapped_type handler;
     {
@@ -40,7 +40,7 @@ void naranja::protocol::ObjectBroker::HandleFunctionCall(const std::shared_ptr<n
     handler(objectReader, outputStream);
 }
 
-void naranja::protocol::ObjectBroker::HandleFunctionResponse(const std::shared_ptr<naranja::protocol::IObjectReader>& objectReader)
+void naranja::rpc::ObjectBroker::HandleFunctionResponse(const std::shared_ptr<naranja::protocol::IObjectReader>& objectReader)
 {
     decltype(_functionResponses)::mapped_type handler;
     {
@@ -56,7 +56,7 @@ void naranja::protocol::ObjectBroker::HandleFunctionResponse(const std::shared_p
     handler(objectReader);
 }
 
-void naranja::protocol::ObjectBroker::HandleEvent(const std::shared_ptr<naranja::protocol::IObjectReader>& objectReader)
+void naranja::rpc::ObjectBroker::HandleEvent(const std::shared_ptr<naranja::protocol::IObjectReader>& objectReader)
 {
     decltype(_events)::mapped_type handler;
     {

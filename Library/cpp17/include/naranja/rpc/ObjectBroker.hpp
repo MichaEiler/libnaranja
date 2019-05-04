@@ -4,24 +4,24 @@
 #include <memory>
 #include <mutex>
 #include <naranja/protocol/IProtocol.hpp>
-#include <naranja/rpc/IBroker.hpp>
 #include <naranja/utils/Disposer.hpp>
+#include <naranja/utils/LockableResource.hpp>
 #include <unordered_map>
 #include <vector>
 
 namespace naranja
 {
-    namespace protocol
+    namespace rpc
     {
-        class ObjectBroker : public rpc::IBroker, public std::enable_shared_from_this<ObjectBroker>
+        class ObjectBroker : public std::enable_shared_from_this<ObjectBroker>
         {
         public:
-            static std::shared_ptr<ObjectBroker> Create(const std::shared_ptr<IProtocol>& protocol)
+            static std::shared_ptr<ObjectBroker> Create(const std::shared_ptr<protocol::IProtocol>& protocol)
             {
                 return std::shared_ptr<ObjectBroker>(new ObjectBroker(protocol));
             }
 
-            naranja::utils::Disposer RegisterFunctionCallHandler(const protocol::ObjectIdentifier& identifier, const std::function<void(const std::shared_ptr<IObjectReader>& objectReader, const utils::LockableResource<streams::IBufferedOutputStream>& outputStream)>& handler)
+            naranja::utils::Disposer RegisterFunctionCallHandler(const protocol::ObjectIdentifier& identifier, const std::function<void(const std::shared_ptr<protocol::IObjectReader>& objectReader, const utils::LockableResource<streams::IBufferedOutputStream>& outputStream)>& handler)
             {
                 std::lock_guard<std::mutex> lock(_mutex);
                 _functionCalls[identifier] = handler;
@@ -43,7 +43,7 @@ namespace naranja
                 });
             };
 
-            naranja::utils::Disposer RegisterFunctionResponseHandler(const protocol::ObjectToken& token, const std::function<void(const std::shared_ptr<IObjectReader>& objectReader)>& handler)
+            naranja::utils::Disposer RegisterFunctionResponseHandler(const protocol::ObjectToken& token, const std::function<void(const std::shared_ptr<protocol::IObjectReader>& objectReader)>& handler)
             {
                 std::lock_guard<std::mutex> lock(_mutex);
                 _functionResponses[token] = handler;
@@ -65,7 +65,7 @@ namespace naranja
                 });
             }
 
-            naranja::utils::Disposer RegisterEventHandler(const protocol::ObjectIdentifier& identifier, const std::function<void(const std::shared_ptr<IObjectReader>& objectReader)>& handler)
+            naranja::utils::Disposer RegisterEventHandler(const protocol::ObjectIdentifier& identifier, const std::function<void(const std::shared_ptr<protocol::IObjectReader>& objectReader)>& handler)
             {
                 std::lock_guard<std::mutex> lock(_mutex);
                 _events[identifier] = handler;
@@ -87,24 +87,24 @@ namespace naranja
                 });
             }
 
-            void Process(streams::IBufferedInputStream& inputStream, const utils::LockableResource<streams::IBufferedOutputStream>& outputStream) override;
+            void Process(streams::IBufferedInputStream& inputStream, const utils::LockableResource<streams::IBufferedOutputStream>& outputStream);
 
         private:
-            explicit ObjectBroker(const std::shared_ptr<IProtocol>& protocol)
+            explicit ObjectBroker(const std::shared_ptr<protocol::IProtocol>& protocol)
                 : _protocol(protocol)
             {
             }
 
             std::mutex _mutex;
-            std::shared_ptr<IProtocol> _protocol;
+            std::shared_ptr<protocol::IProtocol> _protocol;
 
-            std::unordered_map<std::string, std::function<void(const std::shared_ptr<IObjectReader>& objectReader, const utils::LockableResource<streams::IBufferedOutputStream>&)>> _functionCalls;
-            std::unordered_map<protocol::ObjectToken, std::function<void(const std::shared_ptr<IObjectReader>& objectReader)>> _functionResponses;
-            std::unordered_map<std::string, std::function<void(const std::shared_ptr<IObjectReader>& objectReader)>> _events;
+            std::unordered_map<std::string, std::function<void(const std::shared_ptr<protocol::IObjectReader>& objectReader, const utils::LockableResource<streams::IBufferedOutputStream>&)>> _functionCalls;
+            std::unordered_map<protocol::ObjectToken, std::function<void(const std::shared_ptr<protocol::IObjectReader>& objectReader)>> _functionResponses;
+            std::unordered_map<std::string, std::function<void(const std::shared_ptr<protocol::IObjectReader>& objectReader)>> _events;
 
-            void HandleFunctionCall(const std::shared_ptr<IObjectReader>& objectReader, const utils::LockableResource<streams::IBufferedOutputStream>& outputStream);
-            void HandleFunctionResponse(const std::shared_ptr<IObjectReader>& objectReader);
-            void HandleEvent(const std::shared_ptr<IObjectReader>& objectReader);
+            void HandleFunctionCall(const std::shared_ptr<protocol::IObjectReader>& objectReader, const utils::LockableResource<streams::IBufferedOutputStream>& outputStream);
+            void HandleFunctionResponse(const std::shared_ptr<protocol::IObjectReader>& objectReader);
+            void HandleEvent(const std::shared_ptr<protocol::IObjectReader>& objectReader);
         };
     }
 }

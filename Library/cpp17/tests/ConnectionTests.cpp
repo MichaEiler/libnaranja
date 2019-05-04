@@ -1,3 +1,4 @@
+#include <naranja/protocol/one/Protocol.hpp>
 #include <naranja/rpc/Server.hpp>
 #include <naranja/rpc/ClientSideConnection.hpp>
 #include <naranja/core/Exceptions.hpp>
@@ -5,8 +6,6 @@
 #include <future>
 #include <gmock/gmock.h>
 #include <thread>
-
-#include "common/EchoBroker.hpp"
 
 constexpr std::uint16_t NetworkPortForTests = 50674u;
 
@@ -58,14 +57,14 @@ protected:
 
 TEST_F(ConnectionTestFixture, CloseClient_AfterClientConnectionUp_ServerRemovesConnection)
 {
-    auto brokerFactory = std::make_shared<naranja::tests::EchoBrokerFactory>();
-    auto server = std::make_shared<naranja::rpc::Server>(brokerFactory, NetworkPortForTests);
-    auto client = std::make_shared<naranja::rpc::ClientSideConnection>(brokerFactory->Create());
+    auto protocol = std::make_shared<naranja::protocol::one::Protocol>();
+    auto server = naranja::rpc::Server::Create(protocol, NetworkPortForTests);
+    auto client = naranja::rpc::ClientSideConnection::Create(protocol);
 
     server->Start();
     ASSERT_EQ(0, server->NumberOfConnections());
 
-    client->Connect("127.0.0.1", NetworkPortForTests);
+    client->Start("127.0.0.1", NetworkPortForTests);
     TimedExpect(1, [&](){ return server->NumberOfConnections(); }, std::chrono::milliseconds(1000));
 
     client->Close();

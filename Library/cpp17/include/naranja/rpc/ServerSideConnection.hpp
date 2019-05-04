@@ -6,6 +6,7 @@
 #include <functional>
 #include <memory>
 #include <mutex>
+#include <naranja/protocol/IProtocol.hpp>
 #include <naranja/streams/MemoryStream.hpp>
 #include <naranja/streams/IBufferedOutputStream.hpp>
 #include <optional>
@@ -15,14 +16,16 @@ namespace naranja
 {
     namespace rpc
     {
-        class IBroker;
+        class ObjectBroker;
+        class IServerSideService;
 
         class ServerSideConnection : public std::enable_shared_from_this<ServerSideConnection>, public streams::IBufferedOutputStream
         {
         public:
-            static std::shared_ptr<ServerSideConnection> Create(boost::asio::io_service& ioService, const std::shared_ptr<rpc::IBroker>& broker)
+            static std::shared_ptr<ServerSideConnection> Create(boost::asio::io_service& ioService,
+                const std::vector<std::shared_ptr<IServerSideService>>& services, const std::shared_ptr<protocol::IProtocol>& protocol)
             {
-                return std::shared_ptr<ServerSideConnection>(new ServerSideConnection(ioService, broker));
+                return std::shared_ptr<ServerSideConnection>(new ServerSideConnection(ioService, services, protocol));
             }
 
             ~ServerSideConnection();
@@ -38,13 +41,14 @@ namespace naranja
             boost::asio::ip::tcp::socket& Socket() { return _socket; }
 
         private:
-            explicit ServerSideConnection(boost::asio::io_service& ioService, const std::shared_ptr<rpc::IBroker>& broker);
+            explicit ServerSideConnection(boost::asio::io_service& ioService, const std::vector<std::shared_ptr<IServerSideService>>& services,
+                const std::shared_ptr<protocol::IProtocol>& protocol);
 
             boost::asio::io_service& _ioService;
             boost::asio::ip::tcp::socket _socket;
             streams::MemoryStream _inputStream;
             std::vector<char> _buffer;
-            std::shared_ptr<rpc::IBroker> _broker;
+            std::shared_ptr<rpc::ObjectBroker> _broker;
             std::function<void()> _disconnectionHandler;
             std::mutex _mutex;
             
