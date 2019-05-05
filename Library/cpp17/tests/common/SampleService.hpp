@@ -46,7 +46,7 @@ namespace naranja
             virtual ~ISampleService() = default;
 
             virtual void FunctionThrowingSampleException() = 0;
-            virtual void FunctionReturningData(SampleStruct& result, const SampleEnum& arg1) = 0;
+            virtual SampleStruct FunctionReturningData(const SampleEnum& arg1) = 0;
 
             virtual naranja::utils::Disposer OnSampleEvent(const std::function<void(const std::string& value)>& eventHandler) = 0;
         };
@@ -118,7 +118,7 @@ namespace naranja
             }
 
             void FunctionThrowingSampleException() override;
-            void FunctionReturningData(SampleStruct& result, const SampleEnum& arg1) override;
+            SampleStruct FunctionReturningData(const SampleEnum& arg1) override;
 
             naranja::utils::Disposer OnSampleEvent(const std::function<void(const std::string& value)>& eventHandler) override;
 

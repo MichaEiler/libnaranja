@@ -121,12 +121,14 @@ void naranja::generated::ClientSideSampleService::FunctionThrowingSampleExceptio
     future.get();
 }
 
-void naranja::generated::ClientSideSampleService::FunctionReturningData(naranja::generated::SampleStruct& result, const naranja::generated::SampleEnum& arg1)
+naranja::generated::SampleStruct naranja::generated::ClientSideSampleService::FunctionReturningData(const naranja::generated::SampleEnum& arg1)
 {
     const auto token = _protocol->CreateToken();
 
     std::promise<void> promise;
     auto future = promise.get_future();
+
+    naranja::generated::SampleStruct result;
 
     auto disposer = _broker->RegisterFunctionResponseHandler(token, [this, &promise, &result](const std::shared_ptr<protocol::IObjectReader>& objectReader) mutable {
         try
@@ -144,6 +146,7 @@ void naranja::generated::ClientSideSampleService::FunctionReturningData(naranja:
     generated::SampleServiceProtocol::Write_FunctionReturningData_Request(*objectWriter, arg1);
 
     future.get();
+    return result;
 }
 
 naranja::utils::Disposer naranja::generated::ClientSideSampleService::OnSampleEvent(const std::function<void(const std::string&)>& eventHandler)
@@ -205,7 +208,7 @@ void naranja::generated::ServerSideSampleService::FunctionReturningData(protocol
     naranja::generated::SampleStruct result;
 
     naranja::generated::SampleServiceProtocol::Read_FunctionReturningData_Request(object, arg1);
-    _service->FunctionReturningData(result, arg1);
+    result = _service->FunctionReturningData(arg1);
 
     auto reservedOutputStream = outputStream.Lock();
     auto responseObject = _protocol->WriteObject(*reservedOutputStream, naranja::protocol::ObjectType::FunctionResponse, "Sample.FunctionReturningData", object.Token());
