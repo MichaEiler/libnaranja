@@ -1,8 +1,8 @@
 from TestCommon import RpcDefinition
-from RpcTool.Model.Types import Argument, RegularType
-from RpcTool.Parser.Visitors.ServiceVisitor import ServiceVisitor
-from RpcTool.Parser.Visitors.IncludeVisitor import IncludeVisitor
-from RpcTool.Parser.Visitors.TypeVisitor import EnumerationVisitor, ExceptionVisitor, StructureVisitor
+from naranja.model.Types import Argument, RegularType
+from naranja.parser.visitors.ServiceVisitor import ServiceVisitor
+from naranja.parser.visitors.IncludeVisitor import IncludeVisitor
+from naranja.parser.visitors.TypeVisitor import EnumerationVisitor, ExceptionVisitor, StructureVisitor
 import pytest
 
 def test_ParseServices_SingleService_Parsed():

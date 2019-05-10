@@ -4,14 +4,14 @@ import sys
 
 sys.path.append(os.path.dirname(os.path.realpath(__file__)))
 
-from RpcTool.Parser.RpcDocument import RpcDocument
-from RpcTool.Parser.Grammar.RemoteCallParser import RemoteCallParser
-from RpcTool.Parser.Grammar.RemoteCallLexer import RemoteCallLexer
-from RpcTool.Parser.Visitors.IncludeVisitor import IncludeVisitor
-from RpcTool.Parser.Visitors.ServiceVisitor import ServiceVisitor
-from RpcTool.Parser.Visitors.TypeVisitor import ExceptionVisitor, EnumerationVisitor, StructureVisitor
-from RpcTool.Parser.Visitors.ValidationVisitor import ValidationVisitor
-from RpcTool.CodeGeneration.CppGenerator import CppGenerator
+from naranja.parser.Document import Document
+from naranja.parser.grammar.RemoteCallParser import RemoteCallParser
+from naranja.parser.grammar.RemoteCallLexer import RemoteCallLexer
+from naranja.parser.visitors.IncludeVisitor import IncludeVisitor
+from naranja.parser.visitors.ServiceVisitor import ServiceVisitor
+from naranja.parser.visitors.TypeVisitor import ExceptionVisitor, EnumerationVisitor, StructureVisitor
+from naranja.parser.visitors.ValidationVisitor import ValidationVisitor
+from naranja.codegen.CppGenerator import CppGenerator
 from antlr4 import CommonTokenStream, InputStream
 
 def ParseFile(file):
@@ -33,7 +33,7 @@ def LoadRpcFiles(inputDirectory):
         name = file.split('.')[0]
         print("Detected file {0}.rpc".format(name))
         tree = ParseFile("{0}/{1}.rpc".format(inputDirectory, name))
-        documents.append(RpcDocument(name, tree))
+        documents.append(Document(name, tree))
 
     return documents
 

@@ -1,7 +1,7 @@
 from TestCommon import RpcDefinition
-from RpcTool.Model.Enumeration import EnumerationDeclaration
-from RpcTool.Model.Types import Argument, RegularType
-from RpcTool.Parser.Visitors.TypeVisitor import EnumerationVisitor
+from naranja.model.Enumeration import EnumerationDeclaration
+from naranja.model.Types import Argument, RegularType
+from naranja.parser.visitors.TypeVisitor import EnumerationVisitor
 
 def test_ParseEnumeration_NoEnumeration_EmptyResult():
     tree = RpcDefinition("struct A { 1:i32 value; }").parse()

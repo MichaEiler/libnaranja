@@ -1,7 +1,7 @@
 import TestCommon
 
-from RpcTool.Model.Types import Argument, RegularType
-from RpcTool.Model.Structure import StructureDeclaration
+from naranja.model.Types import Argument, RegularType
+from naranja.model.Structure import StructureDeclaration
 
 def test_ArgumentEquality_Equal_ResultTrue():
     arg1 = Argument(1, RegularType('double'), 'a')

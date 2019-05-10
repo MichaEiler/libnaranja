@@ -1,7 +1,7 @@
 from TestCommon import RpcDefinition
-from RpcTool.Model.Exception import ExceptionDeclaration
-from RpcTool.Model.Types import Argument, RegularType
-from RpcTool.Parser.Visitors.TypeVisitor import ExceptionVisitor
+from naranja.model.Exception import ExceptionDeclaration
+from naranja.model.Types import Argument, RegularType
+from naranja.parser.visitors.TypeVisitor import ExceptionVisitor
 import pytest
 
 def test_ParseExceptions_NoException_Parsed():

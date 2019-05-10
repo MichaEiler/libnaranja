@@ -1,6 +1,6 @@
-from RpcTool.Parser.Grammar.RemoteCallParser import RemoteCallParser
-from RpcTool.Parser.Grammar.RemoteCallVisitor import RemoteCallVisitor
-from RpcTool.Model.Include import IncludeDeclaration
+from naranja.parser.grammar.RemoteCallParser import RemoteCallParser
+from naranja.parser.grammar.RemoteCallVisitor import RemoteCallVisitor
+from naranja.model.Include import IncludeDeclaration
 
 class IncludeVisitor(RemoteCallVisitor):
     def visitDocument(self, ctx:RemoteCallParser.DocumentContext):

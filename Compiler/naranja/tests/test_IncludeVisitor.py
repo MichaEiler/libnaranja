@@ -1,7 +1,7 @@
 from TestCommon import RpcDefinition
-from RpcTool.Model.Include import IncludeDeclaration
-from RpcTool.Model.Types import Argument, RegularType
-from RpcTool.Parser.Visitors.IncludeVisitor import IncludeVisitor
+from naranja.model.Include import IncludeDeclaration
+from naranja.model.Types import Argument, RegularType
+from naranja.parser.visitors.IncludeVisitor import IncludeVisitor
 
 def test_ParseIncludes_MultipleIncludes_Parsed():
     text =  """

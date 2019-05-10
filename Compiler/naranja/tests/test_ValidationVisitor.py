@@ -1,16 +1,16 @@
 from TestCommon import RpcDefinition
 
-from RpcTool.Model.Include import IncludeDeclaration
-from RpcTool.Parser.RpcDocument import RpcDocument
-from RpcTool.Parser.Visitors.ValidationVisitor import ValidationVisitor
-from RpcTool.Parser.Visitors.ServiceVisitor import ServiceVisitor
-from RpcTool.Parser.Visitors.TypeVisitor import StructureVisitor, EnumerationVisitor, ExceptionVisitor
+from naranja.model.Include import IncludeDeclaration
+from naranja.parser.Document import Document
+from naranja.parser.visitors.ValidationVisitor import ValidationVisitor
+from naranja.parser.visitors.ServiceVisitor import ServiceVisitor
+from naranja.parser.visitors.TypeVisitor import StructureVisitor, EnumerationVisitor, ExceptionVisitor
 import pytest
 
 def test_ValidationVisitor_UnknownTypeInStructure_RaisesRuntimeError():
     def parseStructure(text:str):
         tree = RpcDefinition(text).parse()
-        document = RpcDocument("test", tree)
+        document = Document("test", tree)
         visitor = StructureVisitor()
         document.structures = visitor.visit(tree)
         return document
@@ -29,8 +29,8 @@ def test_ValidationVisitor_ImportedTypeInStructure_NoErrorThrown():
     treeA = RpcDefinition("struct A { 1:i32 a; }").parse()
     treeB = RpcDefinition("struct B { 1:Types.A a; }").parse()
 
-    documentA = RpcDocument("Types", treeA)
-    documentB = RpcDocument("test", treeB)
+    documentA = Document("Types", treeA)
+    documentB = Document("test", treeB)
     documentB.includes = [ IncludeDeclaration("Types", "Types.rpc") ]
     
     visitor = StructureVisitor()
@@ -44,8 +44,8 @@ def test_ValidationVisitor_ImportedEnumInStructure_NoErrorRaised():
     treeA = RpcDefinition("enum A { a = 0, b = 1 }").parse()
     treeB = RpcDefinition("struct B { 1:Types.A a; } ").parse()
 
-    documentA = RpcDocument("Types", treeA)
-    documentB = RpcDocument("test", treeB)
+    documentA = Document("Types", treeA)
+    documentB = Document("test", treeB)
     documentB.includes = [ IncludeDeclaration("Types", "Types.rpc") ]
 
     visitor = EnumerationVisitor()
@@ -68,9 +68,9 @@ def test_ValidationVisitor_FunctionOnlyThrowsExceptions_NoErrorRaised():
                             }
                             """).parse()
     
-    documentA = RpcDocument("Types", treeA)
-    documentB = RpcDocument("Configuration", treeB)
-    documentC = RpcDocument("Main", treeC)
+    documentA = Document("Types", treeA)
+    documentB = Document("Configuration", treeB)
+    documentC = Document("Main", treeC)
 
     visitor = ExceptionVisitor()
     documentA.exceptions = visitor.visit(treeA)
@@ -85,7 +85,7 @@ def test_ValidationVisitor_FunctionOnlyThrowsExceptions_NoErrorRaised():
 
 def test_ValidationVisitor_FunctionThrowsNonException_ErrorRaised():
     tree = RpcDefinition("service MainService { void Foo() throws (1:i64 ex) }").parse()
-    document = RpcDocument("test", tree)
+    document = Document("test", tree)
     
     with pytest.raises(RuntimeError):
         visitor = ValidationVisitor([document], "test")
@@ -100,7 +100,7 @@ def test_ValidationVisitor_DifferentFunctionArgTypes_NoErrorRaised():
                          }
                          """).parse()
     
-    document = RpcDocument("test", tree)
+    document = Document("test", tree)
 
     visitor = EnumerationVisitor()
     document.enumerations = visitor.visit(document.parseTree)
@@ -116,7 +116,7 @@ def test_ValidationVisitor_DifferentReturnTypes_CorrectlyHandled():
 
     def checkReturnTypes(functionAsText:str):
         tree = RpcDefinition("service test { "+ functionAsText + " }").parse()
-        document = RpcDocument("test", tree)
+        document = Document("test", tree)
         visitor = ServiceVisitor()
         document.services = visitor.visit(document.parseTree)
 

@@ -1,12 +1,12 @@
 import typing
-from RpcTool.Parser.Grammar.RemoteCallParser import RemoteCallParser
-from RpcTool.Model.Exception import ExceptionDeclaration
-from RpcTool.Model.Enumeration import EnumerationDeclaration
-from RpcTool.Model.Include import IncludeDeclaration
-from RpcTool.Model.Service import ServiceDeclaration
-from RpcTool.Model.Structure import StructureDeclaration
+from naranja.parser.grammar.RemoteCallParser import RemoteCallParser
+from naranja.model.Exception import ExceptionDeclaration
+from naranja.model.Enumeration import EnumerationDeclaration
+from naranja.model.Include import IncludeDeclaration
+from naranja.model.Service import ServiceDeclaration
+from naranja.model.Structure import StructureDeclaration
 
-class RpcDocument:
+class Document:
     def __init__(self, name: str, parseTree: RemoteCallParser.DocumentContext):
         self._name = name
         self._parseTree = parseTree

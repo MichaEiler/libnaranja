@@ -1,5 +1,5 @@
 import typing
-from RpcTool.Model.Types import Argument
+from naranja.model.Types import Argument
 
 class EnumerationDeclaration:
     def __init__(self, name: str):

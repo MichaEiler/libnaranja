@@ -2,8 +2,8 @@ from   antlr4 import CommonTokenStream, InputStream
 import sys
 
 sys.path.append("../../")
-from RpcTool.Parser.Grammar.RemoteCallLexer import RemoteCallLexer
-from RpcTool.Parser.Grammar.RemoteCallParser import RemoteCallParser
+from naranja.parser.grammar.RemoteCallLexer import RemoteCallLexer
+from naranja.parser.grammar.RemoteCallParser import RemoteCallParser
 
 class RpcDefinition:
     def __init__(self, text:str):

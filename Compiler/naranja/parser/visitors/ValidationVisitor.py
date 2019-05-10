@@ -1,6 +1,6 @@
-from RpcTool.Parser.Grammar.RemoteCallVisitor import RemoteCallVisitor
-from RpcTool.Parser.Grammar.RemoteCallParser import RemoteCallParser
-from RpcTool.Parser.RpcDocument import RpcDocument
+from naranja.parser.grammar.RemoteCallVisitor import RemoteCallVisitor
+from naranja.parser.grammar.RemoteCallParser import RemoteCallParser
+from naranja.parser.Document import Document
 
 class EnumerationTypeVisitor(RemoteCallVisitor):
     def __init__(self, knownExceptions, documentName):

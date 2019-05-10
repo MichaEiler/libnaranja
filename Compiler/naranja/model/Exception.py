@@ -1,5 +1,5 @@
 import typing
-from RpcTool.Model.Types import Argument
+from naranja.model.Types import Argument
 
 class ExceptionDeclaration:
     def __init__(self, name: str):

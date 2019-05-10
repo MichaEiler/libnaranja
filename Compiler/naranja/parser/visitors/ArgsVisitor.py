@@ -1,6 +1,6 @@
-from RpcTool.Parser.Grammar.RemoteCallVisitor import RemoteCallVisitor
-from RpcTool.Parser.Grammar.RemoteCallParser import RemoteCallParser
-from RpcTool.Model.Types import RegularType, ListType, MapType, SetType, Argument
+from naranja.parser.grammar.RemoteCallVisitor import RemoteCallVisitor
+from naranja.parser.grammar.RemoteCallParser import RemoteCallParser
+from naranja.model.Types import RegularType, ListType, MapType, SetType, Argument
 
 class ArgsVisitor(RemoteCallVisitor):
     def visitArgs(self, ctx:RemoteCallParser.ArgsContext):

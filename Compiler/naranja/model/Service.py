@@ -1,4 +1,4 @@
-from RpcTool.Model.Types import RegularType, Argument
+from naranja.model.Types import RegularType, Argument
 import typing
 
 class FunctionDeclaration:

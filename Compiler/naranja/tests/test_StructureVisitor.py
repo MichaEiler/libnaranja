@@ -1,7 +1,7 @@
 from TestCommon import RpcDefinition
-from RpcTool.Model.Structure import StructureDeclaration
-from RpcTool.Model.Types import Argument, RegularType
-from RpcTool.Parser.Visitors.TypeVisitor import StructureVisitor
+from naranja.model.Structure import StructureDeclaration
+from naranja.model.Types import Argument, RegularType
+from naranja.parser.visitors.TypeVisitor import StructureVisitor
 import pytest
 
 def test_ParseStructure_NoStructure_EmptyResult():

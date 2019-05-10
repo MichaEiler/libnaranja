@@ -1,9 +1,9 @@
-from RpcTool.Parser.Grammar.RemoteCallParser  import RemoteCallParser
-from RpcTool.Parser.Grammar.RemoteCallVisitor import RemoteCallVisitor
-from RpcTool.Parser.Visitors.ArgsVisitor      import ArgsVisitor
-from RpcTool.Model.Structure           import StructureDeclaration
-from RpcTool.Model.Exception           import ExceptionDeclaration
-from RpcTool.Model.Enumeration         import EnumerationDeclaration
+from naranja.parser.grammar.RemoteCallParser  import RemoteCallParser
+from naranja.parser.grammar.RemoteCallVisitor import RemoteCallVisitor
+from naranja.parser.visitors.ArgsVisitor      import ArgsVisitor
+from naranja.model.Structure           import StructureDeclaration
+from naranja.model.Exception           import ExceptionDeclaration
+from naranja.model.Enumeration         import EnumerationDeclaration
 
 class StructureVisitor(RemoteCallVisitor):
     def visitDocument(self, ctx:RemoteCallParser.DocumentContext):
