@@ -4,7 +4,6 @@
 #include <iostream>
 #include <naranja/rpc/IServerSideService.hpp>
 #include <naranja/rpc/ServerSideConnection.hpp>
-#include <naranja/rpc/ObjectBroker.hpp>
 
 naranja::rpc::Server::Server(const std::shared_ptr<protocol::IProtocol>& protocol, const std::uint16_t port)
     : _ioService()
@@ -46,7 +45,7 @@ void naranja::rpc::Server::Close()
 
 void naranja::rpc::Server::HandleAccept()
 {
-    auto connection = ServerSideConnection::Create(_ioService, _services, _protocol);
+    auto connection = ServerSideConnection::Create(_ioService, _protocol);
 
     connection->OnDisconnect([weakServer = std::weak_ptr<Server>(shared_from_this()), connection](){
         auto server = weakServer.lock();
@@ -69,6 +68,12 @@ void naranja::rpc::Server::HandleAccept()
             connection->Start();
             _connections.insert(connection);
         }
+
+        for (auto& service : _services)
+        {
+            service->RegisterNewConnection(connection);
+        }
+
         HandleAccept();
     };
     

@@ -8,6 +8,7 @@
 #include <naranja/protocol/IProtocol.hpp>
 #include <naranja/streams/IBufferedOutputStream.hpp>
 #include <naranja/streams/MemoryStream.hpp>
+#include <naranja/utils/Disposer.hpp>
 #include <optional>
 #include <string>
 #include <thread>
@@ -17,8 +18,6 @@ namespace naranja
 {
     namespace rpc
     {
-        class ObjectBroker;
-
         class ClientSideConnection : public std::enable_shared_from_this<ClientSideConnection>, public streams::IBufferedOutputStream
         {
         public:
@@ -35,25 +34,31 @@ namespace naranja
             void Close();
 
             void Write(const char* buffer, const std::size_t length) override;
-            void Flush() override {}
+            void Flush() override { }
 
-            std::shared_ptr<ObjectBroker> Broker() const { return _broker; }
+            naranja::utils::Disposer RegisterFunctionResponseHandler(const protocol::ObjectToken& token, const std::function<void(const std::shared_ptr<protocol::IObjectReader>& objectReader)>& handler);
+            naranja::utils::Disposer RegisterEventHandler(const protocol::ObjectIdentifier& identifier, const std::function<void(const std::shared_ptr<protocol::IObjectReader>& objectReader)>& handler);
 
         private:
             explicit ClientSideConnection(const std::shared_ptr<protocol::IProtocol>& protocol);
 
+            std::mutex _mutex;
+
+            std::shared_ptr<protocol::IProtocol> _protocol;
             boost::asio::io_service _service;
             boost::asio::ip::tcp::socket _socket;
-            streams::MemoryStream _inputStream;
-            std::shared_ptr<ObjectBroker> _broker;
-
             std::vector<char> _buffer;
             std::thread _serviceThread;
             std::function<void()> _connectionLost;
-
-            std::mutex _mutex;
-
+            
+            streams::MemoryStream _inputStream;
             std::optional<boost::coroutines2::coroutine<void>::push_type> _processCoroutine;
+
+            std::unordered_map<protocol::ObjectToken, std::function<void(const std::shared_ptr<protocol::IObjectReader>& objectReader)>> _functionResponses;
+            std::unordered_map<std::string, std::function<void(const std::shared_ptr<protocol::IObjectReader>& objectReader)>> _events;
+
+            void HandleFunctionResponse(const std::shared_ptr<protocol::IObjectReader>& objectReader);
+            void HandleEvent(const std::shared_ptr<protocol::IObjectReader>& objectReader);
 
             void HandleRead();
             void ProcessData();

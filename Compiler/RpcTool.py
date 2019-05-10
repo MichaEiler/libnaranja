@@ -63,7 +63,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Generate RPC Code.')
     parser.add_argument('-i', '--input-directory', required=True, help='The directory containing *.rpc files.')
     parser.add_argument('-o', '--output-directory', required=True, help='The directory where the genereated files should be stored.')
-    parser.add_argument('-l', '--language', required=True, help='The language for which to generate the code.', choices=['cpp17'])
+    parser.add_argument('-l', '--language', required=True, help='The language for which to generate the code.', choices=['cpp17', 'py'])
     parser.add_argument('-p', '--project-name', required=True, help='The name of the project.')
     args = parser.parse_args()
 

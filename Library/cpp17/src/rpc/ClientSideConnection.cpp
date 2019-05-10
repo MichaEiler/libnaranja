@@ -1,20 +1,40 @@
 #include "naranja/rpc/ClientSideConnection.hpp"
 
 #include <naranja/core/Exceptions.hpp>
-#include <naranja/rpc/ObjectBroker.hpp>
 #include <naranja/streams/YieldingInputStream.hpp>
 #include <naranja/utils/LockableResource.hpp>
-#include <iostream>
 
 #include "SetSocketOptions.hpp"
 
 naranja::rpc::ClientSideConnection::ClientSideConnection(const std::shared_ptr<protocol::IProtocol>& protocol)
-    : _buffer(512 * 1024, 0)
+    : _protocol(protocol)
+    , _buffer(512 * 1024, 0)
     , _service()
     , _socket(_service)
-    , _broker(ObjectBroker::Create(protocol))
 {
+    _processCoroutine.emplace([this](boost::coroutines2::coroutine<void>::pull_type& yield)
+    {
+        streams::YieldingInputStream yieldingInputStream([&yield]() { yield(); }, _inputStream);
 
+        for (;;) {
+            const auto nextObject = _protocol->ReadObject(yieldingInputStream);
+
+            switch (nextObject->Type()) {
+                case naranja::protocol::ObjectType::FunctionCall:
+                    throw core::ParseFailureException("Clients do not listen for function calls. Invalid object type.");
+                case naranja::protocol::ObjectType::FunctionResponse:
+                    [[fallthrough]];
+                case naranja::protocol::ObjectType::Exception:
+                    HandleFunctionResponse(nextObject);
+                    break;
+                case naranja::protocol::ObjectType::Event:
+                    HandleEvent(nextObject);
+                    break;
+                default:
+                    throw core::ParseFailureException("Unknown object type.");
+            }
+        }
+    });
 }
 
 naranja::rpc::ClientSideConnection::~ClientSideConnection()
@@ -109,20 +129,83 @@ void naranja::rpc::ClientSideConnection::HandleRead()
 
 void naranja::rpc::ClientSideConnection::ProcessData()
 {
-    if (!_processCoroutine)
+    if (*_processCoroutine)
     {
-        _processCoroutine = std::move(boost::coroutines2::coroutine<void>::push_type([this](boost::coroutines2::coroutine<void>::pull_type& yield)
-        {
-            streams::YieldingInputStream yieldingInputStream([&yield](){ yield(); }, _inputStream);
-            utils::LockableResource<streams::IBufferedOutputStream> lockableOutputStream{ std::weak_ptr<streams::IBufferedOutputStream>(shared_from_this()) };
-
-            for (;;)
-            {
-                _broker->Process(yieldingInputStream, lockableOutputStream);
-            }
-        }));
+        (*_processCoroutine)();
     }
-
-    (*_processCoroutine)();
 }
 
+void naranja::rpc::ClientSideConnection::HandleFunctionResponse(const std::shared_ptr<naranja::protocol::IObjectReader>& objectReader)
+{
+    decltype(_functionResponses)::mapped_type handler;
+    {
+        std::lock_guard<std::mutex> lock(_mutex);
+        auto it = _functionResponses.find(objectReader->Token());
+        if (it == _functionResponses.end())
+        {
+            throw core::ParseFailureException("No handler registered for received token.");
+        }
+        handler = it->second;
+        _functionResponses.erase(it);
+    }
+    handler(objectReader);
+}
+
+void naranja::rpc::ClientSideConnection::HandleEvent(const std::shared_ptr<naranja::protocol::IObjectReader>& objectReader)
+{
+    decltype(_events)::mapped_type handler;
+    {
+        std::lock_guard<std::mutex> lock(_mutex);
+        auto it = _events.find(objectReader->Identifier());
+        if (it == _events.end())
+        {
+            throw core::ParseFailureException("Unknown identifier.");
+        }
+        handler = it->second;
+    }
+    handler(objectReader);
+}
+
+naranja::utils::Disposer naranja::rpc::ClientSideConnection::RegisterFunctionResponseHandler(const protocol::ObjectToken& token, const std::function<void(const std::shared_ptr<protocol::IObjectReader>& objectReader)>& handler)
+{
+    std::lock_guard<std::mutex> lock(_mutex);
+    _functionResponses[token] = handler;
+
+    return naranja::utils::Disposer([weakConnection = std::weak_ptr<ClientSideConnection>(shared_from_this()), token](){
+        auto connection = weakConnection.lock();
+        if (!connection)
+        {
+            return;
+        }
+
+        std::lock_guard<std::mutex> lock(connection->_mutex);
+
+        auto it = connection->_functionResponses.find(token);
+        if (it != connection->_functionResponses.end())
+        {
+            connection->_functionResponses.erase(token);
+        }
+    });
+}
+
+naranja::utils::Disposer naranja::rpc::ClientSideConnection::RegisterEventHandler(const protocol::ObjectIdentifier& identifier, const std::function<void(const std::shared_ptr<protocol::IObjectReader>& objectReader)>& handler)
+{
+    std::lock_guard<std::mutex> lock(_mutex);
+    _events[identifier] = handler;
+
+    return naranja::utils::Disposer([weakConnection = std::weak_ptr<ClientSideConnection>(shared_from_this()), identifier](){
+        auto connection = weakConnection.lock();
+        if (!connection)
+        {
+            return;
+        }
+
+        std::lock_guard<std::mutex> lock(connection->_mutex);
+
+        auto it = connection->_events.find(identifier);
+        if (it != connection->_events.end())
+        {
+            connection->_events.erase(identifier);
+        }
+    });
+}

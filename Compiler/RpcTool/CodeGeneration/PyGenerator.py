@@ -27,11 +27,11 @@ def templateFunction_include(generator, templatePath, **parameters):
     
     return template.render(**parameters)
 
-class CppGenerator:
+class PyGenerator:
     def __init__(self, documents: typing.List[RpcDocument], outputDirectory: str, projectName: str):
         self._documents = documents
         self._outputDirectory = outputDirectory
-        self._templatePaths = os.path.dirname(os.path.realpath(__file__)) + "/Templates/cpp17/"
+        self._templatePaths = os.path.dirname(os.path.realpath(__file__)) + "/Templates/py/"
         self._projectName = projectName
     
     def _readTemplate(self, name: str):
@@ -48,7 +48,7 @@ class CppGenerator:
         includer = functools.partial(templateFunction_include, self)
 
         for document in self._documents:
-            template = Template(self._readTemplate("Service.jinja2.hpp"))
+            template = Template(self._readTemplate("Service.jinja2.py"))
             template.globals["include"] = includer
             registerTemplateFunctions(template)
 
@@ -57,20 +57,7 @@ class CppGenerator:
                                         generatorName = "RpcTool",
                                         generationDate = str(datetime.datetime.today()),
                                         document = document)
-            self._writeResult("{0}.hpp".format(document.name), result)
-
-
-            template = Template(self._readTemplate("Service.jinja2.cpp"))
-            template.globals["include"] = includer
-            registerTemplateFunctions(template)
-
-            result = template.render(projectName = self._projectName,
-                                        generatorVersion = "0.0.0.2",
-                                        generatorName = "RpcTool",
-                                        generationDate = str(datetime.datetime.today()),
-                                        document = document)
-            self._writeResult("{0}.cpp".format(document.name), result)
+            self._writeResult("{0}.py".format(document.name), result)
 
     def render(self):
         self._renderServices()
-

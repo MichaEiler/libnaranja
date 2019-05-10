@@ -3,11 +3,12 @@
 #include <cstdint>
 #include <mutex>
 #include <naranja/core/Exceptions.hpp>
-#include <naranja/rpc/ObjectBroker.hpp>
 #include <naranja/protocol/IProtocol.hpp>
 #include <naranja/rpc/IServerSideService.hpp>
 #include <naranja/rpc/ClientSideConnection.hpp>
+#include <naranja/rpc/ServerSideConnection.hpp>
 #include <naranja/utils/Disposer.hpp>
+#include <naranja/utils/LockableResource.hpp>
 #include <string>
 
 namespace naranja
@@ -79,19 +80,19 @@ namespace naranja
                 return std::shared_ptr<ServerSideSampleService>(new ServerSideSampleService(service, protocol));
             }
 
-            void RegisterFunctionHandlers(const std::shared_ptr<rpc::ObjectBroker>& broker) override
+            void RegisterNewConnection(const std::shared_ptr<rpc::ServerSideConnection>& connection) override
             {
-                ConnectHandler(broker, "Sample.FunctionThrowingSampleException", &ServerSideSampleService::FunctionThrowingSampleException);
-                ConnectHandler(broker, "Sample.FunctionReturningData", &ServerSideSampleService::FunctionReturningData);
+                ConnectHandler(connection, "Sample.FunctionThrowingSampleException", &ServerSideSampleService::FunctionThrowingSampleException);
+                ConnectHandler(connection, "Sample.FunctionReturningData", &ServerSideSampleService::FunctionReturningData);
             }
             
         private:
             explicit ServerSideSampleService(const std::shared_ptr<ISampleService>& service, const std::shared_ptr<protocol::IProtocol>& protocol);
 
-            void ConnectHandler(const std::shared_ptr<rpc::ObjectBroker>& broker, const std::string& identifier,
+            void ConnectHandler(const std::shared_ptr<rpc::ServerSideConnection>& connection, const std::string& identifier,
                 void (ServerSideSampleService::*const func)(protocol::IObjectReader&, const naranja::utils::LockableResource<naranja::streams::IBufferedOutputStream>&))
             {
-                broker->RegisterFunctionCallHandler(identifier, [weakService = std::weak_ptr<ServerSideSampleService>(shared_from_this()), func](auto& object, const naranja::utils::LockableResource<naranja::streams::IBufferedOutputStream>& outputStream){
+                connection->RegisterFunctionCallHandler(identifier, [weakService = std::weak_ptr<ServerSideSampleService>(shared_from_this()), func](auto& object, const naranja::utils::LockableResource<naranja::streams::IBufferedOutputStream>& outputStream){
                         auto strongService = weakService.lock();
                         if (strongService)
                         {
@@ -126,7 +127,6 @@ namespace naranja
             explicit ClientSideSampleService(const std::shared_ptr<rpc::ClientSideConnection>& connection,
                 const std::shared_ptr<protocol::IProtocol>& protocol);
 
-            std::shared_ptr<rpc::ObjectBroker> _broker;
             std::shared_ptr<rpc::ClientSideConnection> _connection;
             std::shared_ptr<protocol::IProtocol> _protocol;
 

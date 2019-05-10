@@ -3,7 +3,6 @@
 #include <naranja/protocol/one/Protocol.hpp>
 #include <naranja/rpc/Server.hpp>
 #include <naranja/rpc/ClientSideConnection.hpp>
-#include <iostream>
 #include <gmock/gmock.h>
 
 constexpr std::uint16_t NetworkPortForTests = 50674u;
@@ -45,7 +44,6 @@ TEST_F(SampleServiceTestFixture, FunctionCall_ServiceProcessesCall_ReturnsResult
     server->RegisterService(naranja::generated::ServerSideSampleService::Create(std::make_shared<SampleServiceImpl>(), protocol));
     server->Start();
 
-
     auto client = naranja::rpc::ClientSideConnection::Create(protocol);
     auto sampleService = naranja::generated::ClientSideSampleService::Create(client, protocol);
     client->Start("127.0.0.1", NetworkPortForTests);
@@ -58,38 +56,17 @@ TEST_F(SampleServiceTestFixture, FunctionCall_ServiceProcessesCall_ReturnsResult
     ASSERT_EQ(1337, result2.Member1);
 }
 
-TEST_F(SampleServiceTestFixture, Test1)
+TEST_F(SampleServiceTestFixture, FunctionCall_ThrowsException_ExceptionTransmitted)
 {
-    auto protocol = std::make_shared<naranja::protocol::one::Protocol>();
+    auto proto = std::make_shared<naranja::protocol::one::Protocol>();
 
-    auto server = naranja::rpc::Server::Create(protocol, NetworkPortForTests);
-    server->RegisterService(naranja::generated::ServerSideSampleService::Create(std::make_shared<SampleServiceImpl>(), protocol));
+    auto server = naranja::rpc::Server::Create(proto, NetworkPortForTests);
+    server->RegisterService(naranja::generated::ServerSideSampleService::Create(std::make_shared<SampleServiceImpl>(), proto));
     server->Start();
 
-
-    auto client = naranja::rpc::ClientSideConnection::Create(protocol);
-    auto sampleService = naranja::generated::ClientSideSampleService::Create(client, protocol);
+    auto client = naranja::rpc::ClientSideConnection::Create(proto);
+    auto sampleService = naranja::generated::ClientSideSampleService::Create(client, proto);
     client->Start("127.0.0.1", NetworkPortForTests);
-
-    const std::uint16_t port = 16666;
-
-    auto protocol = std::make_shared<naranja::protocol::one::Protocol>();
-
-    auto server = naranja::rpc::Server::Create(protocol, port);
-    server->RegisterService(naranja::generated::ServerSideSampleService::Create(std::make_shared<SampleServiceImpl>(), protocol));
-    server->Start();
-
-
-    auto client = naranja::rpc::ClientSideConnection::Create(protocol);
-    auto sampleService = naranja::generated::ClientSideSampleService::Create(client, protocol);
-    client->Start("127.0.0.1", port);
-
-
-    const auto result = sampleService->FunctionReturningData(naranja::generated::SampleEnum::Entry0);
-    ASSERT_EQ(42, result.Member1);
-
-    const auto result2 = sampleService->FunctionReturningData(naranja::generated::SampleEnum::Entry1);
-    ASSERT_EQ(1337, result2.Member1);
 
     ASSERT_THROW(sampleService->FunctionThrowingSampleException(), naranja::generated::SampleException);
 }

@@ -2,7 +2,6 @@
 
 #include <future>
 #include <naranja/protocol/IProtocol.hpp>
-#include <naranja/rpc/ObjectBroker.hpp>
 #include <naranja/utils/Disposer.hpp>
 
 // -------------------------------------------------------------------------------------- DeSerialization Routines
@@ -74,11 +73,10 @@ void naranja::generated::SampleServiceProtocol::Read_SampleException(protocol::I
 // -------------------------------------------------------------------------------------- Client Side Code
 
 naranja::generated::ClientSideSampleService::ClientSideSampleService(const std::shared_ptr<naranja::rpc::ClientSideConnection>& connection, const std::shared_ptr<naranja::protocol::IProtocol>& protocol)
-    : _broker(connection->Broker())
-    , _connection(connection)
+    : _connection(connection)
     , _protocol(protocol)
 {
-    _sampleEventRegistrationDisposer = _broker->RegisterEventHandler("Sample.SampleEvent", [this](const std::shared_ptr<protocol::IObjectReader>& objectReader) {
+    _sampleEventRegistrationDisposer = _connection->RegisterEventHandler("Sample.SampleEvent", [this](const std::shared_ptr<protocol::IObjectReader>& objectReader) {
         std::string value;
         generated::SampleServiceProtocol::Read_SampleEvent(*objectReader, value);
 
@@ -97,7 +95,7 @@ void naranja::generated::ClientSideSampleService::FunctionThrowingSampleExceptio
     std::promise<void> promise;
     auto future = promise.get_future();
 
-    auto disposer = _broker->RegisterFunctionResponseHandler(token, [this, &promise](const std::shared_ptr<protocol::IObjectReader>& objectReader) mutable {
+    auto disposer = _connection->RegisterFunctionResponseHandler(token, [this, &promise](const std::shared_ptr<protocol::IObjectReader>& objectReader) mutable {
         try
         {
             if (objectReader->Identifier() == "Sample.SampleException")
@@ -130,7 +128,7 @@ naranja::generated::SampleStruct naranja::generated::ClientSideSampleService::Fu
 
     naranja::generated::SampleStruct result;
 
-    auto disposer = _broker->RegisterFunctionResponseHandler(token, [this, &promise, &result](const std::shared_ptr<protocol::IObjectReader>& objectReader) mutable {
+    auto disposer = _connection->RegisterFunctionResponseHandler(token, [this, &promise, &result](const std::shared_ptr<protocol::IObjectReader>& objectReader) mutable {
         try
         {
             generated::SampleServiceProtocol::Read_FunctionReturningData_Response(*objectReader, result);

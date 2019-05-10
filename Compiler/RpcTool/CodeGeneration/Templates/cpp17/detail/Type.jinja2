@@ -23,8 +23,5 @@
 {%- elif type.name == "string" -%}
     std::string
 {%- else -%}
-    {%- if type.namespace != None -%}  
-        {{ type.namespace }}::
-    {%- endif -%}
     {{ type.name }}
 {%- endif %}
