@@ -22,8 +22,7 @@ namespace naranja
             Undefined = 0,
             FunctionCall = 1,
             FunctionResponse = 2,
-            Exception = 3,
-            Event = 4
+            Exception = 3
         };
  
         class IObjectWriter

@@ -1,7 +1,7 @@
 from naranja.parser.grammar.RemoteCallVisitor import RemoteCallVisitor
 from naranja.parser.grammar.RemoteCallParser import RemoteCallParser
 from naranja.model.Service import ServiceDeclaration, FunctionDeclaration
-from naranja.model.Types import RegularType, ListType, MapType, SetType, Argument
+from naranja.model.Types import RegularType, ListType, Argument
 from naranja.parser.visitors.ArgsVisitor import ArgsVisitor
 
 class ServiceVisitor(RemoteCallVisitor):
@@ -22,10 +22,7 @@ class ServiceVisitor(RemoteCallVisitor):
         while ctx.function(i) != None:
             function = ctx.function(i)
             parsedFunction = function.accept(self)
-            if function.Callback() != None:
-                service.callbacks.append(parsedFunction)
-            else:
-                service.functions.append(parsedFunction)
+            service.functions.append(parsedFunction)
             i += 1
     
         return service

@@ -1,4 +1,4 @@
-# Generated from ./RemoteCall.g4 by ANTLR 4.7.1
+# Generated from RemoteCall.g4 by ANTLR 4.7.1
 from antlr4 import *
 if __name__ is not None and "." in __name__:
     from .RemoteCallParser import RemoteCallParser
@@ -76,16 +76,6 @@ class RemoteCallVisitor(ParseTreeVisitor):
 
     # Visit a parse tree produced by RemoteCallParser#listType.
     def visitListType(self, ctx:RemoteCallParser.ListTypeContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by RemoteCallParser#setType.
-    def visitSetType(self, ctx:RemoteCallParser.SetTypeContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by RemoteCallParser#mapType.
-    def visitMapType(self, ctx:RemoteCallParser.MapTypeContext):
         return self.visitChildren(ctx)
 
 

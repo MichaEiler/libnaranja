@@ -27,9 +27,6 @@ naranja::rpc::ClientSideConnection::ClientSideConnection(const std::shared_ptr<p
                 case naranja::protocol::ObjectType::Exception:
                     HandleFunctionResponse(nextObject);
                     break;
-                case naranja::protocol::ObjectType::Event:
-                    HandleEvent(nextObject);
-                    break;
                 default:
                     throw core::ParseFailureException("Unknown object type.");
             }
@@ -151,21 +148,6 @@ void naranja::rpc::ClientSideConnection::HandleFunctionResponse(const std::share
     handler(objectReader);
 }
 
-void naranja::rpc::ClientSideConnection::HandleEvent(const std::shared_ptr<naranja::protocol::IObjectReader>& objectReader)
-{
-    decltype(_events)::mapped_type handler;
-    {
-        std::lock_guard<std::mutex> lock(_mutex);
-        auto it = _events.find(objectReader->Identifier());
-        if (it == _events.end())
-        {
-            throw core::ParseFailureException("Unknown identifier.");
-        }
-        handler = it->second;
-    }
-    handler(objectReader);
-}
-
 naranja::utils::Disposer naranja::rpc::ClientSideConnection::RegisterFunctionResponseHandler(const protocol::ObjectToken& token, const std::function<void(const std::shared_ptr<protocol::IObjectReader>& objectReader)>& handler)
 {
     std::lock_guard<std::mutex> lock(_mutex);
@@ -184,28 +166,6 @@ naranja::utils::Disposer naranja::rpc::ClientSideConnection::RegisterFunctionRes
         if (it != connection->_functionResponses.end())
         {
             connection->_functionResponses.erase(token);
-        }
-    });
-}
-
-naranja::utils::Disposer naranja::rpc::ClientSideConnection::RegisterEventHandler(const protocol::ObjectIdentifier& identifier, const std::function<void(const std::shared_ptr<protocol::IObjectReader>& objectReader)>& handler)
-{
-    std::lock_guard<std::mutex> lock(_mutex);
-    _events[identifier] = handler;
-
-    return naranja::utils::Disposer([weakConnection = std::weak_ptr<ClientSideConnection>(shared_from_this()), identifier](){
-        auto connection = weakConnection.lock();
-        if (!connection)
-        {
-            return;
-        }
-
-        std::lock_guard<std::mutex> lock(connection->_mutex);
-
-        auto it = connection->_events.find(identifier);
-        if (it != connection->_events.end())
-        {
-            connection->_events.erase(identifier);
         }
     });
 }

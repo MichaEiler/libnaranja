@@ -160,21 +160,3 @@ def test_ParseServices_FunctionWithAmbiguousExceptionIds_RaisesRuntimeError():
     with pytest.raises(RuntimeError):
         visitor.visit(tree)
 
-def test_ParseServices_FunctionMarkesAsCallback_SuccessfullyParsed():
-    text =  """
-            service Foo
-            {
-                [[callback]] void Bar();
-            }
-            """
-
-    definition = RpcDefinition(text)
-    tree = definition.parse()
-    
-    visitor = ServiceVisitor()
-
-    services = visitor.visit(tree)
-    assert len(services) == 1
-    assert len(services[0].callbacks) == 1
-    assert services[0].callbacks[0].name == "Bar"
-

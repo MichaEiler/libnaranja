@@ -10,18 +10,15 @@ enumeration:    Enum Identifier '{' enumerationValues '}';
 enumerationValues: Identifier ('=' Number)? (',' enumerationValues)?;
 
 service:        Service Identifier '{' function+ '}';
-function:       Callback? someType Identifier '(' args? ')' (Throws '(' args ')')? (';'|',')?;
+function:       someType Identifier '(' args? ')' (Throws '(' args ')')? (';'|',')?;
 
 declaration:    arg ';';
 args:           arg | (arg ',' args);
 arg:            Number ':' someType Identifier;
-someType:       listType | setType | mapType | regularType;
+someType:       listType | regularType;
 listType:       'list<' regularType '>';
-setType:        'set<' regularType '>';
-mapType:        'map<' regularType ',' regularType '>';
 regularType:    Identifier ('.' Identifier)?;
 
-Callback:       '[[callback]]';
 Include:        'include';
 Exception:      'exception';
 Enum:           'enum';

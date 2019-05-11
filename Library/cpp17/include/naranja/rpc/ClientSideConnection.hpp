@@ -37,7 +37,6 @@ namespace naranja
             void Flush() override { }
 
             naranja::utils::Disposer RegisterFunctionResponseHandler(const protocol::ObjectToken& token, const std::function<void(const std::shared_ptr<protocol::IObjectReader>& objectReader)>& handler);
-            naranja::utils::Disposer RegisterEventHandler(const protocol::ObjectIdentifier& identifier, const std::function<void(const std::shared_ptr<protocol::IObjectReader>& objectReader)>& handler);
 
         private:
             explicit ClientSideConnection(const std::shared_ptr<protocol::IProtocol>& protocol);
@@ -55,11 +54,8 @@ namespace naranja
             std::optional<boost::coroutines2::coroutine<void>::push_type> _processCoroutine;
 
             std::unordered_map<protocol::ObjectToken, std::function<void(const std::shared_ptr<protocol::IObjectReader>& objectReader)>> _functionResponses;
-            std::unordered_map<std::string, std::function<void(const std::shared_ptr<protocol::IObjectReader>& objectReader)>> _events;
 
             void HandleFunctionResponse(const std::shared_ptr<protocol::IObjectReader>& objectReader);
-            void HandleEvent(const std::shared_ptr<protocol::IObjectReader>& objectReader);
-
             void HandleRead();
             void ProcessData();
         };

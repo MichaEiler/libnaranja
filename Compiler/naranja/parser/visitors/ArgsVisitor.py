@@ -1,6 +1,6 @@
 from naranja.parser.grammar.RemoteCallVisitor import RemoteCallVisitor
 from naranja.parser.grammar.RemoteCallParser import RemoteCallParser
-from naranja.model.Types import RegularType, ListType, MapType, SetType, Argument
+from naranja.model.Types import RegularType, ListType, Argument
 
 class ArgsVisitor(RemoteCallVisitor):
     def visitArgs(self, ctx:RemoteCallParser.ArgsContext):
@@ -25,12 +25,8 @@ class ArgsVisitor(RemoteCallVisitor):
 
     def visitSomeType(self, ctx:RemoteCallParser.SomeTypeContext):
         if ctx.listType() != None:
-            return ListType(ctx.listType().accept(self))
-        elif ctx.mapType() != None:
-            mapNode = ctx.mapType()
-            return MapType(mapNode.regularType(0).accept(self), mapNode.regularType(1).accept(self))
-        elif ctx.setType() != None:
-            return SetType(ctx.setType().accept(self))
+            innerType = ctx.listType().regularType().accept(self);
+            return ListType(innerType)
         else:
                 return ctx.regularType().accept(self)
 

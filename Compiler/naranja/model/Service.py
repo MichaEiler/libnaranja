@@ -21,7 +21,7 @@ class FunctionDeclaration:
         self._returnType = value
 
     @property
-    def args(self)-> typing.List[Argument]:
+    def args(self) -> typing.List[Argument]:
         return self._args
 
     @args.setter
@@ -45,7 +45,6 @@ class ServiceDeclaration:
     def __init__(self, name: str):
         self._name = name
         self._functions = []
-        self._callbacks = []
 
     @property
     def name(self) -> str:
@@ -54,10 +53,6 @@ class ServiceDeclaration:
     @property
     def functions(self) -> typing.List[FunctionDeclaration]:
         return self._functions
-    
-    @property
-    def callbacks(self) -> typing.List[FunctionDeclaration]:
-        return self._callbacks
     
     def __eq__(self, other):
         return type(self) == type(other) and self.name == other.name\

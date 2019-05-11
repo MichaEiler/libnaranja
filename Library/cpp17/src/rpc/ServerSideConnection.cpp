@@ -30,8 +30,6 @@ naranja::rpc::ServerSideConnection::ServerSideConnection(boost::asio::io_service
                 [[fallthrough]];
             case naranja::protocol::ObjectType::Exception:
                 throw core::ParseFailureException("The server does not wait for function responses. Invalid object type.");
-            case naranja::protocol::ObjectType::Event:
-                throw core::ParseFailureException("The server does not listen for events. Invalid object type.");
             default:
                 throw core::ParseFailureException("Unknown object type.");
             }

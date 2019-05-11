@@ -126,57 +126,6 @@ TEST_F(ProtocolOneTestFixture, ReadObject_FunctionCall_CorrectlyParsed)
     ASSERT_STREQ(std::string(resultMember3.data(), resultMember3.size()).c_str(), expectedMember3.c_str());
 }
 
-TEST_F(ProtocolOneTestFixture, ReadObject_Event_CorrectlyParsed)
-{
-    const auto expectedObjectType = naranja::protocol::ObjectType::Event;
-    const std::string expectedIdentifier("Notification");
-    const std::uint32_t expectedNotificationType = 0x01u;
-    const std::string expectedNotificationDescription = "This is some random notification with id 1.";
-
-    const auto createEncodedFunctionCall = [&]() -> std::string {
-        std::stringstream stream;
-
-        // header
-        stream.write("\x04\x00\x00\x00", 4);                      // object type: Event
-
-        if (12u != expectedIdentifier.size())
-            throw std::invalid_argument("Test values have been tampered with.");
-        stream.write("\x0c\x00\x00\x00\x00\x00\x00\x00", 8);
-        stream.write(expectedIdentifier.data(), expectedIdentifier.size());
-
-        // object content
-        stream.write("\x01\x00\x00\x00", 4);
-
-        if (43u != expectedNotificationDescription.size())
-            throw std::invalid_argument("Test values have been tampered with.");
-        stream.write("\x2b\x00\x00\x00\x00\x00\x00\x00", 8);
-        stream.write(expectedNotificationDescription.data(), expectedNotificationDescription.size());
-
-        return stream.str();
-    };
-    
-    naranja::streams::MemoryStream memoryStream;
-    naranja::tests::BufferedInputStream bufferedInputStream(memoryStream);
-    
-    const auto encodedObject = createEncodedFunctionCall();
-    memoryStream.Write(encodedObject.data(), encodedObject.size());
-    
-    auto protocol = std::make_shared<naranja::protocol::one::Protocol>();
-    auto objectReader = protocol->ReadObject(bufferedInputStream);
-
-    ASSERT_EQ(expectedObjectType, objectReader->Type());
-    ASSERT_EQ(expectedIdentifier, objectReader->Identifier());
-
-    std::uint32_t notificationTypeResult = 0u;
-    std::string notificationDescriptionResult;
-
-    objectReader->ReadValue("", notificationTypeResult);
-    objectReader->ReadValue("", notificationDescriptionResult);
-
-    ASSERT_EQ(notificationTypeResult, expectedNotificationType);
-    ASSERT_EQ(notificationDescriptionResult, expectedNotificationDescription);
-}
-
 TEST_F(ProtocolOneTestFixture, WriteObject_FunctionCall_CorrectlySerialized)
 {
     const auto objectType = naranja::protocol::ObjectType::FunctionCall;
@@ -205,34 +154,6 @@ TEST_F(ProtocolOneTestFixture, WriteObject_FunctionCall_CorrectlySerialized)
     result.resize(resultSize);
 
     ASSERT_TRUE(result == encodedFunctionCall);
-}
-
-TEST_F(ProtocolOneTestFixture, WriteObject_Event_CorrectlySerialized)
-{
-    const auto objectType = naranja::protocol::ObjectType::Event;
-    const std::string identifier("Identifier");
-
-    const std::string encodedEvent(
-        "\x04\x00\x00\x00"
-        "\x0a\x00\x00\x00\x00\x00\x00\x00" "Identifier", 
-        sizeof(std::uint32_t) + sizeof(std::uint64_t)
-        + identifier.size());
-
-    naranja::streams::MemoryStream memoryStream(SmallCacheSize);
-    {
-        naranja::tests::BufferedOutputStream bufferedOutputStream(memoryStream);
-        auto protocol = std::make_shared<naranja::protocol::one::Protocol>();
-
-        auto object = protocol->WriteObject(bufferedOutputStream, objectType, identifier, naranja::protocol::ObjectToken(""));
-        object.reset();
-    }
-
-    std::string result;
-    result.resize(SmallCacheSize);
-    const auto resultSize = memoryStream.TryRead(&result[0], result.size());
-    result.resize(resultSize);
-
-    ASSERT_TRUE(result == encodedEvent);
 }
 
 TEST_F(ProtocolOneTestFixture, ReadValue_PrimitiveTypes_CorrectlyParsed)

@@ -28,12 +28,6 @@ public:
         result.Member2 = "What's the question?";
         return result;
     }
-
-    naranja::utils::Disposer OnSampleEvent(const std::function<void(const std::string& value)>& eventHandler) override
-    {
-        // TODO: Implement later on
-        return naranja::utils::Disposer([](){});
-    }
 };
 
 TEST_F(SampleServiceTestFixture, FunctionCall_ServiceProcessesCall_ReturnsResult)

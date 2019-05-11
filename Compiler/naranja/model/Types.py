@@ -18,45 +18,18 @@ class RegularType(BaseType):
         return type(self) == type(other) and self.name == other.name and self.namespace == other.namespace
 
 class ListType(BaseType):
-    def __init__(self, valueType: RegularType):
+    def __init__(self, valueType: BaseType):
         self._valueType = valueType
 
     @property
-    def valueType(self) -> RegularType:
-        return self._valueType
-    
-    def __eq__(self, other):
-        return type(self) == type(other) and self.valueType == other.valueType
-
-class MapType(BaseType):
-    def __init__(self, key: RegularType, valueType: RegularType):
-        self._key = key
-        self._valueType = valueType
-
-    @property
-    def key(self) -> RegularType:
-        return self._key
-
-    @property
-    def valueType(self) -> RegularType:
-        return self._valueType
-    
-    def __eq__(self, other):
-        return type(self) == type(other) and self.key == other.key and self.valueType == other.valueType
-
-class SetType(BaseType):
-    def __init__(self, valueType: RegularType):
-        self._valueType = valueType
-
-    @property
-    def valueType(self) -> RegularType:
+    def valueType(self) -> BaseType:
         return self._valueType
     
     def __eq__(self, other):
         return type(self) == type(other) and self.valueType == other.valueType
 
 class Argument:
-    def __init__(self, uniqueId: int, valueType: RegularType, name: str):
+    def __init__(self, uniqueId: int, valueType: BaseType, name: str):
         self._uniqueId = uniqueId
         self._valueType = valueType
         self._name = name
@@ -66,7 +39,7 @@ class Argument:
         return self._uniqueId
     
     @property
-    def valueType(self) -> RegularType:
+    def valueType(self) -> BaseType:
         return self._valueType
     
     @property

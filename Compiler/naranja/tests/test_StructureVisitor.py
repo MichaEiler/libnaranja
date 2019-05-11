@@ -1,6 +1,6 @@
 from TestCommon import RpcDefinition
 from naranja.model.Structure import StructureDeclaration
-from naranja.model.Types import Argument, RegularType
+from naranja.model.Types import Argument, RegularType, ListType
 from naranja.parser.visitors.TypeVisitor import StructureVisitor
 import pytest
 
@@ -11,6 +11,18 @@ def test_ParseStructure_NoStructure_EmptyResult():
     structures = visitor.visit(tree)
 
     assert len(structures) == 0
+
+def test_ParseStructure_ListMember_Parsed():
+    tree = RpcDefinition("struct A { 1:list<i64> value; }").parse()
+
+    visitor = StructureVisitor()
+    structures = visitor.visit(tree)
+
+    assert len(structures) == 1
+    assert len(structures[0].args) == 1
+    assert isinstance(structures[0].args[0].valueType, ListType)
+    assert isinstance(structures[0].args[0].valueType.valueType, RegularType)
+    assert structures[0].args[0].valueType.valueType.name == "i64"
 
 def test_ParseStructure_SingleMemberStructure_Parsed():
     tree = RpcDefinition("struct A { 1:i64 B; }").parse()

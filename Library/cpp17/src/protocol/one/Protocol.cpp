@@ -22,11 +22,7 @@ std::shared_ptr<naranja::protocol::IObjectWriter> naranja::protocol::one::Protoc
     auto objectWriter = std::make_shared<naranja::protocol::one::ObjectWriter>(stream);
 
     objectWriter->WriteValue("", static_cast<std::uint32_t>(type));
-
-    if (type != naranja::protocol::ObjectType::Event)
-    {
-        objectWriter->WriteValue("", token);
-    }
+    objectWriter->WriteValue("", token);
     objectWriter->WriteValue("", identifier);
 
     return objectWriter;
@@ -43,11 +39,7 @@ std::shared_ptr<naranja::protocol::IObjectReader> naranja::protocol::one::Protoc
     naranja::protocol::ObjectToken token("");
     naranja::protocol::ObjectIdentifier identifier("");
 
-    if (object->Type() != naranja::protocol::ObjectType::Event)
-    {
-        object->ReadValue("", token);
-    }
-    
+    object->ReadValue("", token);    
     object->ReadValue("", identifier);
 
     object->Token(token);

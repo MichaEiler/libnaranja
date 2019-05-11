@@ -48,8 +48,6 @@ namespace naranja
 
             virtual void FunctionThrowingSampleException() = 0;
             virtual SampleStruct FunctionReturningData(const SampleEnum& arg1) = 0;
-
-            virtual naranja::utils::Disposer OnSampleEvent(const std::function<void(const std::string& value)>& eventHandler) = 0;
         };
 
         class SampleServiceProtocol final
@@ -65,8 +63,6 @@ namespace naranja
             static void Write_FunctionReturningData_Response(protocol::IObjectWriter& objectWriter, const SampleStruct& arg1);
             static void Read_FunctionReturningData_Response(protocol::IObjectReader& objectReader, SampleStruct& result);
 
-            static void Write_SampleEvent(protocol::IObjectWriter& objectWriter, const std::string& value);
-            static void Read_SampleEvent(protocol::IObjectReader& objectReader, std::string& value);
             static void Write_SampleException(protocol::IObjectWriter& objectWriter, const SampleException& ex);
             static void Read_SampleException(protocol::IObjectReader& objectReader, SampleException& ex);
         };
@@ -121,19 +117,12 @@ namespace naranja
             void FunctionThrowingSampleException() override;
             SampleStruct FunctionReturningData(const SampleEnum& arg1) override;
 
-            naranja::utils::Disposer OnSampleEvent(const std::function<void(const std::string& value)>& eventHandler) override;
-
         private:
             explicit ClientSideSampleService(const std::shared_ptr<rpc::ClientSideConnection>& connection,
                 const std::shared_ptr<protocol::IProtocol>& protocol);
 
             std::shared_ptr<rpc::ClientSideConnection> _connection;
             std::shared_ptr<protocol::IProtocol> _protocol;
-
-            std::mutex _eventMutex;
-
-            naranja::utils::Disposer _sampleEventRegistrationDisposer;
-            std::unordered_map<protocol::ObjectToken, std::function<void(const std::string&)>> _sampleEventListeners;
         };
     }
 }
