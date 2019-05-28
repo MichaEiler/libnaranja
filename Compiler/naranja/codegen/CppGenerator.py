@@ -1,26 +1,35 @@
 from naranja.parser.Document import Document
-from naranja.model.Types import ListType, MapType, SetType
+from naranja.model.Types import ListType, RegularType, Argument
 from jinja2 import Template
 import typing
 import os
 import datetime
 import functools
 
-def registerTemplateFunctions(template: Template):
+def registerTemplateFunctions(generator, template: Template):
     def templateFunction_isListType(t):
         return isinstance(t, ListType)
-    def templateFunction_isMapType(t):
-        return isinstance(t, MapType)
-    def templateFunction_isSetType(t):
-        return isinstance(t, SetType)
+    def templateFunction_isEnum(generator, documentName: str, arg: RegularType):
+        return generator._templateHelper_isEnum(documentName, arg)
+    def templateFunction_getStructureArgs(generator, documentName: str, arg: RegularType):
+        return generator._templateHelper_getStructureArgs(documentName, arg)
+    def templateFunction_isPrimitive(arg: RegularType):
+        return (not isinstance(arg, ListType)) and (arg.namespace is None) and arg.isPrimitive()
+    def templateFunction_isEmpty(t):
+        return (t is None) or t == ""
+    def templateFunction_len(t):
+        return len(t)
     
     template.globals["isListType"] = templateFunction_isListType
-    template.globals["isMapType"]= templateFunction_isMapType
-    template.globals["isSetType"] = templateFunction_isSetType
+    template.globals["isEnum"] = functools.partial(templateFunction_isEnum, generator)
+    template.globals["getStructureArgs"] = functools.partial(templateFunction_getStructureArgs, generator)
+    template.globals["isEmpty"] = templateFunction_isEmpty
+    template.globals["isPrimitive"] = templateFunction_isPrimitive
+    template.globals["len"] = templateFunction_len
 
 def templateFunction_include(generator, templatePath, **parameters):
     template = Template(generator._readTemplate(templatePath))
-    registerTemplateFunctions(template)
+    registerTemplateFunctions(generator, template)
 
     includer = functools.partial(templateFunction_include, generator)
     template.globals["include"] = includer
@@ -28,11 +37,10 @@ def templateFunction_include(generator, templatePath, **parameters):
     return template.render(**parameters)
 
 class CppGenerator:
-    def __init__(self, documents: typing.List[Document], outputDirectory: str, projectName: str):
+    def __init__(self, documents: typing.List[Document], outputDirectory: str):
         self._documents = documents
         self._outputDirectory = outputDirectory
         self._templatePaths = os.path.dirname(os.path.realpath(__file__)) + "/templates/cpp17/"
-        self._projectName = projectName
     
     def _readTemplate(self, name: str):
         content = ""
@@ -40,6 +48,22 @@ class CppGenerator:
             content = file.read()
         return content
     
+    def _templateHelper_isEnum(self, documentName: str, arg: RegularType):
+        documentName = documentName if arg.namespace is None else arg.namespace
+        for document in self._documents:
+            if document.name == documentName:
+                for enumeration in document.enumerations:
+                    if enumeration.name == arg.name:
+                        return True
+        return False
+    
+    def _templateHelper_getStructureArgs(self, documentName: str, arg: RegularType):
+        documentName = documentName if arg.namespace is None else arg.namespace
+        for document in self._documents:
+            if document.name == documentName:
+                return document.getStructureArgs(arg.name)
+        raise RuntimeError("Could not resolve structure members (Unknown type).")
+
     def _writeResult(self, name: str, content: str):
         with open(self._outputDirectory + "/" + name, "w") as file:
             file.write(content)
@@ -48,24 +72,22 @@ class CppGenerator:
         includer = functools.partial(templateFunction_include, self)
 
         for document in self._documents:
-            template = Template(self._readTemplate("Service.jinja2.hpp"))
+            template = Template(self._readTemplate("Service.hpp.jinja2"))
             template.globals["include"] = includer
-            registerTemplateFunctions(template)
+            registerTemplateFunctions(self, template)
 
-            result = template.render(projectName = self._projectName,
-                                        generatorVersion = "0.0.0.3",
+            result = template.render(generatorVersion = "0.0.0.3",
                                         generatorName = "NaranjaTool",
                                         generationDate = str(datetime.datetime.today()),
                                         document = document)
             self._writeResult("{0}.hpp".format(document.name), result)
 
 
-            template = Template(self._readTemplate("Service.jinja2.cpp"))
+            template = Template(self._readTemplate("Service.cpp.jinja2"))
             template.globals["include"] = includer
-            registerTemplateFunctions(template)
+            registerTemplateFunctions(self, template)
 
-            result = template.render(projectName = self._projectName,
-                                        generatorVersion = "0.0.0.3",
+            result = template.render(generatorVersion = "0.0.0.3",
                                         generatorName = "NaranjaTool",
                                         generationDate = str(datetime.datetime.today()),
                                         document = document)

@@ -1,0 +1,170 @@
+#include "SampleService.hpp"
+
+#include <future>
+#include <naranja/protocol/IProtocol.hpp>
+#include <naranja/utils/Disposer.hpp>
+
+// -------------------------------------------------------------------------------------- DeSerialization Routines
+
+void naranja::generated::Sample::SampleServiceProtocol::Write_FunctionThrowingSampleException_Request(naranja::protocol::IObjectWriter& objectWriter)
+{
+    (void)objectWriter;
+}
+
+void naranja::generated::Sample::SampleServiceProtocol::Read_FunctionThrowingSampleException_Request(naranja::protocol::IObjectReader& objectReader)
+{
+    (void)objectReader;
+}
+
+void naranja::generated::Sample::SampleServiceProtocol::Write_FunctionThrowingSampleException_Response(naranja::protocol::IObjectWriter& objectWriter)
+{
+    (void)objectWriter;
+}
+
+void naranja::generated::Sample::SampleServiceProtocol::Read_FunctionThrowingSampleException_Response(naranja::protocol::IObjectReader& objectReader)
+{
+    (void)objectReader;
+}
+
+void naranja::generated::Sample::SampleServiceProtocol::Write_FunctionReturningData_Request(naranja::protocol::IObjectWriter& objectWriter, const naranja::generated::Sample::SampleEnum& arg1)
+{
+    objectWriter.WriteValue("arg1", static_cast<std::uint32_t>(arg1));
+}
+
+void naranja::generated::Sample::SampleServiceProtocol::Read_FunctionReturningData_Request(naranja::protocol::IObjectReader& objectReader, naranja::generated::Sample::SampleEnum& result)
+{
+    std::uint32_t arg1Encoded;
+    objectReader.ReadValue("arg1", arg1Encoded);
+    result = static_cast<naranja::generated::Sample::SampleEnum>(arg1Encoded);
+}
+
+void naranja::generated::Sample::SampleServiceProtocol::Write_FunctionReturningData_Response(naranja::protocol::IObjectWriter& objectWriter, const naranja::generated::Sample::SampleStruct& arg1)
+{
+    objectWriter.WriteValue("arg1.Member1", arg1.Member1);
+    objectWriter.WriteValue("arg1.Member2", arg1.Member2);
+}
+
+void naranja::generated::Sample::SampleServiceProtocol::Read_FunctionReturningData_Response(naranja::protocol::IObjectReader& objectReader, naranja::generated::Sample::SampleStruct& result)
+{
+    objectReader.ReadValue("arg1.Member1", result.Member1);
+    objectReader.ReadValue("arg1.Member2", result.Member2);
+}
+
+void naranja::generated::Sample::SampleServiceProtocol::Write_SampleException(protocol::IObjectWriter& objectWriter, const SampleException& ex)
+{
+    objectWriter.WriteValue("Description", ex.Description);
+}
+
+void naranja::generated::Sample::SampleServiceProtocol::Read_SampleException(protocol::IObjectReader& objectReader, SampleException& ex)
+{
+    objectReader.ReadValue("Description", ex.Description);
+}
+
+// -------------------------------------------------------------------------------------- Client Side Code
+
+naranja::generated::Sample::ClientSideSampleService::ClientSideSampleService(const std::shared_ptr<naranja::rpc::ClientSideConnection>& connection, const std::shared_ptr<naranja::protocol::IProtocol>& protocol)
+    : _connection(connection)
+    , _protocol(protocol)
+{
+}
+
+void naranja::generated::Sample::ClientSideSampleService::FunctionThrowingSampleException()
+{
+    const auto token = _protocol->CreateToken();
+
+    std::promise<void> promise;
+    auto future = promise.get_future();
+
+    auto disposer = _connection->RegisterFunctionResponseHandler(token, [this, &promise](const std::shared_ptr<protocol::IObjectReader>& objectReader) mutable {
+        try
+        {
+            if (objectReader->Identifier() == "Sample.SampleException")
+            {
+                generated::Sample::SampleException ex;
+                generated::Sample::SampleServiceProtocol::Read_SampleException(*objectReader, ex);
+                throw ex;
+            }
+            generated::Sample::SampleServiceProtocol::Read_FunctionThrowingSampleException_Response(*objectReader);
+            promise.set_value();
+        }
+        catch(...)
+        {
+            promise.set_exception(std::current_exception());
+        }
+    });
+
+    auto objectWriter = _protocol->WriteObject(*_connection, naranja::protocol::ObjectType::FunctionCall, "Sample.FunctionThrowingSampleException", token);
+    generated::Sample::SampleServiceProtocol::Write_FunctionThrowingSampleException_Request(*objectWriter);
+
+    future.get();
+}
+
+naranja::generated::Sample::SampleStruct naranja::generated::Sample::ClientSideSampleService::FunctionReturningData(const naranja::generated::Sample::SampleEnum& arg1)
+{
+    const auto token = _protocol->CreateToken();
+
+    std::promise<void> promise;
+    auto future = promise.get_future();
+
+    naranja::generated::Sample::SampleStruct result;
+
+    auto disposer = _connection->RegisterFunctionResponseHandler(token, [this, &promise, &result](const std::shared_ptr<protocol::IObjectReader>& objectReader) mutable {
+        try
+        {
+            generated::Sample::SampleServiceProtocol::Read_FunctionReturningData_Response(*objectReader, result);
+            promise.set_value();
+        }
+        catch(...)
+        {
+            promise.set_exception(std::current_exception());
+        }
+    });
+
+    auto objectWriter = _protocol->WriteObject(*_connection, naranja::protocol::ObjectType::FunctionCall, "Sample.FunctionReturningData", token);
+    generated::Sample::SampleServiceProtocol::Write_FunctionReturningData_Request(*objectWriter, arg1);
+
+    future.get();
+    return result;
+}
+
+// -------------------------------------------------------------------------------------- Server Side Code
+
+naranja::generated::Sample::ServerSideSampleService::ServerSideSampleService(const std::shared_ptr<ISampleService>& service, const std::shared_ptr<protocol::IProtocol>& protocol)
+    : _protocol(protocol)
+    , _service(service)
+{
+
+}
+
+void naranja::generated::Sample::ServerSideSampleService::FunctionThrowingSampleException(protocol::IObjectReader& object, const utils::LockableResource<streams::IBufferedOutputStream>& outputStream)
+{
+    // TODO: use threadpool
+    naranja::generated::Sample::SampleServiceProtocol::Read_FunctionThrowingSampleException_Request(object);
+    try
+    {
+        _service->FunctionThrowingSampleException();
+        auto reservedOutputStream = outputStream.Lock();
+        auto responseObject = _protocol->WriteObject(*reservedOutputStream, naranja::protocol::ObjectType::FunctionResponse, "Sample.FunctionThrowingSampleException", object.Token());
+        ::naranja::generated::Sample::SampleServiceProtocol::Write_FunctionThrowingSampleException_Response(*responseObject);
+    }
+    catch(const naranja::generated::Sample::SampleException& ex)
+    {
+        auto reservedOutputStream = outputStream.Lock();
+        auto responseObject = _protocol->WriteObject(*reservedOutputStream, naranja::protocol::ObjectType::Exception, "Sample.SampleException", object.Token());
+        naranja::generated::Sample::SampleServiceProtocol::Write_SampleException(*responseObject, ex);
+    }
+}
+
+void naranja::generated::Sample::ServerSideSampleService::FunctionReturningData(protocol::IObjectReader& object, const utils::LockableResource<streams::IBufferedOutputStream>& outputStream)
+{
+    // TODO: use threadpool
+    naranja::generated::Sample::SampleEnum arg1;
+    naranja::generated::Sample::SampleStruct result;
+
+    naranja::generated::Sample::SampleServiceProtocol::Read_FunctionReturningData_Request(object, arg1);
+    result = _service->FunctionReturningData(arg1);
+
+    auto reservedOutputStream = outputStream.Lock();
+    auto responseObject = _protocol->WriteObject(*reservedOutputStream, naranja::protocol::ObjectType::FunctionResponse, "Sample.FunctionReturningData", object.Token());
+    naranja::generated::Sample::SampleServiceProtocol::Write_FunctionReturningData_Response(*responseObject, result);
+}

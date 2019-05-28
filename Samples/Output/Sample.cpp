@@ -2,7 +2,7 @@
 
 // This code is generated. It is not recommended to manually manipulate it!
 // Generator: NaranjaTool, 0.0.0.3
-// 2019-05-17 18:41:03.648537
+// 2019-05-27 05:00:07.975357
 
 #include <future>
 #include <naranja/protocol/IProtocol.hpp>
@@ -24,43 +24,73 @@ static void Read_SampleService_FunctionThrowingSampleException_Request(naranja::
 
 static void Write_SampleService_FunctionThrowingSampleException_Response(naranja::protocol::IObjectWriter& objectWriter)
 {
+    
     (void)objectWriter;
+    
 }
 
 static void Read_SampleService_FunctionThrowingSampleException_Response(naranja::protocol::IObjectReader& objectReader)
 {
+     
     (void)objectReader;
+    
 }
-static void Write_SampleService_FunctionReturningData_Request(naranja::protocol::IObjectWriter& objectWriter, const naranja::generated::Sample::SampleEnum&arg1)
+static void Write_SampleService_FunctionReturningData_Request(naranja::protocol::IObjectWriter& objectWriter, const naranja::generated::Sample::SampleEnum& arg1)
 {
-    (void)objectWriter;
+    
+    
+objectWriter->WriteEnum("arg1", arg1);
+    
 }
 
-static void Read_SampleService_FunctionReturningData_Request(naranja::protocol::IObjectReader& objectReader, naranja::generated::Sample::SampleEnum&arg1)
+static void Read_SampleService_FunctionReturningData_Request(naranja::protocol::IObjectReader& objectReader, naranja::generated::Sample::SampleEnum& arg1)
 {
-    (void)objectReader;
+    
+    
+objectReader->ReadEnum("arg1", arg1);
+    
 }
 
 static void Write_SampleService_FunctionReturningData_Response(naranja::protocol::IObjectWriter& objectWriter, const naranja::generated::Sample::SampleStruct& returnValue)
 {
-    (void)objectWriter;
+    
+    
+{
+    auto returnValue_objectWriter = objectWriter->WriteObject("returnValue");
+returnValue_objectWriter->WriteValue("returnValue.Member1", returnValue.Member1);
+returnValue_objectWriter->WriteValue("returnValue.Member2", returnValue.Member2);
+}
+    
 }
 
 static void Read_SampleService_FunctionReturningData_Response(naranja::protocol::IObjectReader& objectReader, naranja::generated::Sample::SampleStruct& returnValue)
 {
-    (void)objectReader;
+    
+    
+{
+    auto returnValue_objectReader = objectReader->ReadObject("returnValue");
+returnValue_objectReader->ReadValue("returnValue.Member1", returnValue.Member1);
+returnValue_objectReader->ReadValue("returnValue.Member2", returnValue.Member2);
+}
+    
 }
 
 
 
 static void Write_SampleException(naranja::protocol::IObjectWriter& objectWriter, const naranja::generated::Sample::SampleException& ex)
 {
-
+    
+    
+objectWriter->WriteValue("ex.Description", ex.Description);
+    
 }
 
 static void Read_SampleException(naranja::protocol::IObjectReader& objectReader, naranja::generated::Sample::SampleException& ex)
 {
-
+    
+    
+objectReader->ReadValue("ex.Description", ex.Description);
+    
 }
 
 // -------------------------------------------------------------------------------------- Client Side Code
@@ -108,7 +138,7 @@ void naranja::generated::Sample::ClientSideSampleService::FunctionThrowingSample
     return future.get();
 }
 
-naranja::generated::Sample::SampleStruct naranja::generated::Sample::ClientSideSampleService::FunctionReturningData(const SampleEnum&arg1)
+naranja::generated::Sample::SampleStruct naranja::generated::Sample::ClientSideSampleService::FunctionReturningData(const SampleEnum& arg1)
 {
     const auto token = _protocol->CreateToken();
 
@@ -133,7 +163,7 @@ naranja::generated::Sample::SampleStruct naranja::generated::Sample::ClientSideS
 
     auto outputStream_ = _connection->ReserveOutputStream();
     auto objectWriter_ = _protocol->WriteObject(*outputStream_, naranja::protocol::ObjectType::FunctionCall, "SampleService.FunctionReturningData", token);
-    Write_SampleService_FunctionReturningData_Request(*objectWriter_, arg1);
+    Write_SampleService_FunctionReturningData_Request(*objectWriter_,  arg1);
 
     return future.get();
 }
@@ -185,10 +215,10 @@ void naranja::generated::Sample::ServerSideSampleService::FunctionReturningData(
 
     
     SampleEnum arg1;
-    Read_SampleService_FunctionReturningData_Request(object_, arg1);
+    Read_SampleService_FunctionReturningData_Request(object_,  arg1);
     try
     {
-        auto result_ =_service->FunctionReturningData(arg1);
+        auto result_ =_service->FunctionReturningData( arg1);
         auto reservedOutputStream_ = connection_->ReserveOutputStream();
         auto responseObject_ = _protocol->WriteObject(*reservedOutputStream_, naranja::protocol::ObjectType::FunctionResponse, "SampleService.FunctionReturningData", object_.Token());
         Write_SampleService_FunctionReturningData_Response(*responseObject_, result_);

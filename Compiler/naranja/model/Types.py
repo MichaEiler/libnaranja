@@ -1,14 +1,20 @@
-class BaseType:
-    pass
+import typing
 
-class RegularType(BaseType):
-    def __init__(self, name: str, namespace: str = None):
+class BaseType:
+    def __init__(self, name: str):
         self._name = name
-        self._namespace = namespace
 
     @property
     def name(self) -> str:
         return self._name
+
+    def isPrimitive(self):
+        return self._name in ["bool", "i8", "i16", "i32", "i64", "u8", "u16", "u32", "u64", "float", "double", "string", "binary"]
+
+class RegularType(BaseType):
+    def __init__(self, name: str, namespace: str = None):
+        super().__init__(name)
+        self._namespace = namespace
 
     @property
     def namespace(self) -> str:
@@ -19,6 +25,7 @@ class RegularType(BaseType):
 
 class ListType(BaseType):
     def __init__(self, valueType: BaseType):
+        super().__init__(name = "list")
         self._valueType = valueType
 
     @property

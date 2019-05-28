@@ -5,6 +5,7 @@ from naranja.model.Enumeration import EnumerationDeclaration
 from naranja.model.Include import IncludeDeclaration
 from naranja.model.Service import ServiceDeclaration
 from naranja.model.Structure import StructureDeclaration
+from naranja.model.Types import RegularType, Argument
 
 class Document:
     def __init__(self, name: str, parseTree: RemoteCallParser.DocumentContext):
@@ -69,4 +70,9 @@ class Document:
     
     def hasServices(self):
         return len(self.services) > 0
+    
+    def getStructureArgs(self, name: str) -> typing.List[Argument]:
+        for structure in self.structures:
+            return structure.args
+        raise RuntimeError("Unknown type.")
     

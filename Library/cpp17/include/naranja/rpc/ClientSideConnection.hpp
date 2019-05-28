@@ -18,7 +18,7 @@ namespace naranja
 {
     namespace rpc
     {
-        class ClientSideConnection : public std::enable_shared_from_this<ClientSideConnection>, public streams::IBufferedOutputStream
+        class ClientSideConnection : public std::enable_shared_from_this<ClientSideConnection>, private naranja::streams::IBufferedOutputStream
         {
         public:
             static std::shared_ptr<ClientSideConnection> Create(const std::shared_ptr<protocol::IProtocol>& protocol)
@@ -33,8 +33,7 @@ namespace naranja
             void Start(const std::string& serverAddress, const std::uint16_t serverPort);
             void Close();
 
-            void Write(const char* buffer, const std::size_t length) override;
-            void Flush() override { }
+            std::shared_ptr<::naranja::streams::IBufferedOutputStream> ReserveOutputStream();
 
             naranja::utils::Disposer RegisterFunctionResponseHandler(const protocol::ObjectToken& token, const std::function<void(const std::shared_ptr<protocol::IObjectReader>& objectReader)>& handler);
 
@@ -42,6 +41,7 @@ namespace naranja
             explicit ClientSideConnection(const std::shared_ptr<protocol::IProtocol>& protocol);
 
             std::mutex _mutex;
+            std::mutex _outputStreamReservationMutex;
 
             std::shared_ptr<protocol::IProtocol> _protocol;
             boost::asio::io_service _service;
@@ -58,6 +58,9 @@ namespace naranja
             void HandleFunctionResponse(const std::shared_ptr<protocol::IObjectReader>& objectReader);
             void HandleRead();
             void ProcessData();
+
+            void Write(const char* buffer, const std::size_t length) override;
+            void Flush() override { }
         };
     }
 }

@@ -1,0 +1,124 @@
+#pragma once
+
+// This code is generated. It is not recommended to manually manipulate it!
+// Generator: {{ generatorName }}, {{ generatorVersion }}
+// {{ generationDate }}
+
+#include <cstdint>
+#include <naranja/core/Exceptions.hpp>
+#include <naranja/protocol/IProtocol.hpp>
+#include <naranja/rpc/IServerSideService.hpp>
+#include <naranja/rpc/ClientSideConnection.hpp>
+#include <naranja/rpc/ServerSideConnection.hpp>
+#include <naranja/utils/Disposer.hpp>
+#include <string>
+#include <vector>
+
+{% for include in document.includes -%}
+#include "{{ include.name }}.hpp"
+{% endfor %}
+
+namespace naranja
+{
+    namespace generated
+    {
+        namespace {{ document.name }}
+        {
+            {%- for exception in document.exceptions %}
+            class {{ exception.name }} : public naranja::core::CustomRpcException
+            {
+            public:
+                {%- for arg in exception.args %}
+                {{ include("detail/Type.jinja2", type = arg.valueType) }} {{ arg.name }};
+                {%- endfor %}
+            };
+            {% endfor %}
+
+            {%- for enumeration in document.enumerations %}
+            enum class {{ enumeration.name }} : std::uint32_t
+            {
+                {%- for name, value in enumeration.values %}
+                {{ name }} = {{ value }},
+                {%- endfor %}
+            };
+            {% endfor %}
+            
+            {%- for structure in document.structures %}
+            struct {{ structure.name }}
+            {
+                {%- for arg in structure.args %}
+                {{ include("detail/Type.jinja2", type = arg.valueType) }} {{ arg.name }};
+                {%- endfor %}
+            };
+            {% endfor %}
+
+            {% for service in document.services -%}
+            class I{{ service.name }}
+            {
+            public:
+                virtual ~I{{ service.name }}() = default;
+                {% for function in service.functions %}
+                virtual {{ include("detail/Type.jinja2", type = function.returnType) }} {{ function.name }}({{ include("detail/Args.jinja2", args = function.args, const = True) }}) = 0;
+                {%- endfor %}
+            };
+
+            class ServerSide{{ service.name }} : public naranja::rpc::IServerSideService, public std::enable_shared_from_this<ServerSide{{ service.name }}>
+            {
+            public:
+                static std::shared_ptr<ServerSide{{ service.name }}> Create(const std::shared_ptr<I{{ service.name }}>& service, const std::shared_ptr<protocol::IProtocol>& protocol)
+                {
+                    return std::shared_ptr<ServerSide{{ service.name }}>(new ServerSide{{ service.name }}(service, protocol));
+                }
+
+                void RegisterNewConnection(const std::shared_ptr<rpc::ServerSideConnection>& connection) override;
+                
+            private:
+                explicit ServerSide{{ service.name }}(const std::shared_ptr<I{{ service.name }}>& service, const std::shared_ptr<protocol::IProtocol>& protocol);
+
+                void ConnectHandler(const std::shared_ptr<rpc::ServerSideConnection>& connection, const std::string& identifier,
+                    void (ServerSideSampleService::*const func)(protocol::IObjectReader&, const std::shared_ptr<naranja::rpc::ServerSideConnection>&))
+                {
+                    connection->RegisterFunctionCallHandler(identifier, [weakService = std::weak_ptr<ServerSideSampleService>(shared_from_this()), func](auto& object, const std::shared_ptr<naranja::rpc::ServerSideConnection>& connection){
+                            auto strongService = weakService.lock();
+                            if (!strongService)
+                            {
+                                return;
+                            }
+
+                            auto& objectRef = *object;
+                            (*strongService.*func)(objectRef, connection);
+                        }).Clear();
+                }
+
+                {% for function in service.functions %}
+                void {{ function.name }}(protocol::IObjectReader& object, const std::shared_ptr<naranja::rpc::ServerSideConnection>& connection);
+                {%- endfor %}
+
+                std::shared_ptr<protocol::IProtocol> _protocol;
+                std::shared_ptr<I{{ service.name }}> _service;
+            };
+
+            class ClientSide{{ service.name }} : public I{{ service.name }}, public std::enable_shared_from_this<ClientSide{{ service.name }}>
+            {
+            public:
+                static std::shared_ptr<ClientSide{{ service.name }}> Create(const std::shared_ptr<rpc::ClientSideConnection>& connection,
+                    const std::shared_ptr<protocol::IProtocol>& protocol)
+                {
+                    return std::shared_ptr<ClientSide{{ service.name }}>(new ClientSide{{ service.name }}(connection, protocol));
+                }
+                
+                {% for function in service.functions %}
+                {{ include("detail/Type.jinja2", type = function.returnType) }} {{ function.name }}({{ include("detail/Args.jinja2", args = function.args, const = True) }}) override;
+                {%- endfor %}
+
+            private:
+                explicit ClientSide{{ service.name }}(const std::shared_ptr<rpc::ClientSideConnection>& connection,
+                    const std::shared_ptr<protocol::IProtocol>& protocol);
+
+                std::shared_ptr<rpc::ClientSideConnection> _connection;
+                std::shared_ptr<protocol::IProtocol> _protocol;
+            };
+            {% endfor %}
+        }
+    }
+}

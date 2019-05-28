@@ -15,8 +15,6 @@ naranja::rpc::ServerSideConnection::ServerSideConnection(boost::asio::io_service
     _processCoroutine.emplace([this](boost::coroutines2::coroutine<void>::pull_type& yield)
     {
         streams::YieldingInputStream yieldingInputStream([&yield](){ yield(); }, _inputStream);
-        utils::LockableResource<streams::IBufferedOutputStream> lockableOutputStream{ std::weak_ptr<streams::IBufferedOutputStream>(shared_from_this()) };
-
         for (;;)
         {
             const auto nextObject = _protocol->ReadObject(yieldingInputStream);
@@ -24,7 +22,7 @@ naranja::rpc::ServerSideConnection::ServerSideConnection(boost::asio::io_service
             switch(nextObject->Type())
             {
             case naranja::protocol::ObjectType::FunctionCall:
-                HandleFunctionCall(nextObject, lockableOutputStream);
+                HandleFunctionCall(nextObject);
                 break;
             case naranja::protocol::ObjectType::FunctionResponse:
                 [[fallthrough]];
@@ -57,6 +55,27 @@ void naranja::rpc::ServerSideConnection::Stop()
         boost::system::error_code error;
         _socket.close(error);
     }
+}
+
+std::shared_ptr<::naranja::streams::IBufferedOutputStream> naranja::rpc::ServerSideConnection::ReserveOutputStream()
+{
+    struct Wrapper : public ::naranja::streams::IBufferedOutputStream
+    {
+        std::unique_lock<std::mutex> _lock;
+        std::shared_ptr<::naranja::rpc::ServerSideConnection> _connection;
+
+        explicit Wrapper(std::unique_lock<std::mutex>&& lock, const std::shared_ptr<::naranja::rpc::ServerSideConnection>& connection)
+            : _lock(std::move(lock))
+            , _connection(connection)
+        {
+        }
+
+        void Write(const char* buffer, const std::size_t length) override { _connection->Write(buffer, length); }
+        void Flush() override { _connection->Flush(); }
+    };
+
+    std::unique_lock<std::mutex> lock(_outputStreamReservationMutex);
+    return std::make_shared<Wrapper>(std::move(lock), shared_from_this());
 }
 
 void naranja::rpc::ServerSideConnection::Write(const char* buffer, const std::size_t length)
@@ -114,7 +133,7 @@ void naranja::rpc::ServerSideConnection::ProcessData()
     }
 }
 
-void naranja::rpc::ServerSideConnection::HandleFunctionCall(const std::shared_ptr<naranja::protocol::IObjectReader>& objectReader, const utils::LockableResource<streams::IBufferedOutputStream>& outputStream)
+void naranja::rpc::ServerSideConnection::HandleFunctionCall(const std::shared_ptr<naranja::protocol::IObjectReader>& objectReader)
 {
     decltype(_functionCalls)::mapped_type handler;
     {
@@ -126,11 +145,11 @@ void naranja::rpc::ServerSideConnection::HandleFunctionCall(const std::shared_pt
         }
         handler = it->second;
     }
-    handler(objectReader, outputStream);
+    handler(objectReader, shared_from_this());
 }
 
 
-naranja::utils::Disposer naranja::rpc::ServerSideConnection::RegisterFunctionCallHandler(const protocol::ObjectIdentifier& identifier, const std::function<void(const std::shared_ptr<protocol::IObjectReader>& objectReader, const utils::LockableResource<streams::IBufferedOutputStream>& outputStream)>& handler)
+naranja::utils::Disposer naranja::rpc::ServerSideConnection::RegisterFunctionCallHandler(const protocol::ObjectIdentifier& identifier, const std::function<void(const std::shared_ptr<protocol::IObjectReader>& objectReader, const std::shared_ptr<ServerSideConnection>& connection)>& handler)
 {
     std::lock_guard<std::mutex> lock(_mutex);
     _functionCalls[identifier] = handler;

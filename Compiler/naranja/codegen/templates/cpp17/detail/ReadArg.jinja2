@@ -1,0 +1,21 @@
+{%- if isPrimitive(arg) -%}
+{# case for primitives like bool, i64 but also binary and string (meaning built-ins) #}
+{{ readerName }}->ReadValue("{{ argName }}", {{ argName }});
+{%- elif isListType(arg) -%}
+{# case for lists #}
+{
+    // TODO: list type
+    std::size_t {{ argName }}_size;
+}
+{%- elif isEnum(documentName, arg) -%}
+{# case for enumerations #}
+{{ readerName }}->ReadEnum("{{ argName }}", {{ argName }});
+{%- else -%}
+{# case for structures #}
+{
+    auto {{ argName }}_{{ readerName }} = {{ readerName }}->ReadObject("{{ argName }}");
+    {%- for argMember in getStructureArgs(documentName, arg) -%}
+    {{ include("detail/ReadArg.jinja2", documentName=documentName, readerName=argName + "_" + readerName, arg=argMember.valueType, argName = argName + "." + argMember.name) }}
+    {%- endfor %}
+}
+{%- endif %}

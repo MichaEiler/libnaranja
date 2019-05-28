@@ -1,4 +1,5 @@
 {%- for arg in args -%}
-const {{ include("detail/Type.jinja2", type = arg.valueType) }}& {{ arg.name }}
+{%- if const is defined -%}const {% endif -%}
+{%- if not nameOnly is defined -%}{{ include("detail/Type.jinja2", type = arg.valueType, documentName = documentName) }}& {%- endif %} {{ arg.name }}
 {%- if not loop.last -%}, {% endif -%}
 {%- endfor -%}

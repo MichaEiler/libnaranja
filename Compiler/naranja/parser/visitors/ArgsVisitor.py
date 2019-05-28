@@ -28,7 +28,7 @@ class ArgsVisitor(RemoteCallVisitor):
             innerType = ctx.listType().regularType().accept(self);
             return ListType(innerType)
         else:
-                return ctx.regularType().accept(self)
+            return ctx.regularType().accept(self)
 
     def visitRegularType(self, ctx:RemoteCallParser.RegularTypeContext):
         if ctx.Identifier(1) == None:

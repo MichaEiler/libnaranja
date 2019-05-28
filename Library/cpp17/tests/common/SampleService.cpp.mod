@@ -2,7 +2,7 @@
 
 // This code is generated. It is not recommended to manually manipulate it!
 // Generator: NaranjaTool, 0.0.0.3
-// 2019-05-17 18:41:03.648537
+// 2019-05-14 22:20:36.137431
 
 #include <future>
 #include <naranja/protocol/IProtocol.hpp>
@@ -101,9 +101,9 @@ void naranja::generated::Sample::ClientSideSampleService::FunctionThrowingSample
         }
     });
 
-    auto outputStream_ = _connection->ReserveOutputStream();
-    auto objectWriter_ = _protocol->WriteObject(*outputStream_, naranja::protocol::ObjectType::FunctionCall, "SampleService.FunctionThrowingSampleException", token);
-    Write_SampleService_FunctionThrowingSampleException_Request(*objectWriter_);
+    auto outputStream = _connection->ReserveOutputStream();
+    auto objectWriter = _protocol->WriteObject(*outputStream, naranja::protocol::ObjectType::FunctionCall, "SampleService.FunctionThrowingSampleException", token);
+    Write_SampleService_FunctionThrowingSampleException_Request(*objectWriter);
 
     return future.get();
 }
@@ -131,9 +131,9 @@ naranja::generated::Sample::SampleStruct naranja::generated::Sample::ClientSideS
         }
     });
 
-    auto outputStream_ = _connection->ReserveOutputStream();
-    auto objectWriter_ = _protocol->WriteObject(*outputStream_, naranja::protocol::ObjectType::FunctionCall, "SampleService.FunctionReturningData", token);
-    Write_SampleService_FunctionReturningData_Request(*objectWriter_, arg1);
+    auto outputStream = _connection->ReserveOutputStream();
+    auto objectWriter = _protocol->WriteObject(*outputStream, naranja::protocol::ObjectType::FunctionCall, "SampleService.FunctionReturningData", token);
+    Write_SampleService_FunctionReturningData_Request(*objectWriter, arg1);
 
     return future.get();
 }

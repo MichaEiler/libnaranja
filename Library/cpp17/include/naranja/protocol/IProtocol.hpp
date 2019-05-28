@@ -44,6 +44,12 @@ namespace naranja
             virtual void WriteValue(const std::string_view& identifier, const std::string& value) = 0;
             virtual void WriteValue(const std::string_view& identifier, const std::vector<char>& value) = 0;
 
+            virtual void WriteEnum(const std::string_view& identifier, const std::uint32_t& enumValue) = 0;
+            template<typename TEnumValue>
+            void WriteEnum(const std::string_view& identifier, const TEnumValue& enumValue) {
+                WriteEnum(identifier, static_cast<std::uint32_t>(enumValue));
+            }
+
             virtual std::shared_ptr<IObjectWriter> WriteObject(const std::string_view& identifier) = 0;
             virtual std::shared_ptr<IObjectWriter> WriteList(const std::string_view& identifier, const std::size_t length) = 0;
 
@@ -72,6 +78,15 @@ namespace naranja
             virtual void ReadValue(const std::string_view& identifier, bool& value) = 0;
             virtual void ReadValue(const std::string_view& identifier, std::string& value) = 0;
             virtual void ReadValue(const std::string_view& identifier, std::vector<char>& value) = 0;
+
+            virtual void ReadEnum(const std::string_view& identifier, std::uint32_t& enumValue) = 0;
+            template <typename TEnumValue>
+            TEnumValue ReadEnum(const std::string_view& idnetifier)
+            {
+                std::uint32_t result = 0;
+                ReadEnum(identifier, result);
+                return static_cast<TEnumValue>(result);
+            }
 
             virtual std::shared_ptr<IObjectReader> ReadList(const std::string_view& identifier, std::size_t& itemCount) = 0;
             virtual std::shared_ptr<IObjectReader> ReadObject(const std::string_view& identifier) = 0;

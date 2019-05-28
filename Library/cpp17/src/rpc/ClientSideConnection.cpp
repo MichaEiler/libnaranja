@@ -80,6 +80,27 @@ void naranja::rpc::ClientSideConnection::Close()
     }
 }
 
+std::shared_ptr<::naranja::streams::IBufferedOutputStream> naranja::rpc::ClientSideConnection::ReserveOutputStream()
+{
+    struct Wrapper : public ::naranja::streams::IBufferedOutputStream
+    {
+        std::unique_lock<std::mutex> _lock;
+        std::shared_ptr<::naranja::rpc::ClientSideConnection> _connection;
+
+        explicit Wrapper(std::unique_lock<std::mutex>&& lock, const std::shared_ptr<::naranja::rpc::ClientSideConnection>& connection)
+            : _lock(std::move(lock))
+            , _connection(connection)
+        {
+        }
+
+        void Write(const char* buffer, const std::size_t length) override { _connection->Write(buffer, length); }
+        void Flush() override { _connection->Flush(); }
+    };
+
+    std::unique_lock<std::mutex> lock(_outputStreamReservationMutex);
+    return std::make_shared<Wrapper>(std::move(lock), shared_from_this());
+}
+
 void naranja::rpc::ClientSideConnection::Write(const char* buffer, const std::size_t length)
 {
     std::lock_guard<std::mutex> lock(_mutex);

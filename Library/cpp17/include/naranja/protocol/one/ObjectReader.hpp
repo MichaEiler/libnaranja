@@ -38,6 +38,7 @@ namespace naranja
                 void ReadValue(const std::string_view&, bool& value) override;
                 void ReadValue(const std::string_view&, std::string& value) override;
                 void ReadValue(const std::string_view&, std::vector<char>& value) override;
+                void ReadEnum(const std::string_view& identifier, std::uint32_t& enumValue) override { ReadValue(identifier, enumValue); }
 
                 std::shared_ptr<IObjectReader> ReadList(const std::string_view&, std::size_t& itemCount) override;
                 std::shared_ptr<IObjectReader> ReadObject(const std::string_view&) override;

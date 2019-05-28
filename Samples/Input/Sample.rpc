@@ -19,7 +19,4 @@ service SampleService
 {
     void FunctionThrowingSampleException() throws (1:SampleException ex);
     SampleStruct FunctionReturningData(1:SampleEnum arg1);
-
-    [[callback]]
-    void OnSampleEvent(1:string value);
 }

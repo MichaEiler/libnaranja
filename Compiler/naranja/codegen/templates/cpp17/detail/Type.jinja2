@@ -1,9 +1,5 @@
 {% if isListType(type) -%}
     std::list<{{ include("detail/Type.jinja2", type = type.valueType) }}>
-{%- elif isMapType(type) -%}
-    std::unordered_map<{{ include("detail/Type.jinja2", type = type.key) }}, {{ include("detail/Type.jinja2", type = type.valueType) }}>
-{%- elif isSetType(type) -%}
-    std::set<{{ include("detail/Type.jinja2", type = type.valueType) }}>
 {%- elif type.name == "i64" -%}
     std::int64_t
 {%- elif type.name == "i32" -%}
@@ -23,5 +19,15 @@
 {%- elif type.name == "string" -%}
     std::string
 {%- else -%}
-    {{ type.name }}
+    {%- if type.name == "void" -%}
+        void
+    {%- elif isEmpty(type.namespace) -%}
+        {%- if documentName is defined -%}
+            naranja::generated::{{ documentName }}::{{ type.name }}
+        {%- else -%}
+            {{ type.name }}
+        {%- endif -%}
+    {%- else -%}
+        naranja::generated::{{ type.namespace }}::{{ type.name }}
+    {%- endif -%}
 {%- endif %}

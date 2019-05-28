@@ -2,7 +2,7 @@
 
 // This code is generated. It is not recommended to manually manipulate it!
 // Generator: NaranjaTool, 0.0.0.3
-// 2019-05-17 18:41:03.564995
+// 2019-05-14 22:20:36.055608
 
 #include <cstdint>
 #include <naranja/core/Exceptions.hpp>
@@ -11,6 +11,7 @@
 #include <naranja/rpc/ClientSideConnection.hpp>
 #include <naranja/rpc/ServerSideConnection.hpp>
 #include <naranja/utils/Disposer.hpp>
+#include <naranja/utils/LockableResource.hpp>
 #include <string>
 #include <vector>
 
