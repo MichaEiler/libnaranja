@@ -4,10 +4,12 @@
 {%- elif isListType(arg) -%}
 {# case for lists #}
 {
-    auto {{ argName }}_{{ writerName }} = {{ writerName }}->WriteList("{{ argName }}", {{ argName }}.size());
+    {% set listWriterUnique = "writer_" + randStr() -%}
+
+    auto {{ listWriterUnique }} = {{ writerName }}->WriteList("{{ argName }}", {{ argName }}.size());
     for (std::size_t i = 0; i < {{ argName }}.size(); ++i)
     {
-        {{ include("detail/WriteArg.jinja2", documentName=documentName, writerName=argName + "_" + writerName, arg=arg.valueType, argName = argName + "[i]") }}    
+        {{ include("detail/WriteArg.jinja2", documentName=documentName, writerName=listWriterUnique, arg=arg.valueType, argName = argName + "[i]") }}    
     }
 }
 {%- elif isEnum(documentName, arg) -%}
@@ -16,9 +18,10 @@
 {%- else -%}
 {# case for structures #}
 {
-    auto {{ argName }}_{{ writerName }} = {{ writerName }}->WriteObject("{{ argName }}");
+    {% set objectWriterUnique = "writer_" + randStr() -%}
+    auto {{ objectWriterUnique }} = {{ writerName }}->WriteObject("{{ argName }}");
     {%- for argMember in getStructureArgs(documentName, arg) -%}
-    {{ include("detail/WriteArg.jinja2", documentName=documentName, writerName=argName + "_" + writerName, arg=argMember.valueType, argName = argName + "." + argMember.name) }}
+    {{ include("detail/WriteArg.jinja2", documentName=documentName, writerName=objectWriterUnique, arg=argMember.valueType, argName = argName + "." + argMember.name) }}
     {%- endfor %}
 }
 {%- endif %}

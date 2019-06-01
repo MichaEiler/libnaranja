@@ -4,18 +4,28 @@
 {%- elif isListType(arg) -%}
 {# case for lists #}
 {
-    // TODO: list type
-    std::size_t {{ argName }}_size;
+    {% set itemCountUnique = "size_" + randStr() -%}
+    {%- set listReaderUnique = "reader_" + randStr() -%}
+
+    std::size_t {{ itemCountUnique }};
+    auto {{ listReaderUnique }} = {{ readerName }}->ReadList("{{ argName }}", {{ itemCountUnique }});
+    {{ argName }}.resize({{ itemCountUnique }});
+    for (std::size_t i = 0; i < {{ itemCountUnique }}; ++i)
+    {
+        {{ include("detail/ReadArg.jinja2", documentName=documentName, readerName=listReaderUnique, arg=arg.valueType, argName = argName + "[i]") }}    
+    }
+
 }
 {%- elif isEnum(documentName, arg) -%}
 {# case for enumerations #}
-{{ readerName }}->ReadEnum("{{ argName }}", {{ argName }});
+{{ argName }} = {{ readerName }}->ReadEnum<std::remove_reference<decltype({{ argName }})>::type>("{{ argName }}");
 {%- else -%}
 {# case for structures #}
 {
-    auto {{ argName }}_{{ readerName }} = {{ readerName }}->ReadObject("{{ argName }}");
+    {% set objectReaderUnique = "reader_" + randStr() -%}
+    auto {{ objectReaderUnique }} = {{ readerName }}->ReadObject("{{ argName }}");
     {%- for argMember in getStructureArgs(documentName, arg) -%}
-    {{ include("detail/ReadArg.jinja2", documentName=documentName, readerName=argName + "_" + readerName, arg=argMember.valueType, argName = argName + "." + argMember.name) }}
+    {{ include("detail/ReadArg.jinja2", documentName=documentName, readerName=objectReaderUnique, arg=argMember.valueType, argName = argName + "." + argMember.name) }}
     {%- endfor %}
 }
 {%- endif %}

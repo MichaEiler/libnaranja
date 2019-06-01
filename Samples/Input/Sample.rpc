@@ -17,6 +17,21 @@ enum SampleEnum
 
 service SampleService
 {
-    void FunctionThrowingSampleException() throws (1:SampleException ex);
-    SampleStruct FunctionReturningData(1:SampleEnum arg1);
+    void TransmitStruct(1:SampleStruct arg);
+    void TransmitEnum(1:SampleEnum arg);
+    void TransmitInteger(1:i64 arg);
+    void TransmitString(1:string arg);
+    void TransmitBinary(1:binary arg);
+    void TransmitListOfIntegers(1:list<i64> arg);
+    void TransmitListOfStructs(1:list<SampleStruct> arg);
+
+    SampleStruct    ReceiveStruct();
+    SampleEnum      ReceiveEnum();
+    i64             ReceiveInteger();
+    string          ReceiveString();
+    binary          ReceiveBinary();
+    list<i64>       ReceiveListOfIntegers();
+    list<SampleStruct> ReceiveListOfStructs();
+
+    void CallFailingFunction() throws (1:SampleException ex);
 }

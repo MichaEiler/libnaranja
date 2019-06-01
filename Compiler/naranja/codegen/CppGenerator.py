@@ -5,6 +5,8 @@ import typing
 import os
 import datetime
 import functools
+import string
+import random
 
 def registerTemplateFunctions(generator, template: Template):
     def templateFunction_isListType(t):
@@ -19,6 +21,9 @@ def registerTemplateFunctions(generator, template: Template):
         return (t is None) or t == ""
     def templateFunction_len(t):
         return len(t)
+    def templateFunction_randStr():
+        letters = string.ascii_lowercase
+        return ''.join(random.choice(letters) for i in range(10))
     
     template.globals["isListType"] = templateFunction_isListType
     template.globals["isEnum"] = functools.partial(templateFunction_isEnum, generator)
@@ -26,6 +31,7 @@ def registerTemplateFunctions(generator, template: Template):
     template.globals["isEmpty"] = templateFunction_isEmpty
     template.globals["isPrimitive"] = templateFunction_isPrimitive
     template.globals["len"] = templateFunction_len
+    template.globals["randStr"] = templateFunction_randStr
 
 def templateFunction_include(generator, templatePath, **parameters):
     template = Template(generator._readTemplate(templatePath))

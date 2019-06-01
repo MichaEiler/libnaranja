@@ -81,7 +81,7 @@ namespace naranja
 
             virtual void ReadEnum(const std::string_view& identifier, std::uint32_t& enumValue) = 0;
             template <typename TEnumValue>
-            TEnumValue ReadEnum(const std::string_view& idnetifier)
+            TEnumValue ReadEnum(const std::string_view& identifier)
             {
                 std::uint32_t result = 0;
                 ReadEnum(identifier, result);

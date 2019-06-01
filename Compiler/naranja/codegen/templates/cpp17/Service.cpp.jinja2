@@ -1,4 +1,4 @@
-#include "SampleService.hpp"
+#include "{{ document.name }}.hpp"
 
 // This code is generated. It is not recommended to manually manipulate it!
 // Generator: {{ generatorName }}, {{ generatorVersion }}
@@ -12,7 +12,7 @@
 
 {% for service in document.services %}
 {% for function in service.functions %}
-static void Write_{{ service.name }}_{{ function.name }}_Request(naranja::protocol::IObjectWriter& objectWriter{%- if len(function.args) > 0 -%}, {{ include("detail/Args.jinja2", args = function.args, const = True, documentName = document.name) }}{%- endif -%})
+static void Write_{{ service.name }}_{{ function.name }}_Request(const std::shared_ptr<naranja::protocol::IObjectWriter>& objectWriter{%- if len(function.args) > 0 -%}, {{ include("detail/Args.jinja2", args = function.args, const = True, documentName = document.name) }}{%- endif -%})
 {
     {% if len(function.args) == 0 -%}
     (void)objectWriter;
@@ -23,7 +23,7 @@ static void Write_{{ service.name }}_{{ function.name }}_Request(naranja::protoc
     {% endfor %}
 }
 
-static void Read_{{ service.name }}_{{ function.name }}_Request(naranja::protocol::IObjectReader& objectReader{%- if len(function.args) > 0 -%}, {{ include("detail/Args.jinja2", args = function.args, documentName = document.name) }}{%- endif -%})
+static void Read_{{ service.name }}_{{ function.name }}_Request(const std::shared_ptr<naranja::protocol::IObjectReader>& objectReader{%- if len(function.args) > 0 -%}, {{ include("detail/Args.jinja2", args = function.args, documentName = document.name) }}{%- endif -%})
 {
     {% if len(function.args) == 0 -%}
     (void)objectReader;
@@ -34,7 +34,7 @@ static void Read_{{ service.name }}_{{ function.name }}_Request(naranja::protoco
     {% endfor %}
 }
 
-static void Write_{{ service.name }}_{{ function.name }}_Response(naranja::protocol::IObjectWriter& objectWriter{%- if isListType(function.returnType) or function.returnType.name != "void" -%}, const {{ include("detail/Type.jinja2", type = function.returnType, documentName = document.name) }}& returnValue{%- endif -%})
+static void Write_{{ service.name }}_{{ function.name }}_Response(const std::shared_ptr<naranja::protocol::IObjectWriter>& objectWriter{%- if isListType(function.returnType) or function.returnType.name != "void" -%}, const {{ include("detail/Type.jinja2", type = function.returnType, documentName = document.name) }}& returnValue{%- endif -%})
 {
     {% if function.returnType.name == "void" %}
     (void)objectWriter;
@@ -43,7 +43,7 @@ static void Write_{{ service.name }}_{{ function.name }}_Response(naranja::proto
     {% endif %}
 }
 
-static void Read_{{ service.name }}_{{ function.name }}_Response(naranja::protocol::IObjectReader& objectReader{%- if isListType(function.returnType) or function.returnType.name != "void" -%}, {{ include("detail/Type.jinja2", type = function.returnType, documentName = document.name) }}& returnValue{%- endif -%})
+static void Read_{{ service.name }}_{{ function.name }}_Response(const std::shared_ptr<naranja::protocol::IObjectReader>& objectReader{%- if isListType(function.returnType) or function.returnType.name != "void" -%}, {{ include("detail/Type.jinja2", type = function.returnType, documentName = document.name) }}& returnValue{%- endif -%})
 {
     {% if function.returnType.name == "void" %} 
     (void)objectReader;
@@ -55,7 +55,7 @@ static void Read_{{ service.name }}_{{ function.name }}_Response(naranja::protoc
 {% endfor %}
 
 {% for exception in document.exceptions %}
-static void Write_{{ exception.name }}(naranja::protocol::IObjectWriter& objectWriter, const naranja::generated::{{ document.name }}::{{ exception.name }}& ex)
+static void Write_{{ exception.name }}(const std::shared_ptr<naranja::protocol::IObjectWriter>& objectWriter, const naranja::generated::{{ document.name }}::{{ exception.name }}& ex)
 {
     {% if len(exception.args) == 0 -%}
     (void)objectWriter;
@@ -66,7 +66,7 @@ static void Write_{{ exception.name }}(naranja::protocol::IObjectWriter& objectW
     {% endfor %}
 }
 
-static void Read_{{ exception.name }}(naranja::protocol::IObjectReader& objectReader, naranja::generated::{{ document.name }}::{{ exception.name }}& ex)
+static void Read_{{ exception.name }}(const std::shared_ptr<naranja::protocol::IObjectReader>& objectReader, naranja::generated::{{ document.name }}::{{ exception.name }}& ex)
 {
     {% if len(exception.args) == 0 -%}
     (void)objectReader;
@@ -89,7 +89,7 @@ naranja::generated::{{ document.name }}::ClientSide{{ service.name }}::ClientSid
 }
 
 {% for function in service.functions %}
-{{ include("detail/Type.jinja2", type = function.returnType, documentName=document.name) }} naranja::generated::{{ document.name }}::ClientSide{{ service.name }}::{{ function.name }}({{ include("detail/Args.jinja2", args = function.args, const = True) }})
+{{ include("detail/Type.jinja2", type = function.returnType, documentName=document.name) }} naranja::generated::{{ document.name }}::ClientSide{{ service.name }}::{{ function.name }}({{ include("detail/Args.jinja2", args = function.args, const = True, documentName=document.name) }})
 {
     const auto token = _protocol->CreateToken();
 
@@ -100,19 +100,19 @@ naranja::generated::{{ document.name }}::ClientSide{{ service.name }}::ClientSid
         try
         {
             {% for exception in function.exceptions %}
-            if (objectReader->Identifier() == "{{ service.name }}.{{ exception.valueType.name }}")
+            if (objectReader->Identifier() == "{{ document.name }}.{{ exception.valueType.name }}")
             {
                 generated::{{ document.name }}::{{ exception.valueType.name }} ex;
-                Read_{{ exception.valueType.name }}(*objectReader, ex);
+                Read_{{ exception.valueType.name }}(objectReader, ex);
                 throw ex;
             }
             {% endfor %}
             {% if function.returnType.name == "void" %}
-            Read_{{ service.name }}_{{ function.name }}_Response(*objectReader);
+            Read_{{ service.name }}_{{ function.name }}_Response(objectReader);
             promise.set_value();
             {% else %}
             {{ include("detail/Type.jinja2", type = function.returnType) }} result;
-            Read_{{ service.name }}_{{ function.name }}_Response(*objectReader, result);
+            Read_{{ service.name }}_{{ function.name }}_Response(objectReader, result);
             promise.set_value(result);
             {% endif %}
         }
@@ -124,7 +124,7 @@ naranja::generated::{{ document.name }}::ClientSide{{ service.name }}::ClientSid
 
     auto outputStream_ = _connection->ReserveOutputStream();
     auto objectWriter_ = _protocol->WriteObject(*outputStream_, naranja::protocol::ObjectType::FunctionCall, "{{ service.name }}.{{ function.name }}", token);
-    Write_{{ service.name }}_{{ function.name }}_Request(*objectWriter_{%- if len(function.args) > 0 -%}, {{ include("detail/Args.jinja2", args = function.args, nameOnly = True) }}{%- endif -%});
+    Write_{{ service.name }}_{{ function.name }}_Request(objectWriter_{%- if len(function.args) > 0 -%}, {{ include("detail/Args.jinja2", args = function.args, nameOnly = True) }}{%- endif -%});
 
     return future.get();
 }
@@ -151,7 +151,7 @@ void naranja::generated::{{ document.name }}::ServerSide{{ service.name }}::Regi
 }
 
 {% for function in service.functions %}
-void naranja::generated::{{ document.name }}::ServerSide{{ service.name }}::{{ function.name }}(protocol::IObjectReader& object_, const std::shared_ptr<naranja::rpc::ServerSideConnection>& connection_)
+void naranja::generated::{{ document.name }}::ServerSide{{ service.name }}::{{ function.name }}(const std::shared_ptr<protocol::IObjectReader>& object_, const std::shared_ptr<naranja::rpc::ServerSideConnection>& connection_)
 {
     // TODO: use threadpool
 
@@ -165,15 +165,15 @@ void naranja::generated::{{ document.name }}::ServerSide{{ service.name }}::{{ f
         {% if function.returnType.name != "void" -%}auto result_ = {%- endif -%}
         _service->{{ function.name }}({%- if len(function.args) > 0 -%}{{ include("detail/Args.jinja2", args = function.args, nameOnly = True) }}{%- endif -%});
         auto reservedOutputStream_ = connection_->ReserveOutputStream();
-        auto responseObject_ = _protocol->WriteObject(*reservedOutputStream_, naranja::protocol::ObjectType::FunctionResponse, "{{ service.name }}.{{ function.name }}", object_.Token());
-        Write_{{ service.name }}_{{ function.name }}_Response(*responseObject_{%- if function.returnType.name != "void" -%}, result_{%- endif -%});
+        auto responseObject_ = _protocol->WriteObject(*reservedOutputStream_, naranja::protocol::ObjectType::FunctionResponse, "{{ service.name }}.{{ function.name }}", object_->Token());
+        Write_{{ service.name }}_{{ function.name }}_Response(responseObject_{%- if function.returnType.name != "void" -%}, result_{%- endif -%});
     }
     {%- for exception in function.exceptions %}
     catch (const naranja::generated::{{ document.name }}::{{exception.valueType.name}}& ex)
     {
         auto reservedOutputStream_ = connection_->ReserveOutputStream();
-        auto responseObject_ = _protocol->WriteObject(*reservedOutputStream_, naranja::protocol::ObjectType::Exception, "{{ document.name }}.{{ exception.valueType.name }}", object_.Token());
-        Write_{{ exception.valueType.name }}(*responseObject_, ex);
+        auto responseObject_ = _protocol->WriteObject(*reservedOutputStream_, naranja::protocol::ObjectType::Exception, "{{ document.name }}.{{ exception.valueType.name }}", object_->Token());
+        Write_{{ exception.valueType.name }}(responseObject_, ex);
     }
     {%- endfor %}
     catch (...)

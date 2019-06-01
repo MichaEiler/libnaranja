@@ -69,11 +69,16 @@ void naranja::rpc::Server::HandleAccept()
             _connections.insert(connection);
         }
 
+        if (_ioService.stopped())
+        {
+            return;
+        }
+
         for (auto& service : _services)
         {
             service->RegisterNewConnection(connection);
         }
-
+        
         HandleAccept();
     };
     

@@ -23,12 +23,12 @@ void naranja::protocol::one::ObjectWriter::WriteValue(const std::string_view&, c
     _stream.Write(value.data(), value.size());
 }
 
-std::shared_ptr<naranja::protocol::IObjectWriter> naranja::protocol::one::ObjectWriter::WriteObject(const std::string_view& identifier)
+std::shared_ptr<naranja::protocol::IObjectWriter> naranja::protocol::one::ObjectWriter::WriteObject(const std::string_view&)
 {
     return shared_from_this();
 }
 
-std::shared_ptr<naranja::protocol::IObjectWriter> naranja::protocol::one::ObjectWriter::WriteList(const std::string_view& identifier, const std::size_t length)
+std::shared_ptr<naranja::protocol::IObjectWriter> naranja::protocol::one::ObjectWriter::WriteList(const std::string_view&, const std::size_t length)
 {
     Write(static_cast<std::uint32_t>(length));
     return shared_from_this();

@@ -76,7 +76,7 @@ namespace naranja
                 explicit ServerSide{{ service.name }}(const std::shared_ptr<I{{ service.name }}>& service, const std::shared_ptr<protocol::IProtocol>& protocol);
 
                 void ConnectHandler(const std::shared_ptr<rpc::ServerSideConnection>& connection, const std::string& identifier,
-                    void (ServerSideSampleService::*const func)(protocol::IObjectReader&, const std::shared_ptr<naranja::rpc::ServerSideConnection>&))
+                    void (ServerSideSampleService::*const func)(const std::shared_ptr<protocol::IObjectReader>&, const std::shared_ptr<naranja::rpc::ServerSideConnection>&))
                 {
                     connection->RegisterFunctionCallHandler(identifier, [weakService = std::weak_ptr<ServerSideSampleService>(shared_from_this()), func](auto& object, const std::shared_ptr<naranja::rpc::ServerSideConnection>& connection){
                             auto strongService = weakService.lock();
@@ -85,13 +85,12 @@ namespace naranja
                                 return;
                             }
 
-                            auto& objectRef = *object;
-                            (*strongService.*func)(objectRef, connection);
+                            (*strongService.*func)(object, connection);
                         }).Clear();
                 }
 
                 {% for function in service.functions %}
-                void {{ function.name }}(protocol::IObjectReader& object, const std::shared_ptr<naranja::rpc::ServerSideConnection>& connection);
+                void {{ function.name }}(const std::shared_ptr<protocol::IObjectReader>& object, const std::shared_ptr<naranja::rpc::ServerSideConnection>& connection);
                 {%- endfor %}
 
                 std::shared_ptr<protocol::IProtocol> _protocol;
