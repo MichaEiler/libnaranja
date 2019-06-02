@@ -24,8 +24,8 @@ endif()
 
 set(BOOST_VERSION "1_70_0")
 set(BOOST_DIR "${CMAKE_SOURCE_DIR}/3rdparty/boost_${BOOST_VERSION}")
-message("BOOST_DIR: ${BOOST_DIR}")
-message("ASMEXT: ${CONTEXT_ASM_EXT}")
+#message("BOOST_DIR: ${BOOST_DIR}")
+#message("ASMEXT: ${CONTEXT_ASM_EXT}")
 
 file (GLOB BOOST_SYSTEM_HEADERS "${BOOST_DIR}/boost/system/*.hpp" "${BOOST_DIR}/boost/system/detail/*.hpp")
 file (GLOB BOOST_SYSTEM_SOURCES "${BOOST_DIR}/libs/system/src/*.cpp")

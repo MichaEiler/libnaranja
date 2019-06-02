@@ -45,52 +45,64 @@ void naranja::rpc::Server::Close()
 
 void naranja::rpc::Server::HandleAccept()
 {
-    auto connection = ServerSideConnection::Create(_ioService, _protocol);
+    if (_ioService.stopped())
+    {
+        return;
+    }
 
-    connection->OnDisconnect([weakServer = std::weak_ptr<Server>(shared_from_this()), connection](){
-        auto server = weakServer.lock();
-        if (!server)
-        {
-            return;
-        }
+    try
+    {
+        auto connection = ServerSideConnection::Create(_ioService, _protocol);
+        connection->OnDisconnect([weakServer = std::weak_ptr<Server>(shared_from_this()), connection](){
+            auto server = weakServer.lock();
+            if (!server)
+            {
+                return;
+            }
 
-        if (!server->_ioService.stopped())
-        {
-            server->_ioService.post([connection, server](){
-                server->_connections.erase(connection);
-            });
-        }
-    });
+            if (!server->_ioService.stopped())
+            {
+                server->_ioService.post([connection, server](){
+                    server->_connections.erase(connection);
+                });
+            }
+        });
 
-    auto acceptionHandler = [connection, this](const boost::system::error_code& error){
-        if (!error)
-        {
-            connection->Start();
-            _connections.insert(connection);
-        }
+        auto acceptionHandler = [connection, this](const boost::system::error_code& error){
+            if (!error)
+            {
+                connection->Start();
+                _connections.insert(connection);
+            }
 
-        if (_ioService.stopped())
-        {
-            return;
-        }
+            if (_ioService.stopped())
+            {
+                return;
+            }
 
-        for (auto& service : _services)
-        {
-            service->RegisterNewConnection(connection);
-        }
+            for (auto& service : _services)
+            {
+                service->RegisterNewConnection(connection);
+            }
+            
+            HandleAccept();
+        };
         
-        HandleAccept();
-    };
-    
-    _acceptor.async_accept(connection->Socket(), acceptionHandler);
+        _acceptor.async_accept(connection->Socket(), acceptionHandler);
+
+        }
+    catch(const std::bad_weak_ptr&)
+    {
+        return;
+    }
 }
 
 std::size_t naranja::rpc::Server::NumberOfConnections()
 {
-    auto numberOfConnections = std::make_shared<std::promise<std::size_t>>();
-    auto future = numberOfConnections->get_future();
+    auto p = std::make_shared<std::promise<std::size_t>>();
+    auto future = p->get_future();
 
-    _ioService.post([promise = std::move(numberOfConnections), &connections=_connections]() mutable {
+    _ioService.post([promise = std::move(p), &connections=_connections]() mutable {
         promise->set_value(connections.size());
     });
 

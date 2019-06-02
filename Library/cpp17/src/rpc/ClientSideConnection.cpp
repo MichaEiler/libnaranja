@@ -2,7 +2,6 @@
 
 #include <naranja/core/Exceptions.hpp>
 #include <naranja/streams/YieldingInputStream.hpp>
-#include <naranja/utils/LockableResource.hpp>
 
 #include "SetSocketOptions.hpp"
 
