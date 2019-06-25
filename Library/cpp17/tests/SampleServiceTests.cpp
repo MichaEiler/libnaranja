@@ -1,9 +1,11 @@
 #include "common/Sample.hpp"
 
+#include <future>
 #include <naranja/protocol/one/Protocol.hpp>
 #include <naranja/rpc/Server.hpp>
 #include <naranja/rpc/ClientSideConnection.hpp>
 #include <gmock/gmock.h>
+#include <iostream>
 
 constexpr std::uint16_t NetworkPortForTests = 50674u;
 
@@ -16,6 +18,8 @@ struct SampleServiceImpl : public naranja::generated::Sample::ISampleService
     std::vector<char> _argBinary;
     std::vector<std::int64_t> _argIntList;
     std::vector<naranja::generated::Sample::SampleStruct >_argStructList;
+    bool _throwLegalException = true;
+
 
     void TransmitStruct(const naranja::generated::Sample::SampleStruct& arg) override { _argStruct = arg; }
     void TransmitEnum(const naranja::generated::Sample::SampleEnum& arg) override { _argEnum = arg; }
@@ -31,7 +35,18 @@ struct SampleServiceImpl : public naranja::generated::Sample::ISampleService
     std::vector<char> ReceiveBinary() override { return _argBinary; }
     std::vector<std::int64_t> ReceiveListOfIntegers() override { return _argIntList; }
     std::vector<naranja::generated::Sample::SampleStruct> ReceiveListOfStructs() override { return _argStructList; }
-    void CallFailingFunction() override { naranja::generated::Sample::SampleException ex; ex.Description = "Ex"; throw ex; }
+    void CallFailingFunction() override { 
+        if (_throwLegalException)
+        {
+            naranja::generated::Sample::SampleException ex;
+            ex.Description = "Ex";
+            throw ex;
+        }
+        else
+        {
+            throw std::runtime_error("Exception is not defined in rpc definition of this function.");
+        }
+    }
 };
 
 class SampleServiceTestFixture : public testing::Test
@@ -45,9 +60,15 @@ protected:
     std::shared_ptr<naranja::rpc::ClientSideConnection> _client;
     std::shared_ptr<naranja::generated::Sample::ClientSideSampleService> _service;
 
+    std::promise<void> _shutdownCompletedPromise;
+    std::future<void> _shutdownCompletedFuture;
+
 public:
     void SetUp() override
     {
+        _shutdownCompletedPromise = std::promise<void>();
+        _shutdownCompletedFuture = _shutdownCompletedPromise.get_future();
+
         _serviceImpl = std::make_shared<SampleServiceImpl>();
         _protocol = std::make_shared<naranja::protocol::one::Protocol>();;
 
@@ -56,6 +77,9 @@ public:
         _server->Start();
 
         _client = naranja::rpc::ClientSideConnection::Create(_protocol);
+        _client->OnConnectionLost([this]() {
+            _shutdownCompletedPromise.set_value();
+        });
         _service = naranja::generated::Sample::ClientSideSampleService::Create(_client, _protocol);
         _client->Start("127.0.0.1", NetworkPortForTests);
     }
@@ -63,6 +87,19 @@ public:
     void TearDown() override
     {
         _service.reset();
+        if (_server && _client)
+        {
+            _server->Close();
+
+            auto result = _shutdownCompletedFuture.wait_for(std::chrono::milliseconds(10));
+            if (result == std::future_status::deferred)
+            {
+                throw std::runtime_error("Shutdown signal not received within 10 seconds.");
+            }
+            
+            _client->Close();
+        }
+
         _client.reset();
         _server.reset();
         _protocol.reset();
@@ -222,4 +259,77 @@ TEST_F(SampleServiceTestFixture, FunctionCall_CallFailingFunction_CorrectExcepti
 TEST_F(SampleServiceTestFixture, NoAction_ImmediateTearDown_NoExceptionThrown)
 {
     ASSERT_NO_THROW(TearDown());
+    std::cout << "TearDown completed" << std::endl;
+}
+
+TEST_F(SampleServiceTestFixture, FunctionCall_FunctionThrowsUndefinedException_ForwardsProtocolBaseException)
+{
+    _serviceImpl->_throwLegalException = false;
+    ASSERT_THROW(_service->CallFailingFunction(), naranja::core::ProtocolBaseException);
+}
+
+
+class SampleServiceTestFixture2 : public testing::Test
+{
+protected:
+    std::shared_ptr<SampleServiceImpl> _serviceImpl;
+
+    std::shared_ptr<naranja::protocol::IProtocol> _protocol;
+    std::shared_ptr<naranja::rpc::Server> _server;
+
+    std::shared_ptr<naranja::rpc::ClientSideConnection> _client;
+    std::shared_ptr<naranja::generated::Sample::ClientSideSampleService> _service;
+
+    std::promise<void> _shutdownCompletedPromise;
+    std::future<void> _shutdownCompletedFuture;
+
+public:
+    void SetUp() override
+    {
+        _shutdownCompletedPromise = std::promise<void>();
+        _shutdownCompletedFuture = _shutdownCompletedPromise.get_future();
+
+        _serviceImpl = std::make_shared<SampleServiceImpl>();
+        _protocol = std::make_shared<naranja::protocol::one::Protocol>();;
+
+        _server = naranja::rpc::Server::Create(_protocol, NetworkPortForTests);
+        _server->RegisterService(naranja::generated::Sample::ServerSideSampleService::Create(_serviceImpl, _protocol));
+        _server->Start();
+
+        //_client = naranja::rpc::ClientSideConnection::Create(_protocol);
+        //_client->OnConnectionLost([this]() {
+        //    _shutdownCompletedPromise.set_value();
+        //});
+        //_service = naranja::generated::Sample::ClientSideSampleService::Create(_client, _protocol);
+        //_client->Start("127.0.0.1", NetworkPortForTests);
+    }
+
+    void TearDown() override
+    {
+        _service.reset();
+        if (_server && _client)
+        {
+            _server->Close();
+
+            /*auto result = _shutdownCompletedFuture.wait_for(std::chrono::milliseconds(10));
+            if (result == std::future_status::deferred)
+            {
+                throw std::runtime_error("Shutdown signal not received within 10 seconds.");
+            }*/
+
+            //_client->Close();
+        }
+
+        _client.reset();
+        _server.reset();
+        _protocol.reset();
+        _serviceImpl.reset();
+    }
+
+};
+
+TEST_F(SampleServiceTestFixture2, MemLeakTest)
+{
+    ASSERT_NO_THROW(TearDown());
+    std::cout << "TearDown completed" << std::endl;
 }

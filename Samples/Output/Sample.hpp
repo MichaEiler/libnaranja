@@ -2,7 +2,7 @@
 
 // This code is generated. It is not recommended to manually manipulate it!
 // Generator: NaranjaTool, 0.0.0.3
-// 2019-05-28 20:16:00.209717
+// 2019-06-10 19:28:43.106973
 
 #include <cstdint>
 #include <naranja/core/Exceptions.hpp>
@@ -22,7 +22,7 @@ namespace naranja
     {
         namespace Sample
         {
-            class SampleException : public naranja::core::CustomRpcException
+            class SampleException : public naranja::core::ProtocolBaseException
             {
             public:
                 std::string Description;
@@ -51,15 +51,15 @@ namespace naranja
                 virtual void TransmitInteger(const std::int64_t& arg) = 0;
                 virtual void TransmitString(const std::string& arg) = 0;
                 virtual void TransmitBinary(const std::vector<char>& arg) = 0;
-                virtual void TransmitListOfIntegers(const std::list<std::int64_t>& arg) = 0;
-                virtual void TransmitListOfStructs(const std::list<SampleStruct>& arg) = 0;
+                virtual void TransmitListOfIntegers(const std::vector<std::int64_t>& arg) = 0;
+                virtual void TransmitListOfStructs(const std::vector<SampleStruct>& arg) = 0;
                 virtual SampleStruct ReceiveStruct() = 0;
                 virtual SampleEnum ReceiveEnum() = 0;
                 virtual std::int64_t ReceiveInteger() = 0;
                 virtual std::string ReceiveString() = 0;
                 virtual std::vector<char> ReceiveBinary() = 0;
-                virtual std::list<std::int64_t> ReceiveListOfIntegers() = 0;
-                virtual std::list<SampleStruct> ReceiveListOfStructs() = 0;
+                virtual std::vector<std::int64_t> ReceiveListOfIntegers() = 0;
+                virtual std::vector<SampleStruct> ReceiveListOfStructs() = 0;
                 virtual void CallFailingFunction() = 0;
             };
 
@@ -77,7 +77,7 @@ namespace naranja
                 explicit ServerSideSampleService(const std::shared_ptr<ISampleService>& service, const std::shared_ptr<protocol::IProtocol>& protocol);
 
                 void ConnectHandler(const std::shared_ptr<rpc::ServerSideConnection>& connection, const std::string& identifier,
-                    void (ServerSideSampleService::*const func)(protocol::IObjectReader&, const std::shared_ptr<naranja::rpc::ServerSideConnection>&))
+                    void (ServerSideSampleService::*const func)(const std::shared_ptr<protocol::IObjectReader>&, const std::shared_ptr<naranja::rpc::ServerSideConnection>&))
                 {
                     connection->RegisterFunctionCallHandler(identifier, [weakService = std::weak_ptr<ServerSideSampleService>(shared_from_this()), func](auto& object, const std::shared_ptr<naranja::rpc::ServerSideConnection>& connection){
                             auto strongService = weakService.lock();
@@ -86,27 +86,26 @@ namespace naranja
                                 return;
                             }
 
-                            auto& objectRef = *object;
-                            (*strongService.*func)(objectRef, connection);
+                            (*strongService.*func)(object, connection);
                         }).Clear();
                 }
 
                 
-                void TransmitStruct(protocol::IObjectReader& object, const std::shared_ptr<naranja::rpc::ServerSideConnection>& connection);
-                void TransmitEnum(protocol::IObjectReader& object, const std::shared_ptr<naranja::rpc::ServerSideConnection>& connection);
-                void TransmitInteger(protocol::IObjectReader& object, const std::shared_ptr<naranja::rpc::ServerSideConnection>& connection);
-                void TransmitString(protocol::IObjectReader& object, const std::shared_ptr<naranja::rpc::ServerSideConnection>& connection);
-                void TransmitBinary(protocol::IObjectReader& object, const std::shared_ptr<naranja::rpc::ServerSideConnection>& connection);
-                void TransmitListOfIntegers(protocol::IObjectReader& object, const std::shared_ptr<naranja::rpc::ServerSideConnection>& connection);
-                void TransmitListOfStructs(protocol::IObjectReader& object, const std::shared_ptr<naranja::rpc::ServerSideConnection>& connection);
-                void ReceiveStruct(protocol::IObjectReader& object, const std::shared_ptr<naranja::rpc::ServerSideConnection>& connection);
-                void ReceiveEnum(protocol::IObjectReader& object, const std::shared_ptr<naranja::rpc::ServerSideConnection>& connection);
-                void ReceiveInteger(protocol::IObjectReader& object, const std::shared_ptr<naranja::rpc::ServerSideConnection>& connection);
-                void ReceiveString(protocol::IObjectReader& object, const std::shared_ptr<naranja::rpc::ServerSideConnection>& connection);
-                void ReceiveBinary(protocol::IObjectReader& object, const std::shared_ptr<naranja::rpc::ServerSideConnection>& connection);
-                void ReceiveListOfIntegers(protocol::IObjectReader& object, const std::shared_ptr<naranja::rpc::ServerSideConnection>& connection);
-                void ReceiveListOfStructs(protocol::IObjectReader& object, const std::shared_ptr<naranja::rpc::ServerSideConnection>& connection);
-                void CallFailingFunction(protocol::IObjectReader& object, const std::shared_ptr<naranja::rpc::ServerSideConnection>& connection);
+                void TransmitStruct(const std::shared_ptr<protocol::IObjectReader>& object, const std::shared_ptr<naranja::rpc::ServerSideConnection>& connection);
+                void TransmitEnum(const std::shared_ptr<protocol::IObjectReader>& object, const std::shared_ptr<naranja::rpc::ServerSideConnection>& connection);
+                void TransmitInteger(const std::shared_ptr<protocol::IObjectReader>& object, const std::shared_ptr<naranja::rpc::ServerSideConnection>& connection);
+                void TransmitString(const std::shared_ptr<protocol::IObjectReader>& object, const std::shared_ptr<naranja::rpc::ServerSideConnection>& connection);
+                void TransmitBinary(const std::shared_ptr<protocol::IObjectReader>& object, const std::shared_ptr<naranja::rpc::ServerSideConnection>& connection);
+                void TransmitListOfIntegers(const std::shared_ptr<protocol::IObjectReader>& object, const std::shared_ptr<naranja::rpc::ServerSideConnection>& connection);
+                void TransmitListOfStructs(const std::shared_ptr<protocol::IObjectReader>& object, const std::shared_ptr<naranja::rpc::ServerSideConnection>& connection);
+                void ReceiveStruct(const std::shared_ptr<protocol::IObjectReader>& object, const std::shared_ptr<naranja::rpc::ServerSideConnection>& connection);
+                void ReceiveEnum(const std::shared_ptr<protocol::IObjectReader>& object, const std::shared_ptr<naranja::rpc::ServerSideConnection>& connection);
+                void ReceiveInteger(const std::shared_ptr<protocol::IObjectReader>& object, const std::shared_ptr<naranja::rpc::ServerSideConnection>& connection);
+                void ReceiveString(const std::shared_ptr<protocol::IObjectReader>& object, const std::shared_ptr<naranja::rpc::ServerSideConnection>& connection);
+                void ReceiveBinary(const std::shared_ptr<protocol::IObjectReader>& object, const std::shared_ptr<naranja::rpc::ServerSideConnection>& connection);
+                void ReceiveListOfIntegers(const std::shared_ptr<protocol::IObjectReader>& object, const std::shared_ptr<naranja::rpc::ServerSideConnection>& connection);
+                void ReceiveListOfStructs(const std::shared_ptr<protocol::IObjectReader>& object, const std::shared_ptr<naranja::rpc::ServerSideConnection>& connection);
+                void CallFailingFunction(const std::shared_ptr<protocol::IObjectReader>& object, const std::shared_ptr<naranja::rpc::ServerSideConnection>& connection);
 
                 std::shared_ptr<protocol::IProtocol> _protocol;
                 std::shared_ptr<ISampleService> _service;
@@ -127,15 +126,15 @@ namespace naranja
                 void TransmitInteger(const std::int64_t& arg) override;
                 void TransmitString(const std::string& arg) override;
                 void TransmitBinary(const std::vector<char>& arg) override;
-                void TransmitListOfIntegers(const std::list<std::int64_t>& arg) override;
-                void TransmitListOfStructs(const std::list<SampleStruct>& arg) override;
+                void TransmitListOfIntegers(const std::vector<std::int64_t>& arg) override;
+                void TransmitListOfStructs(const std::vector<SampleStruct>& arg) override;
                 SampleStruct ReceiveStruct() override;
                 SampleEnum ReceiveEnum() override;
                 std::int64_t ReceiveInteger() override;
                 std::string ReceiveString() override;
                 std::vector<char> ReceiveBinary() override;
-                std::list<std::int64_t> ReceiveListOfIntegers() override;
-                std::list<SampleStruct> ReceiveListOfStructs() override;
+                std::vector<std::int64_t> ReceiveListOfIntegers() override;
+                std::vector<SampleStruct> ReceiveListOfStructs() override;
                 void CallFailingFunction() override;
 
             private:

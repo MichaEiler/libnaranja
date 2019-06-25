@@ -24,6 +24,7 @@ endif()
 
 set(BOOST_VERSION "1_70_0")
 set(BOOST_DIR "${CMAKE_SOURCE_DIR}/3rdparty/boost_${BOOST_VERSION}")
+add_definitions("-DBOOST_USE_VALGRIND=1")
 #message("BOOST_DIR: ${BOOST_DIR}")
 #message("ASMEXT: ${CONTEXT_ASM_EXT}")
 

@@ -52,11 +52,16 @@ namespace naranja
             }
         };
 
-        class CustomRpcException : public std::runtime_error
+        class ProtocolBaseException : public std::runtime_error
         {
         public:
-            explicit CustomRpcException()
+            explicit ProtocolBaseException()
                 : std::runtime_error("Exception thrown which was defined by the rpc protocol definition.")
+            {
+            }
+
+            explicit ProtocolBaseException(const std::string& message)
+                : std::runtime_error(message)
             {
             }
         };

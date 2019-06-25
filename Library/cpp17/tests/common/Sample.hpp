@@ -2,7 +2,7 @@
 
 // This code is generated. It is not recommended to manually manipulate it!
 // Generator: NaranjaTool, 0.0.0.3
-// 2019-06-01 16:10:38.478335
+// 2019-06-10 19:30:59.667978
 
 #include <cstdint>
 #include <naranja/core/Exceptions.hpp>
@@ -22,7 +22,7 @@ namespace naranja
     {
         namespace Sample
         {
-            class SampleException : public naranja::core::CustomRpcException
+            class SampleException : public naranja::core::ProtocolBaseException
             {
             public:
                 std::string Description;

@@ -10,6 +10,7 @@ file (GLOB SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/streams/*.cpp"
                    "${CMAKE_SOURCE_DIR}/src/rpc/*.cpp"
                    "${CMAKE_SOURCE_DIR}/include/naranja/core/*.hpp"
                    "${CMAKE_SOURCE_DIR}/include/naranja/protocol/*.hpp"
+                   "${CMAKE_SOURCE_DIR}/include/naranja/rpc/*.hpp"
                    "${CMAKE_SOURCE_DIR}/include/naranja/streams/*.hpp"
                    "${CMAKE_SOURCE_DIR}/include/naranja/utils/*.hpp")
 

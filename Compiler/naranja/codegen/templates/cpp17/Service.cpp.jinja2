@@ -99,6 +99,12 @@ naranja::generated::{{ document.name }}::ClientSide{{ service.name }}::ClientSid
     auto disposer = _connection->RegisterFunctionResponseHandler(token, [this, &promise](const std::shared_ptr<protocol::IObjectReader>& objectReader) mutable {
         try
         {
+            if (objectReader->Identifier() == "ProtocolBaseException")
+            {
+                std::string message("");
+                objectReader->ReadValue("message", message);
+                throw naranja::core::ProtocolBaseException(message);
+            }
             {% for exception in function.exceptions %}
             if (objectReader->Identifier() == "{{ document.name }}.{{ exception.valueType.name }}")
             {
@@ -176,9 +182,17 @@ void naranja::generated::{{ document.name }}::ServerSide{{ service.name }}::{{ f
         Write_{{ exception.valueType.name }}(responseObject_, ex);
     }
     {%- endfor %}
+    catch (const std::exception& ex)
+    {
+        auto reservedOutputStream_ = connection_->ReserveOutputStream();
+        auto responseObject_ = _protocol->WriteObject(*reservedOutputStream_, naranja::protocol::ObjectType::Exception, "ProtocolBaseException", object_->Token());
+        responseObject_->WriteValue("message", std::string(ex.what()));
+    }
     catch (...)
     {
-        throw;
+        auto reservedOutputStream_ = connection_->ReserveOutputStream();
+        auto responseObject_ = _protocol->WriteObject(*reservedOutputStream_, naranja::protocol::ObjectType::Exception, "ProtocolBaseException", object_->Token());
+        responseObject_->WriteValue("message", std::string("Unkonwn exception type caught."));
     }
 }
 {%- endfor %}

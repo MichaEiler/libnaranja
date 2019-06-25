@@ -3,6 +3,7 @@
 #include <naranja/core/Exceptions.hpp>
 #include <naranja/rpc/IServerSideService.hpp>
 #include <naranja/streams/YieldingInputStream.hpp>
+#include <iostream>
 
 #include "SetSocketOptions.hpp"
 
@@ -10,9 +11,9 @@ naranja::rpc::ServerSideConnection::ServerSideConnection(boost::asio::io_service
     : _protocol(protocol)
     , _ioService(ioService)
     , _socket(ioService)
-    , _buffer(512 * 1024)
+    , _buffer(512 * 1024, '\0')
 {
-    _processCoroutine.emplace([this](boost::coroutines2::coroutine<void>::pull_type& yield)
+    _processCoroutine = std::make_shared<boost::coroutines2::coroutine<void>::push_type>([this](boost::coroutines2::coroutine<void>::pull_type& yield)
     {
         streams::YieldingInputStream yieldingInputStream([&yield](){ yield(); }, _inputStream);
         for (;;)
@@ -99,18 +100,12 @@ void naranja::rpc::ServerSideConnection::Write(const char* buffer, const std::si
 void naranja::rpc::ServerSideConnection::HandleRead()
 {
     _socket.async_receive(boost::asio::buffer(&_buffer[0], _buffer.size()), 
-        [weakConnection = std::weak_ptr<ServerSideConnection>(shared_from_this())](const boost::system::error_code& error, const std::size_t receivedBytes){
-            auto connection = weakConnection.lock();
-            if (!connection)
-            {
-                return;
-            }
-
+        [this](const boost::system::error_code& error, const std::size_t receivedBytes) {
             if (error)
             {
-                if (connection->_disconnectionHandler)
+                if (_disconnectionHandler)
                 {
-                    connection->_disconnectionHandler();
+                    _disconnectionHandler();
                 }
 
                 return;
@@ -118,10 +113,14 @@ void naranja::rpc::ServerSideConnection::HandleRead()
 
             if (receivedBytes > 0)
             {
-                connection->_inputStream.Write(connection->_buffer.data(), receivedBytes);
-                connection->ProcessData();
+                _inputStream.Write(_buffer.data(), receivedBytes);
+                ProcessData();
             }
-            connection->HandleRead();
+
+            if (!_ioService.stopped())
+            {
+                HandleRead();
+            }
         });
 }
 
@@ -147,7 +146,6 @@ void naranja::rpc::ServerSideConnection::HandleFunctionCall(const std::shared_pt
     }
     handler(objectReader, shared_from_this());
 }
-
 
 naranja::utils::Disposer naranja::rpc::ServerSideConnection::RegisterFunctionCallHandler(const protocol::ObjectIdentifier& identifier, const std::function<void(const std::shared_ptr<protocol::IObjectReader>& objectReader, const std::shared_ptr<ServerSideConnection>& connection)>& handler)
 {

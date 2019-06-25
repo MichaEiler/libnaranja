@@ -54,7 +54,7 @@ namespace naranja
             std::shared_ptr<rpc::ObjectBroker> _broker;
             std::function<void()> _disconnectionHandler;
             
-            std::optional<boost::coroutines2::coroutine<void>::push_type> _processCoroutine;
+            std::shared_ptr<boost::coroutines2::coroutine<void>::push_type> _processCoroutine;
 
             void HandleRead();
             void ProcessData();

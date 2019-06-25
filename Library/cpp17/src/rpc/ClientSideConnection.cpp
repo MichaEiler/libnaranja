@@ -119,29 +119,32 @@ void naranja::rpc::ClientSideConnection::Write(const char* buffer, const std::si
 
 void naranja::rpc::ClientSideConnection::HandleRead()
 {
-    auto readAction = [weakConnection = std::weak_ptr<ClientSideConnection>(shared_from_this())](const boost::system::error_code& error, const std::size_t receivedBytes){
-        auto connection = weakConnection.lock();
-        if (!connection)
-            return;
-
+    auto readAction = [this](const boost::system::error_code& error, const std::size_t receivedBytes){
         if (error)
         {
-            if (connection->_connectionLost)
+            if (_connectionLost)
             {
-                connection->_connectionLost();
+                _connectionLost();
             }
             return;
         }
 
         if (receivedBytes > 0)
         {
-            connection->_inputStream.Write(connection->_buffer.data(), receivedBytes);
-            connection->ProcessData();
+            _inputStream.Write(_buffer.data(), receivedBytes);
+            ProcessData();
         }
-        connection->HandleRead();
+
+        if (!_service.stopped())
+        {
+            HandleRead();
+        }
     };
 
-    _socket.async_receive(boost::asio::buffer(_buffer.data(), _buffer.size()), readAction);
+    if (!_service.stopped())
+    {
+        _socket.async_receive(boost::asio::buffer(_buffer.data(), _buffer.size()), readAction);
+    }
 }
 
 void naranja::rpc::ClientSideConnection::ProcessData()

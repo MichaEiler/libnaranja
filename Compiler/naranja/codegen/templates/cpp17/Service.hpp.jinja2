@@ -25,7 +25,7 @@ namespace naranja
         namespace {{ document.name }}
         {
             {%- for exception in document.exceptions %}
-            class {{ exception.name }} : public naranja::core::CustomRpcException
+            class {{ exception.name }} : public naranja::core::ProtocolBaseException
             {
             public:
                 {%- for arg in exception.args %}
