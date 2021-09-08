@@ -7,10 +7,10 @@
 
 #include "SetSocketOptions.hpp"
 
-naranja::rpc::ServerSideConnection::ServerSideConnection(boost::asio::io_service& ioService, const std::shared_ptr<protocol::IProtocol>& protocol)
+naranja::rpc::ServerSideConnection::ServerSideConnection(boost::asio::io_service& ioService, const std::shared_ptr<protocol::IProtocol>& protocol, boost::asio::ip::tcp::socket&& socket)
     : _protocol(protocol)
     , _ioService(ioService)
-    , _socket(ioService)
+    , _socket(std::move(socket))
     , _buffer(512 * 1024, '\0')
 {
     _processCoroutine = std::make_shared<boost::coroutines2::coroutine<void>::push_type>([this](boost::coroutines2::coroutine<void>::pull_type& yield)

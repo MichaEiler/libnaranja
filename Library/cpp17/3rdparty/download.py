@@ -86,7 +86,7 @@ if __name__ == "__main__":
 
 
     build_dependencies = [ GitRepository("https://github.com/google/googletest.git", "googletest", "master"),
-                           ZipArchive("https://dl.bintray.com/boostorg/release/1.70.0/source/boost_1_70_0.zip", "boost_1_70_0.zip", "boost_1_70_0") ]
+                           ZipArchive("https://dl.bintray.com/boostorg/release/1.71.0/source/boost_1_71_0.zip", "boost_1_71_0.zip", "boost_1_71_0") ]
 
     if args.mobile == True:
         build_dependencies.append(AndroidNdk("r19c"))

@@ -10,21 +10,9 @@
 naranja::rpc::Server::Server(const std::shared_ptr<protocol::IProtocol>& protocol, const std::uint16_t port)
     : _ioService()
     , _protocol(protocol)
-    , _acceptor()
+    , _acceptor(_ioService, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port))
+    , _socket(_ioService)
 {
-    for (int i = 0; i < 5; ++i)
-    {
-        try
-        {
-            _acceptor = std::make_shared<boost::asio::ip::tcp::acceptor>(_ioService, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port));
-            return;
-        } catch(const boost::system::system_error&)
-        {
-            continue;
-        }
-    }
-
-    throw std::runtime_error("Failed to bind socket.");
 }
 
 naranja::rpc::Server::~Server()
@@ -37,6 +25,7 @@ naranja::rpc::Server::~Server()
 
 void naranja::rpc::Server::Start()
 {
+    _acceptor.listen();
     HandleAccept();
     _ioServiceThread = std::thread([this](){
         _ioService.run();
@@ -45,6 +34,7 @@ void naranja::rpc::Server::Start()
 
 void naranja::rpc::Server::Close()
 {
+    _acceptor.close();
     if (!_ioService.stopped())
     {
         _ioService.stop();
@@ -53,58 +43,41 @@ void naranja::rpc::Server::Close()
     {
         _ioServiceThread.join();
     }
-    _acceptor->close();
     _connections.clear();
 }
 
 void naranja::rpc::Server::HandleAccept()
 {
-    if (_ioService.stopped())
-    {
-        return;
-    }
+    auto acceptionHandler = [this](const boost::system::error_code& error){
+        if (error || _ioService.stopped())
+        {
+            return;
+        }
 
-    try
-    {
-        auto connection = ServerSideConnection::Create(_ioService, _protocol);
+        auto connection = ServerSideConnection::Create(_ioService, _protocol, std::move(_socket));
+        _socket = boost::asio::ip::tcp::socket(_ioService);
 
+        connection->Start();
+        _connections.insert(connection);
+        
         connection->OnDisconnect([this, connection](){
             if (!_ioService.stopped())
             {
-                _connections.erase(connection);
-                //_ioService.post([connection, this](){
-                //    _connections.erase(connection);
-                //});
+                _ioService.post([connection, this](){
+                    _connections.erase(connection);
+                });
             }
         });
-        // todo: using shared pointers here might be unsafe
-        auto acceptionHandler = [connection, this](const boost::system::error_code& error){
-            if (!error)
-            {
-                connection->Start();
-                _connections.insert(connection);
-            }
 
-            if (_ioService.stopped())
-            {
-                return;
-            }
-
-            for (auto& service : _services)
-            {
-                service->RegisterNewConnection(connection);
-            }
-            
-            HandleAccept();
-        };
-        
-        _acceptor->async_accept(connection->Socket(), acceptionHandler);
-
+        for (auto& service : _services)
+        {
+            service->RegisterNewConnection(connection);
         }
-    catch(const std::bad_weak_ptr&)
-    {
-        return;
-    }
+        
+        HandleAccept();
+    };
+    
+    _acceptor.async_accept(_socket, acceptionHandler);
 }
 
 std::size_t naranja::rpc::Server::NumberOfConnections()

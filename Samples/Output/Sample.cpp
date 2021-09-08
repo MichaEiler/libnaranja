@@ -2,7 +2,7 @@
 
 // This code is generated. It is not recommended to manually manipulate it!
 // Generator: NaranjaTool, 0.0.0.3
-// 2019-06-10 19:28:43.509013
+// 2020-02-07 13:16:52.267757
 
 #include <future>
 #include <naranja/protocol/IProtocol.hpp>
@@ -17,9 +17,9 @@ static void Write_SampleService_TransmitStruct_Request(const std::shared_ptr<nar
     
     
 {
-    auto writer_fwhxhhrmpp = objectWriter->WriteObject("arg");
-writer_fwhxhhrmpp->WriteValue("arg.Member1", arg.Member1);
-writer_fwhxhhrmpp->WriteValue("arg.Member2", arg.Member2);
+    auto writer_csekqvmipu = objectWriter->WriteObject("arg");
+writer_csekqvmipu->WriteValue("arg.Member1", arg.Member1);
+writer_csekqvmipu->WriteValue("arg.Member2", arg.Member2);
 }
     
 }
@@ -29,9 +29,9 @@ static void Read_SampleService_TransmitStruct_Request(const std::shared_ptr<nara
     
     
 {
-    auto reader_dlssbzvmhr = objectReader->ReadObject("arg");
-reader_dlssbzvmhr->ReadValue("arg.Member1", arg.Member1);
-reader_dlssbzvmhr->ReadValue("arg.Member2", arg.Member2);
+    auto reader_ctguskcela = objectReader->ReadObject("arg");
+reader_ctguskcela->ReadValue("arg.Member1", arg.Member1);
+reader_ctguskcela->ReadValue("arg.Member2", arg.Member2);
 }
     
 }
@@ -170,11 +170,11 @@ static void Write_SampleService_TransmitListOfIntegers_Request(const std::shared
     
     
 {
-    auto writer_zsegszqmmo = objectWriter->WriteList("arg", arg.size());
+    auto writer_dksukvozox = objectWriter->WriteList("arg", arg.size());
     for (std::size_t i = 0; i < arg.size(); ++i)
     {
         
-writer_zsegszqmmo->WriteValue("arg[i]", arg[i]);    
+writer_dksukvozox->WriteValue("arg[i]", arg[i]);    
     }
 }
     
@@ -185,13 +185,13 @@ static void Read_SampleService_TransmitListOfIntegers_Request(const std::shared_
     
     
 {
-    std::size_t size_suxowjdchv;
-    auto reader_tjdljynump = objectReader->ReadList("arg", size_suxowjdchv);
-    arg.resize(size_suxowjdchv);
-    for (std::size_t i = 0; i < size_suxowjdchv; ++i)
+    std::size_t size_jnsegglbri;
+    auto reader_tundfrfhis = objectReader->ReadList("arg", size_jnsegglbri);
+    arg.resize(size_jnsegglbri);
+    for (std::size_t i = 0; i < size_jnsegglbri; ++i)
     {
         
-reader_tjdljynump->ReadValue("arg[i]", arg[i]);    
+reader_tundfrfhis->ReadValue("arg[i]", arg[i]);    
     }
 
 }
@@ -216,14 +216,14 @@ static void Write_SampleService_TransmitListOfStructs_Request(const std::shared_
     
     
 {
-    auto writer_zovimvtsbx = objectWriter->WriteList("arg", arg.size());
+    auto writer_fevnvlscxj = objectWriter->WriteList("arg", arg.size());
     for (std::size_t i = 0; i < arg.size(); ++i)
     {
         
 {
-    auto writer_hwrfetrcvb = writer_zovimvtsbx->WriteObject("arg[i]");
-writer_hwrfetrcvb->WriteValue("arg[i].Member1", arg[i].Member1);
-writer_hwrfetrcvb->WriteValue("arg[i].Member2", arg[i].Member2);
+    auto writer_ytfoekefdv = writer_fevnvlscxj->WriteObject("arg[i]");
+writer_ytfoekefdv->WriteValue("arg[i].Member1", arg[i].Member1);
+writer_ytfoekefdv->WriteValue("arg[i].Member2", arg[i].Member2);
 }    
     }
 }
@@ -235,16 +235,16 @@ static void Read_SampleService_TransmitListOfStructs_Request(const std::shared_p
     
     
 {
-    std::size_t size_nrwaizctpg;
-    auto reader_onqqjxpnog = objectReader->ReadList("arg", size_nrwaizctpg);
-    arg.resize(size_nrwaizctpg);
-    for (std::size_t i = 0; i < size_nrwaizctpg; ++i)
+    std::size_t size_teokmecydw;
+    auto reader_wzxiwxqyel = objectReader->ReadList("arg", size_teokmecydw);
+    arg.resize(size_teokmecydw);
+    for (std::size_t i = 0; i < size_teokmecydw; ++i)
     {
         
 {
-    auto reader_uszqdcjses = reader_onqqjxpnog->ReadObject("arg[i]");
-reader_uszqdcjses->ReadValue("arg[i].Member1", arg[i].Member1);
-reader_uszqdcjses->ReadValue("arg[i].Member2", arg[i].Member2);
+    auto reader_uqdacdidxo = reader_wzxiwxqyel->ReadObject("arg[i]");
+reader_uqdacdidxo->ReadValue("arg[i].Member1", arg[i].Member1);
+reader_uqdacdidxo->ReadValue("arg[i].Member2", arg[i].Member2);
 }    
     }
 
@@ -280,9 +280,9 @@ static void Write_SampleService_ReceiveStruct_Response(const std::shared_ptr<nar
     
     
 {
-    auto writer_nszqcstrsj = objectWriter->WriteObject("returnValue");
-writer_nszqcstrsj->WriteValue("returnValue.Member1", returnValue.Member1);
-writer_nszqcstrsj->WriteValue("returnValue.Member2", returnValue.Member2);
+    auto writer_ugqgsnkzqo = objectWriter->WriteObject("returnValue");
+writer_ugqgsnkzqo->WriteValue("returnValue.Member1", returnValue.Member1);
+writer_ugqgsnkzqo->WriteValue("returnValue.Member2", returnValue.Member2);
 }
     
 }
@@ -292,9 +292,9 @@ static void Read_SampleService_ReceiveStruct_Response(const std::shared_ptr<nara
     
     
 {
-    auto reader_zboqadhezl = objectReader->ReadObject("returnValue");
-reader_zboqadhezl->ReadValue("returnValue.Member1", returnValue.Member1);
-reader_zboqadhezl->ReadValue("returnValue.Member2", returnValue.Member2);
+    auto reader_eowkwedtet = objectReader->ReadObject("returnValue");
+reader_eowkwedtet->ReadValue("returnValue.Member1", returnValue.Member1);
+reader_eowkwedtet->ReadValue("returnValue.Member2", returnValue.Member2);
 }
     
 }
@@ -413,11 +413,11 @@ static void Write_SampleService_ReceiveListOfIntegers_Response(const std::shared
     
     
 {
-    auto writer_ugslrdsmcp = objectWriter->WriteList("returnValue", returnValue.size());
+    auto writer_vpcfogrvhm = objectWriter->WriteList("returnValue", returnValue.size());
     for (std::size_t i = 0; i < returnValue.size(); ++i)
     {
         
-writer_ugslrdsmcp->WriteValue("returnValue[i]", returnValue[i]);    
+writer_vpcfogrvhm->WriteValue("returnValue[i]", returnValue[i]);    
     }
 }
     
@@ -428,13 +428,13 @@ static void Read_SampleService_ReceiveListOfIntegers_Response(const std::shared_
     
     
 {
-    std::size_t size_rfdfvryoyh;
-    auto reader_vdxlbxgtyx = objectReader->ReadList("returnValue", size_rfdfvryoyh);
-    returnValue.resize(size_rfdfvryoyh);
-    for (std::size_t i = 0; i < size_rfdfvryoyh; ++i)
+    std::size_t size_nwdqgigjno;
+    auto reader_qfqiqgaqda = objectReader->ReadList("returnValue", size_nwdqgigjno);
+    returnValue.resize(size_nwdqgigjno);
+    for (std::size_t i = 0; i < size_nwdqgigjno; ++i)
     {
         
-reader_vdxlbxgtyx->ReadValue("returnValue[i]", returnValue[i]);    
+reader_qfqiqgaqda->ReadValue("returnValue[i]", returnValue[i]);    
     }
 
 }
@@ -455,14 +455,14 @@ static void Write_SampleService_ReceiveListOfStructs_Response(const std::shared_
     
     
 {
-    auto writer_rwqxpgplli = objectWriter->WriteList("returnValue", returnValue.size());
+    auto writer_vmccdyggul = objectWriter->WriteList("returnValue", returnValue.size());
     for (std::size_t i = 0; i < returnValue.size(); ++i)
     {
         
 {
-    auto writer_awxtvmqytb = writer_rwqxpgplli->WriteObject("returnValue[i]");
-writer_awxtvmqytb->WriteValue("returnValue[i].Member1", returnValue[i].Member1);
-writer_awxtvmqytb->WriteValue("returnValue[i].Member2", returnValue[i].Member2);
+    auto writer_aenazlsndv = writer_vmccdyggul->WriteObject("returnValue[i]");
+writer_aenazlsndv->WriteValue("returnValue[i].Member1", returnValue[i].Member1);
+writer_aenazlsndv->WriteValue("returnValue[i].Member2", returnValue[i].Member2);
 }    
     }
 }
@@ -474,16 +474,16 @@ static void Read_SampleService_ReceiveListOfStructs_Response(const std::shared_p
     
     
 {
-    std::size_t size_uavhwesbkj;
-    auto reader_pwmwihqjis = objectReader->ReadList("returnValue", size_uavhwesbkj);
-    returnValue.resize(size_uavhwesbkj);
-    for (std::size_t i = 0; i < size_uavhwesbkj; ++i)
+    std::size_t size_eednmxncmq;
+    auto reader_uoodpccxqt = objectReader->ReadList("returnValue", size_eednmxncmq);
+    returnValue.resize(size_eednmxncmq);
+    for (std::size_t i = 0; i < size_eednmxncmq; ++i)
     {
         
 {
-    auto reader_qdjdjwortu = reader_pwmwihqjis->ReadObject("returnValue[i]");
-reader_qdjdjwortu->ReadValue("returnValue[i].Member1", returnValue[i].Member1);
-reader_qdjdjwortu->ReadValue("returnValue[i].Member2", returnValue[i].Member2);
+    auto reader_pxosowwkjk = reader_uoodpccxqt->ReadObject("returnValue[i]");
+reader_pxosowwkjk->ReadValue("returnValue[i].Member1", returnValue[i].Member1);
+reader_pxosowwkjk->ReadValue("returnValue[i].Member2", returnValue[i].Member2);
 }    
     }
 
@@ -1129,13 +1129,13 @@ void naranja::generated::Sample::ServerSideSampleService::TransmitStruct(const s
     {
         auto reservedOutputStream_ = connection_->ReserveOutputStream();
         auto responseObject_ = _protocol->WriteObject(*reservedOutputStream_, naranja::protocol::ObjectType::Exception, "ProtocolBaseException", object_->Token());
-        responseObject->WriteValue("message", std::string(ex.what()));
+        responseObject_->WriteValue("message", std::string(ex.what()));
     }
     catch (...)
     {
         auto reservedOutputStream_ = connection_->ReserveOutputStream();
         auto responseObject_ = _protocol->WriteObject(*reservedOutputStream_, naranja::protocol::ObjectType::Exception, "ProtocolBaseException", object_->Token());
-        responseObject->WriteValue("message", std::string("Unkonwn exception type caught."));
+        responseObject_->WriteValue("message", std::string("Unkonwn exception type caught."));
     }
 }
 void naranja::generated::Sample::ServerSideSampleService::TransmitEnum(const std::shared_ptr<protocol::IObjectReader>& object_, const std::shared_ptr<naranja::rpc::ServerSideConnection>& connection_)
@@ -1156,13 +1156,13 @@ void naranja::generated::Sample::ServerSideSampleService::TransmitEnum(const std
     {
         auto reservedOutputStream_ = connection_->ReserveOutputStream();
         auto responseObject_ = _protocol->WriteObject(*reservedOutputStream_, naranja::protocol::ObjectType::Exception, "ProtocolBaseException", object_->Token());
-        responseObject->WriteValue("message", std::string(ex.what()));
+        responseObject_->WriteValue("message", std::string(ex.what()));
     }
     catch (...)
     {
         auto reservedOutputStream_ = connection_->ReserveOutputStream();
         auto responseObject_ = _protocol->WriteObject(*reservedOutputStream_, naranja::protocol::ObjectType::Exception, "ProtocolBaseException", object_->Token());
-        responseObject->WriteValue("message", std::string("Unkonwn exception type caught."));
+        responseObject_->WriteValue("message", std::string("Unkonwn exception type caught."));
     }
 }
 void naranja::generated::Sample::ServerSideSampleService::TransmitInteger(const std::shared_ptr<protocol::IObjectReader>& object_, const std::shared_ptr<naranja::rpc::ServerSideConnection>& connection_)
@@ -1183,13 +1183,13 @@ void naranja::generated::Sample::ServerSideSampleService::TransmitInteger(const 
     {
         auto reservedOutputStream_ = connection_->ReserveOutputStream();
         auto responseObject_ = _protocol->WriteObject(*reservedOutputStream_, naranja::protocol::ObjectType::Exception, "ProtocolBaseException", object_->Token());
-        responseObject->WriteValue("message", std::string(ex.what()));
+        responseObject_->WriteValue("message", std::string(ex.what()));
     }
     catch (...)
     {
         auto reservedOutputStream_ = connection_->ReserveOutputStream();
         auto responseObject_ = _protocol->WriteObject(*reservedOutputStream_, naranja::protocol::ObjectType::Exception, "ProtocolBaseException", object_->Token());
-        responseObject->WriteValue("message", std::string("Unkonwn exception type caught."));
+        responseObject_->WriteValue("message", std::string("Unkonwn exception type caught."));
     }
 }
 void naranja::generated::Sample::ServerSideSampleService::TransmitString(const std::shared_ptr<protocol::IObjectReader>& object_, const std::shared_ptr<naranja::rpc::ServerSideConnection>& connection_)
@@ -1210,13 +1210,13 @@ void naranja::generated::Sample::ServerSideSampleService::TransmitString(const s
     {
         auto reservedOutputStream_ = connection_->ReserveOutputStream();
         auto responseObject_ = _protocol->WriteObject(*reservedOutputStream_, naranja::protocol::ObjectType::Exception, "ProtocolBaseException", object_->Token());
-        responseObject->WriteValue("message", std::string(ex.what()));
+        responseObject_->WriteValue("message", std::string(ex.what()));
     }
     catch (...)
     {
         auto reservedOutputStream_ = connection_->ReserveOutputStream();
         auto responseObject_ = _protocol->WriteObject(*reservedOutputStream_, naranja::protocol::ObjectType::Exception, "ProtocolBaseException", object_->Token());
-        responseObject->WriteValue("message", std::string("Unkonwn exception type caught."));
+        responseObject_->WriteValue("message", std::string("Unkonwn exception type caught."));
     }
 }
 void naranja::generated::Sample::ServerSideSampleService::TransmitBinary(const std::shared_ptr<protocol::IObjectReader>& object_, const std::shared_ptr<naranja::rpc::ServerSideConnection>& connection_)
@@ -1237,13 +1237,13 @@ void naranja::generated::Sample::ServerSideSampleService::TransmitBinary(const s
     {
         auto reservedOutputStream_ = connection_->ReserveOutputStream();
         auto responseObject_ = _protocol->WriteObject(*reservedOutputStream_, naranja::protocol::ObjectType::Exception, "ProtocolBaseException", object_->Token());
-        responseObject->WriteValue("message", std::string(ex.what()));
+        responseObject_->WriteValue("message", std::string(ex.what()));
     }
     catch (...)
     {
         auto reservedOutputStream_ = connection_->ReserveOutputStream();
         auto responseObject_ = _protocol->WriteObject(*reservedOutputStream_, naranja::protocol::ObjectType::Exception, "ProtocolBaseException", object_->Token());
-        responseObject->WriteValue("message", std::string("Unkonwn exception type caught."));
+        responseObject_->WriteValue("message", std::string("Unkonwn exception type caught."));
     }
 }
 void naranja::generated::Sample::ServerSideSampleService::TransmitListOfIntegers(const std::shared_ptr<protocol::IObjectReader>& object_, const std::shared_ptr<naranja::rpc::ServerSideConnection>& connection_)
@@ -1264,13 +1264,13 @@ void naranja::generated::Sample::ServerSideSampleService::TransmitListOfIntegers
     {
         auto reservedOutputStream_ = connection_->ReserveOutputStream();
         auto responseObject_ = _protocol->WriteObject(*reservedOutputStream_, naranja::protocol::ObjectType::Exception, "ProtocolBaseException", object_->Token());
-        responseObject->WriteValue("message", std::string(ex.what()));
+        responseObject_->WriteValue("message", std::string(ex.what()));
     }
     catch (...)
     {
         auto reservedOutputStream_ = connection_->ReserveOutputStream();
         auto responseObject_ = _protocol->WriteObject(*reservedOutputStream_, naranja::protocol::ObjectType::Exception, "ProtocolBaseException", object_->Token());
-        responseObject->WriteValue("message", std::string("Unkonwn exception type caught."));
+        responseObject_->WriteValue("message", std::string("Unkonwn exception type caught."));
     }
 }
 void naranja::generated::Sample::ServerSideSampleService::TransmitListOfStructs(const std::shared_ptr<protocol::IObjectReader>& object_, const std::shared_ptr<naranja::rpc::ServerSideConnection>& connection_)
@@ -1291,13 +1291,13 @@ void naranja::generated::Sample::ServerSideSampleService::TransmitListOfStructs(
     {
         auto reservedOutputStream_ = connection_->ReserveOutputStream();
         auto responseObject_ = _protocol->WriteObject(*reservedOutputStream_, naranja::protocol::ObjectType::Exception, "ProtocolBaseException", object_->Token());
-        responseObject->WriteValue("message", std::string(ex.what()));
+        responseObject_->WriteValue("message", std::string(ex.what()));
     }
     catch (...)
     {
         auto reservedOutputStream_ = connection_->ReserveOutputStream();
         auto responseObject_ = _protocol->WriteObject(*reservedOutputStream_, naranja::protocol::ObjectType::Exception, "ProtocolBaseException", object_->Token());
-        responseObject->WriteValue("message", std::string("Unkonwn exception type caught."));
+        responseObject_->WriteValue("message", std::string("Unkonwn exception type caught."));
     }
 }
 void naranja::generated::Sample::ServerSideSampleService::ReceiveStruct(const std::shared_ptr<protocol::IObjectReader>& object_, const std::shared_ptr<naranja::rpc::ServerSideConnection>& connection_)
@@ -1316,13 +1316,13 @@ void naranja::generated::Sample::ServerSideSampleService::ReceiveStruct(const st
     {
         auto reservedOutputStream_ = connection_->ReserveOutputStream();
         auto responseObject_ = _protocol->WriteObject(*reservedOutputStream_, naranja::protocol::ObjectType::Exception, "ProtocolBaseException", object_->Token());
-        responseObject->WriteValue("message", std::string(ex.what()));
+        responseObject_->WriteValue("message", std::string(ex.what()));
     }
     catch (...)
     {
         auto reservedOutputStream_ = connection_->ReserveOutputStream();
         auto responseObject_ = _protocol->WriteObject(*reservedOutputStream_, naranja::protocol::ObjectType::Exception, "ProtocolBaseException", object_->Token());
-        responseObject->WriteValue("message", std::string("Unkonwn exception type caught."));
+        responseObject_->WriteValue("message", std::string("Unkonwn exception type caught."));
     }
 }
 void naranja::generated::Sample::ServerSideSampleService::ReceiveEnum(const std::shared_ptr<protocol::IObjectReader>& object_, const std::shared_ptr<naranja::rpc::ServerSideConnection>& connection_)
@@ -1341,13 +1341,13 @@ void naranja::generated::Sample::ServerSideSampleService::ReceiveEnum(const std:
     {
         auto reservedOutputStream_ = connection_->ReserveOutputStream();
         auto responseObject_ = _protocol->WriteObject(*reservedOutputStream_, naranja::protocol::ObjectType::Exception, "ProtocolBaseException", object_->Token());
-        responseObject->WriteValue("message", std::string(ex.what()));
+        responseObject_->WriteValue("message", std::string(ex.what()));
     }
     catch (...)
     {
         auto reservedOutputStream_ = connection_->ReserveOutputStream();
         auto responseObject_ = _protocol->WriteObject(*reservedOutputStream_, naranja::protocol::ObjectType::Exception, "ProtocolBaseException", object_->Token());
-        responseObject->WriteValue("message", std::string("Unkonwn exception type caught."));
+        responseObject_->WriteValue("message", std::string("Unkonwn exception type caught."));
     }
 }
 void naranja::generated::Sample::ServerSideSampleService::ReceiveInteger(const std::shared_ptr<protocol::IObjectReader>& object_, const std::shared_ptr<naranja::rpc::ServerSideConnection>& connection_)
@@ -1366,13 +1366,13 @@ void naranja::generated::Sample::ServerSideSampleService::ReceiveInteger(const s
     {
         auto reservedOutputStream_ = connection_->ReserveOutputStream();
         auto responseObject_ = _protocol->WriteObject(*reservedOutputStream_, naranja::protocol::ObjectType::Exception, "ProtocolBaseException", object_->Token());
-        responseObject->WriteValue("message", std::string(ex.what()));
+        responseObject_->WriteValue("message", std::string(ex.what()));
     }
     catch (...)
     {
         auto reservedOutputStream_ = connection_->ReserveOutputStream();
         auto responseObject_ = _protocol->WriteObject(*reservedOutputStream_, naranja::protocol::ObjectType::Exception, "ProtocolBaseException", object_->Token());
-        responseObject->WriteValue("message", std::string("Unkonwn exception type caught."));
+        responseObject_->WriteValue("message", std::string("Unkonwn exception type caught."));
     }
 }
 void naranja::generated::Sample::ServerSideSampleService::ReceiveString(const std::shared_ptr<protocol::IObjectReader>& object_, const std::shared_ptr<naranja::rpc::ServerSideConnection>& connection_)
@@ -1391,13 +1391,13 @@ void naranja::generated::Sample::ServerSideSampleService::ReceiveString(const st
     {
         auto reservedOutputStream_ = connection_->ReserveOutputStream();
         auto responseObject_ = _protocol->WriteObject(*reservedOutputStream_, naranja::protocol::ObjectType::Exception, "ProtocolBaseException", object_->Token());
-        responseObject->WriteValue("message", std::string(ex.what()));
+        responseObject_->WriteValue("message", std::string(ex.what()));
     }
     catch (...)
     {
         auto reservedOutputStream_ = connection_->ReserveOutputStream();
         auto responseObject_ = _protocol->WriteObject(*reservedOutputStream_, naranja::protocol::ObjectType::Exception, "ProtocolBaseException", object_->Token());
-        responseObject->WriteValue("message", std::string("Unkonwn exception type caught."));
+        responseObject_->WriteValue("message", std::string("Unkonwn exception type caught."));
     }
 }
 void naranja::generated::Sample::ServerSideSampleService::ReceiveBinary(const std::shared_ptr<protocol::IObjectReader>& object_, const std::shared_ptr<naranja::rpc::ServerSideConnection>& connection_)
@@ -1416,13 +1416,13 @@ void naranja::generated::Sample::ServerSideSampleService::ReceiveBinary(const st
     {
         auto reservedOutputStream_ = connection_->ReserveOutputStream();
         auto responseObject_ = _protocol->WriteObject(*reservedOutputStream_, naranja::protocol::ObjectType::Exception, "ProtocolBaseException", object_->Token());
-        responseObject->WriteValue("message", std::string(ex.what()));
+        responseObject_->WriteValue("message", std::string(ex.what()));
     }
     catch (...)
     {
         auto reservedOutputStream_ = connection_->ReserveOutputStream();
         auto responseObject_ = _protocol->WriteObject(*reservedOutputStream_, naranja::protocol::ObjectType::Exception, "ProtocolBaseException", object_->Token());
-        responseObject->WriteValue("message", std::string("Unkonwn exception type caught."));
+        responseObject_->WriteValue("message", std::string("Unkonwn exception type caught."));
     }
 }
 void naranja::generated::Sample::ServerSideSampleService::ReceiveListOfIntegers(const std::shared_ptr<protocol::IObjectReader>& object_, const std::shared_ptr<naranja::rpc::ServerSideConnection>& connection_)
@@ -1441,13 +1441,13 @@ void naranja::generated::Sample::ServerSideSampleService::ReceiveListOfIntegers(
     {
         auto reservedOutputStream_ = connection_->ReserveOutputStream();
         auto responseObject_ = _protocol->WriteObject(*reservedOutputStream_, naranja::protocol::ObjectType::Exception, "ProtocolBaseException", object_->Token());
-        responseObject->WriteValue("message", std::string(ex.what()));
+        responseObject_->WriteValue("message", std::string(ex.what()));
     }
     catch (...)
     {
         auto reservedOutputStream_ = connection_->ReserveOutputStream();
         auto responseObject_ = _protocol->WriteObject(*reservedOutputStream_, naranja::protocol::ObjectType::Exception, "ProtocolBaseException", object_->Token());
-        responseObject->WriteValue("message", std::string("Unkonwn exception type caught."));
+        responseObject_->WriteValue("message", std::string("Unkonwn exception type caught."));
     }
 }
 void naranja::generated::Sample::ServerSideSampleService::ReceiveListOfStructs(const std::shared_ptr<protocol::IObjectReader>& object_, const std::shared_ptr<naranja::rpc::ServerSideConnection>& connection_)
@@ -1466,13 +1466,13 @@ void naranja::generated::Sample::ServerSideSampleService::ReceiveListOfStructs(c
     {
         auto reservedOutputStream_ = connection_->ReserveOutputStream();
         auto responseObject_ = _protocol->WriteObject(*reservedOutputStream_, naranja::protocol::ObjectType::Exception, "ProtocolBaseException", object_->Token());
-        responseObject->WriteValue("message", std::string(ex.what()));
+        responseObject_->WriteValue("message", std::string(ex.what()));
     }
     catch (...)
     {
         auto reservedOutputStream_ = connection_->ReserveOutputStream();
         auto responseObject_ = _protocol->WriteObject(*reservedOutputStream_, naranja::protocol::ObjectType::Exception, "ProtocolBaseException", object_->Token());
-        responseObject->WriteValue("message", std::string("Unkonwn exception type caught."));
+        responseObject_->WriteValue("message", std::string("Unkonwn exception type caught."));
     }
 }
 void naranja::generated::Sample::ServerSideSampleService::CallFailingFunction(const std::shared_ptr<protocol::IObjectReader>& object_, const std::shared_ptr<naranja::rpc::ServerSideConnection>& connection_)
@@ -1497,12 +1497,12 @@ void naranja::generated::Sample::ServerSideSampleService::CallFailingFunction(co
     {
         auto reservedOutputStream_ = connection_->ReserveOutputStream();
         auto responseObject_ = _protocol->WriteObject(*reservedOutputStream_, naranja::protocol::ObjectType::Exception, "ProtocolBaseException", object_->Token());
-        responseObject->WriteValue("message", std::string(ex.what()));
+        responseObject_->WriteValue("message", std::string(ex.what()));
     }
     catch (...)
     {
         auto reservedOutputStream_ = connection_->ReserveOutputStream();
         auto responseObject_ = _protocol->WriteObject(*reservedOutputStream_, naranja::protocol::ObjectType::Exception, "ProtocolBaseException", object_->Token());
-        responseObject->WriteValue("message", std::string("Unkonwn exception type caught."));
+        responseObject_->WriteValue("message", std::string("Unkonwn exception type caught."));
     }
 }

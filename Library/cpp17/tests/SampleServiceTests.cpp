@@ -296,12 +296,12 @@ public:
         _server->RegisterService(naranja::generated::Sample::ServerSideSampleService::Create(_serviceImpl, _protocol));
         _server->Start();
 
-        //_client = naranja::rpc::ClientSideConnection::Create(_protocol);
-        //_client->OnConnectionLost([this]() {
-        //    _shutdownCompletedPromise.set_value();
-        //});
-        //_service = naranja::generated::Sample::ClientSideSampleService::Create(_client, _protocol);
-        //_client->Start("127.0.0.1", NetworkPortForTests);
+        _client = naranja::rpc::ClientSideConnection::Create(_protocol);
+        _client->OnConnectionLost([this]() {
+            _shutdownCompletedPromise.set_value();
+        });
+        _service = naranja::generated::Sample::ClientSideSampleService::Create(_client, _protocol);
+        _client->Start("127.0.0.1", NetworkPortForTests);
     }
 
     void TearDown() override
@@ -331,5 +331,7 @@ public:
 TEST_F(SampleServiceTestFixture2, MemLeakTest)
 {
     ASSERT_NO_THROW(TearDown());
+    std::this_thread::sleep_for(std::chrono::milliseconds(50));
     std::cout << "TearDown completed" << std::endl;
 }
+

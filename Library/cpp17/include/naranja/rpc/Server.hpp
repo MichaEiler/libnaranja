@@ -43,7 +43,8 @@ namespace naranja
             explicit Server(const std::shared_ptr<protocol::IProtocol>& protocol, const std::uint16_t port);
 
             boost::asio::io_service _ioService;
-            std::shared_ptr<boost::asio::ip::tcp::acceptor> _acceptor;
+            boost::asio::ip::tcp::acceptor _acceptor;
+            boost::asio::ip::tcp::socket _socket;
             std::thread _ioServiceThread;
 
             std::shared_ptr<protocol::IProtocol> _protocol;

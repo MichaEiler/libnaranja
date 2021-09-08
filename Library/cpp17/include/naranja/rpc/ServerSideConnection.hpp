@@ -23,9 +23,9 @@ namespace naranja
         class ServerSideConnection : public std::enable_shared_from_this<ServerSideConnection>, private streams::IBufferedOutputStream
         {
         public:
-            static std::shared_ptr<ServerSideConnection> Create(boost::asio::io_service& ioService, const std::shared_ptr<protocol::IProtocol>& protocol)
+            static std::shared_ptr<ServerSideConnection> Create(boost::asio::io_service& ioService, const std::shared_ptr<protocol::IProtocol>& protocol, boost::asio::ip::tcp::socket&& socket)
             {
-                return std::shared_ptr<ServerSideConnection>(new ServerSideConnection(ioService, protocol));
+                return std::shared_ptr<ServerSideConnection>(new ServerSideConnection(ioService, protocol, std::move(socket)));
             }
 
             ~ServerSideConnection();
@@ -41,7 +41,7 @@ namespace naranja
             naranja::utils::Disposer RegisterFunctionCallHandler(const protocol::ObjectIdentifier& identifier, const std::function<void(const std::shared_ptr<protocol::IObjectReader>& objectReader, const std::shared_ptr<ServerSideConnection>& connection)>& handler);
 
         private:
-            explicit ServerSideConnection(boost::asio::io_service& ioService, const std::shared_ptr<protocol::IProtocol>& protocol);
+            explicit ServerSideConnection(boost::asio::io_service& ioService, const std::shared_ptr<protocol::IProtocol>& protocol, boost::asio::ip::tcp::socket&& socket);
 
             std::mutex _mutex;
             std::mutex _outputStreamReservationMutex;

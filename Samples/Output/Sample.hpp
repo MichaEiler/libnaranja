@@ -2,7 +2,7 @@
 
 // This code is generated. It is not recommended to manually manipulate it!
 // Generator: NaranjaTool, 0.0.0.3
-// 2019-06-10 19:28:43.106973
+// 2020-02-07 13:16:51.809498
 
 #include <cstdint>
 #include <naranja/core/Exceptions.hpp>
